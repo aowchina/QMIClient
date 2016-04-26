@@ -80,8 +80,7 @@
     [defaultCenter addObserver:self selector:@selector(changeTabBarSelectedController:) name:@"change" object:nil];
     [defaultCenter addObserver:self selector:@selector(gestureChangeTabBarSelectedController:) name:@"change1" object:nil];
     [defaultCenter addObserver:self selector:@selector(groupChangSelectController:) name:@"changeGroup" object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
+    [defaultCenter addObserver:self selector:@selector(mineChangSelectController:) name:@"minechange" object:nil];
 
     [SMSSDK registerApp:kShardAppKey
               withSecret:kShardSecret];
@@ -483,7 +482,15 @@
         [_tabBarController setSelectedIndex:2];
     }
 }
+- (void)mineChangSelectController:(NSNotification *)info {
 
+    if ([[info.userInfo valueForKey:@"mine"] isEqualToString:@"mine"]) {
+        
+        _tabBarController.selectedViewController = _mainNavigation;
+        [_tabBarController setSelectedIndex:3];
+        
+    }
+}
 
 
 

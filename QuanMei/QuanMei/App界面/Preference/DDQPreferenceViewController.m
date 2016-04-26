@@ -183,9 +183,8 @@
 }
 
 -(void)pushToMineViewController {
-    DDQMineViewController *mineVC = [[DDQMineViewController alloc] init];
-    mineVC.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:mineVC animated:YES];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
+
 }
 
 #pragma mark - 网络相关

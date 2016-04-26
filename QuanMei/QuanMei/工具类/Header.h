@@ -220,7 +220,6 @@
 #define kErrorDes @"当前网络连接异常"
 #define kScreenHeight [[UIScreen mainScreen] bounds].size.height
 #define kScreenWidth [UIScreen mainScreen].bounds.size.width
-#define kTextColor [UIColor colorWithRed:153.0f/255.0f green:153.0f/255.0f blue:153.0f/255.0f alpha:1.0f]
 
 #import "UIColor+DDQColorTool.h"
 #import "Masonry.h"
@@ -246,7 +245,7 @@
 #import "DDQNetWork.h"
 #import "MBProgressHUD+EBUsHUD.h"
 #import "APService.h"
-#import "NSString+DDQStringRect.h"
+
 
 //10-29
 #import "DDQPublic.h"

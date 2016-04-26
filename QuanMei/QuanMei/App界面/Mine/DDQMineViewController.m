@@ -21,7 +21,7 @@
 #import "DDQMyLessonViewController.h"
 #import "DDQUserInfoModel.h"
 #import "DDQMineInfoModel.h"
-#import "DDQNewOrderListController.h"
+
 #import "DDQMineTableViewCell.h"
 
 #import "DDQOrderViewController.h"
@@ -96,9 +96,9 @@
 
 //11-30-15
 - (void)viewDidLoad {
-    
     [super viewDidLoad];
     
+    //    self.hidesBottomBarWhenPushed = YES;
     [self setNavigationBar];
     self.mineInfoModel = [[DDQMineInfoModel alloc] init];
 
@@ -1001,8 +1001,7 @@ static NSString *identifier = @"cell";
     //我的评论
     DDQMyCommentViewController *myCommentVC = [[DDQMyCommentViewController alloc] init];
 
-//    DDQOrderViewController * orderView = [[DDQOrderViewController alloc]init];
-    DDQNewOrderListController *orderC = [[DDQNewOrderListController alloc] init];
+    DDQOrderViewController * orderView = [[DDQOrderViewController alloc]init];
 
     DDQMyCollectViewController *collectVC = [[DDQMyCollectViewController alloc] init];
     
@@ -1021,8 +1020,8 @@ static NSString *identifier = @"cell";
         
     } else if (indexPath.section == 2){
         
-        orderC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:orderC animated:YES];
+        orderView.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:orderView animated:YES];
 
     } else if (indexPath.section == 3) {
     
