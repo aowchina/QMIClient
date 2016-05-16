@@ -11,8 +11,7 @@
 
 #import "DDQPostingCollectionViewCell.h"
 
-
-@class DDQGroupDetailViewController;
+#import "DDQGroupDetailViewController.h"
 
 #import "DDQHeaderSingleModel.h"
 
@@ -23,7 +22,7 @@
 #import "UICKeyChainStore.h"
 
 #import "DDQLoginViewController.h"
-
+#import "DDQTagModel.h"
 @interface DDQWriteDiaryViewController ()<UITextFieldDelegate,UITextViewDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate>
 
 //12-21活动指示器
@@ -73,6 +72,7 @@
     if (!_collectionArray) {
         _collectionArray = [[NSMutableArray alloc]init];
     }
+    
     return _collectionArray;
 }
 - (NSMutableArray *)writeDTagArray
@@ -94,7 +94,7 @@
     
     _moneyArray = @[@"3000元以下",@"3000-6000元",@"6000-1万元",@"1万元-2万元",@"2万元-5万元",@"5万元以上"];
     
-    self.view.backgroundColor = [UIColor colorWithRed:147.0/255 green:147.0/255  blue:147.0/255  alpha:1];
+    self.view.backgroundColor = [UIColor backgroundColor];
     
     self.navigationController.navigationBar.translucent = NO;
     
@@ -227,13 +227,11 @@
     
     [_moneyButton setTitle:@"花费" forState:(UIControlStateNormal)];
     
-    [_moneyButton setTitleColor:[UIColor blackColor] forState:(UIControlStateNormal)];
+    [_moneyButton setTitleColor:kTextColor forState:(UIControlStateNormal)];
     
     [_moneyButton addTarget:self action:@selector(moneyButtonClicked) forControlEvents:(UIControlEventTouchUpInside)];
     
     [hospitleView addSubview:_moneyButton];
-    
-    
     
     
     //10-22
@@ -275,7 +273,7 @@
     
     
     UIView *lineView = [[UIView alloc]initWithFrame:CGRectMake(0 ,tubiaoView.frame.origin.y +tubiaoView.frame.size.height+1 ,  footView.frame.size.width, 1)];
-    lineView.backgroundColor = [UIColor lightGrayColor];
+    lineView.backgroundColor = [UIColor backgroundColor];
     
     [footView addSubview:lineView];
 }
@@ -286,9 +284,7 @@
     static NSInteger butt = 1;
     if (butt ==1) {
         
-        _writeTagView = [[UIView alloc]initWithFrame:CGRectMake(0,self.view.frame.size.height/2+30 +10+40+40 , self.view.frame.size.width, self.view.frame.size.height - (self.view.frame.size.height/2-64+30)+40-40)];
-        
-        _writeTagView.backgroundColor = [UIColor redColor];
+        _writeTagView = [[UIView alloc]initWithFrame:CGRectMake(0,self.view.frame.size.height/2+30+40+40 , self.view.frame.size.width, self.view.frame.size.height - (self.view.frame.size.height/2-64+30)+40-40)];
         
         [self.view  addSubview:_writeTagView];
         
@@ -325,7 +321,6 @@
     [_priceView removeFromSuperview];
     
     _priceView = [[UIView alloc]initWithFrame:CGRectMake(0, self.view.frame.size.height/2+60, self.view.frame.size.width, self.view.frame.size.height/2-30-20)];
-    _priceView.backgroundColor= [UIColor redColor];
     
     [self.view addSubview:_priceView];
     
@@ -349,6 +344,7 @@
         
         tableCell = [[UITableViewCell alloc]initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:[NSString stringWithFormat:@"cell%ld",(long)indexPath.row]];
         tableCell.textLabel.text =_moneyArray[indexPath.row];
+        tableCell.textLabel.textColor = kTextColor;
     }
     return tableCell;
 }
@@ -402,11 +398,11 @@
 {
     if (collectionView.tag == 103) {
         DDQGroupCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"groupcollcell" forIndexPath:indexPath];
-        
-        cell.title.text = [_writeDTagArray[indexPath.row] objectForKey:@"name"];
+        DDQTagModel *model = _writeDTagArray[indexPath.row];
+        cell.title.text = model.name;
         
         //11-06
-        cell.layer.borderColor=[UIColor darkGrayColor].CGColor;
+        cell.layer.borderColor=[UIColor colorWithRed:227.0f/255.0f green:226.0f/255.0f blue:226.0f/255.0f alpha:1.0f].CGColor;
         
         cell.layer.cornerRadius = 10;
         
@@ -452,8 +448,8 @@
     if (collectionView.tag == 103)
     {
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
-        
-        NSString *tag = [_writeDTagArray[indexPath.row]objectForKey:@"id"] ;
+        DDQTagModel *model = _writeDTagArray[indexPath.row];
+        NSString *tag = model.iD;
         
         if ([_tagDic objectForKey:[NSString stringWithFormat:@"%ld",weizhi]] == nil) {
             [_tagDic setObject:[NSString stringWithFormat:@"%@",tag] forKey:[NSString stringWithFormat:@"%ld",weizhi]];
@@ -506,14 +502,45 @@
 
 -(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
-    return UIEdgeInsetsMake(0, 1, 0, 1);
+    if (collectionView.tag == 103) {
+        
+        return UIEdgeInsetsMake(1, 10, 1, 10);
+        
+    } else {
+        
+        return UIEdgeInsetsMake(0, 0, 0, 0);
+        
+    }
 }
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+
+    return 0.0f;
+    
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+
+    return 0.0f;
+    
+}
+
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     //11-06
-    if (collectionView.tag ==103) {
-        return CGSizeMake(80, 30);
+    if (collectionView.tag ==103) {//103是小的collectionview
+        
+        if (kScreenWidth >= 375) {
+            
+            return CGSizeMake(kScreenWidth*0.25-20, 30);
+            
+        } else {
+            
+            return CGSizeMake(kScreenWidth*0.25-10, 30);
+            
+        }
+        
     }
+    
     return CGSizeMake(50,50);
 }
 
@@ -556,7 +583,7 @@
         
         UIView *lineView1 =[[UIView alloc]initWithFrame:CGRectMake(10, xuanzeLabel.frame.size.height, _showView.frame.size.width-20, 2)];
         
-        lineView1.backgroundColor= [UIColor lightGrayColor];
+        lineView1.backgroundColor= [UIColor backgroundColor];
         
         [_showView addSubview:lineView1];
         
@@ -576,7 +603,7 @@
         
         UIView *lineView2 = [[UIView alloc]initWithFrame:CGRectMake(10, _showView.frame.size.height/2-2, _showView.frame.size.width-20, 1)];
         
-        lineView2.backgroundColor = [UIColor lightGrayColor];
+        lineView2.backgroundColor = [UIColor backgroundColor];
         
         [_showView addSubview:lineView2];
         
@@ -596,7 +623,7 @@
         
         UIView *lineView3 = [[UIView alloc]initWithFrame:CGRectMake(10, _showView.frame.size.height/4*3, _showView.frame.size.width-20, 1)];
         
-        lineView3.backgroundColor = [UIColor lightGrayColor];
+        lineView3.backgroundColor = [UIColor backgroundColor];
         
         [_showView addSubview:lineView3];
         
@@ -645,7 +672,7 @@
         [self presentViewController:imagePicker animated:YES completion:nil];
     }else{
         //如果没有提示用户
-        UIAlertController * alertController = [UIAlertController alertControllerWithTitle:@"Error" message:@"没有摄像头开启摄像头" preferredStyle:(UIAlertControllerStyleAlert)];
+        UIAlertController * alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"该设备未安装摄像头" preferredStyle:(UIAlertControllerStyleAlert)];
         
         UIAlertAction *enalbleAction = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:nil];
         
@@ -657,30 +684,18 @@
 
 - (void)pickImageFromAlbumWriteVC
 {
-    //    UIImagePickerController * imagePicker = [[UIImagePickerController alloc] init];
-    //
-    //    imagePicker.delegate = self;
-    //
-    //    imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    //
-    //    imagePicker.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    //
-    //    imagePicker.allowsEditing = YES;
-    //
-    //    [self presentViewController:imagePicker animated:YES completion:nil];
     
     //10-27
     SGImagePickerController *picker = [[SGImagePickerController alloc] init];//WithRootViewController:nil];
-    //返回选择的缩略图
-    
-    [picker setDidFinishSelectThumbnails:^(NSArray *thumbnails) {
-        //        缩略图%@",thumbnails);
-        
+  
+    //返回选中的原图
+    [picker setDidFinishSelectImages:^(NSArray *images) {
+        //      @"原图%@",images);
         _linshiPhotoArray = _collectionArray;
         
         NSArray *arr = [[NSArray alloc]init];
         
-        for (UIImage *image in thumbnails) {
+        for (UIImage *image in images) {
             
             //存到本地,存为nsdata类型
             [self saveImage:image withName:@"avatar.png"];
@@ -711,11 +726,7 @@
         [_photoCollectionView reloadData];
         
         [self dismissViewWriteVC];
-    }];
-    
-    //返回选中的原图
-    [picker setDidFinishSelectImages:^(NSArray *images) {
-        //      @"原图%@",images);
+
     }];
     [self presentViewController:picker animated:YES completion:nil];
 }
@@ -738,15 +749,15 @@
     //12-02
     //设置image的尺寸
     
-    CGSize imagesize = image.size;
+//    CGSize imagesize = image.size;
     
-    imagesize.height =157;
-    
-    imagesize.width =157;
+//    imagesize.height = 157;
+//    
+//    imagesize.width = 157;
     
     //对图片大小进行压缩--
     
-    image = [self imageWithImage:image scaledToSize:imagesize];
+//    image = [self imageWithImage:image scaledToSize:imagesize];
     
     [self saveImage:image withName:@"avatar.png"];
     
@@ -1042,7 +1053,7 @@ static NSString *uuidKey = @"ModelCenter uuid key";
                             //网络请求
                             NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:kRiji_add]];
                             
-                            [urlRequest setTimeoutInterval:5000];
+                            [urlRequest setTimeoutInterval:20];
                             [urlRequest setHTTPMethod:@"POST"];
                             [urlRequest setValue:@"keep-alive" forHTTPHeaderField:@"connection"];
                             [urlRequest setValue:CHARSET forHTTPHeaderField:@"Charsert"];

@@ -115,7 +115,7 @@
             }];
             [button addTarget:self action:@selector(deleteButtonMethod) forControlEvents:UIControlEventTouchUpInside];
             [button setTitle:@"删除" forState:UIControlStateNormal];
-            [button setBackgroundColor:[UIColor grayColor]];
+            [button setBackgroundColor:[UIColor backgroundColor]];
             button.titleLabel.font = [UIFont systemFontOfSize:12.0f];
             button.titleLabel.textColor = [UIColor colorWithRed:255.0/255.0 green:66.0/255.0 blue:100.0/255.0 alpha:1];
             button.layer.cornerRadius = 5;
@@ -146,12 +146,22 @@
 
 -(void)deleteButtonMethod {
 
-    self.block();
+    if (self.block) {
+        
+        self.block();
+        
+    }
+    
 }
 
 -(void)orderCellCallBackMethod:(OrderCellBlock)block {
 
-    self.block = block;
+    if (block) {
+        
+         self.block = block;
+        
+    }
+    
 }
 
 

@@ -21,4 +21,5 @@
 @property (strong,nonatomic) UILabel *huodefenshu;
 @property (strong,nonatomic) NSString *title;
 
+
 @end

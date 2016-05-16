@@ -88,8 +88,8 @@
 
 #pragma mark - buttonAction
 - (void)handleButtonClick {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(activityDetailBaseCell:didSelectedHospitalID:)]) {
-        [self.delegate activityDetailBaseCell:self didSelectedHospitalID:self.activity.hid];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(activityDetailBaseCell:didSelectedHospitalID:HospitalName:)]) {
+        [self.delegate activityDetailBaseCell:self didSelectedHospitalID:self.activity.hid HospitalName:self.activity.hname];
     }
 }
 

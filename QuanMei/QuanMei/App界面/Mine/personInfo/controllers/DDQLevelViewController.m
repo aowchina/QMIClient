@@ -112,6 +112,7 @@
         DDQUserDetailCell *cell = [tableView dequeueReusableCellWithIdentifier:NSStringFromClass([DDQUserDetailCell class])];
         NSURL *url = [NSURL URLWithString:self.model.userimg];
         [cell.iconImageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"user1"]];
+        cell.userNameLabel.text = self.model.username;
         cell.level.text = [NSString stringWithFormat:@"LV%@",self.model.level];
         NSMutableAttributedString *text = [[NSMutableAttributedString alloc] initWithString:@"活跃值10  新发帖+2  回复+1"];
 //        [text addAttribute:NSForegroundColorAttributeName value:[UIColor blackColor] range:NSMakeRange(0, 6)];

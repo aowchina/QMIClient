@@ -75,7 +75,11 @@
     }
     
     NSInteger index = [_starViewArr indexOfObject:starView];
-    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(stars_viewCount:View:)]) {
+        
+        [self.delegate  stars_viewCount:index View:self];
+        
+    }
 #if defined(DEBUG) && DEBUG
     //还有用，星星的
 #endif
@@ -111,6 +115,7 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
     [self handleTouches:touches];
+    
 }
 
 

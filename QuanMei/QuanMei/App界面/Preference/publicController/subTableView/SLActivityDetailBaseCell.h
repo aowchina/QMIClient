@@ -30,6 +30,6 @@ CGFloat SLGetScreenWidth();
 - (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell webDidFinshWithError:(NSError *)error;
 - (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedID:(NSString *)priceID;
 - (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedFriendID:(NSString *)friendID;
-- (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedHospitalID:(NSString *)hospitalID;
+- (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedHospitalID:(NSString *)hospitalID HospitalName:(NSString *)name;
 
 @end

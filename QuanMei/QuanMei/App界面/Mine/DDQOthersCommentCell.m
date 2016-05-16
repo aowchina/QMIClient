@@ -65,7 +65,7 @@
         make.width.offset(pubTimeRect.size.width);
         make.height.offset(pubTimeRect.size.height);
     }];
-    NSAttributedString *attributed_pub = [[NSAttributedString alloc] initWithString:commentModel.pubtime attributes:@{NSForegroundColorAttributeName:[UIColor grayColor],NSFontAttributeName:[UIFont systemFontOfSize:11.0f]}];
+    NSAttributedString *attributed_pub = [[NSAttributedString alloc] initWithString:commentModel.pubtime attributes:@{NSForegroundColorAttributeName:[UIColor backgroundColor],NSFontAttributeName:[UIFont systemFontOfSize:11.0f]}];
     pubLabel.attributedText= attributed_pub;
     pubLabel.font          = [UIFont systemFontOfSize:11.0f];
     pubLabel.textAlignment = NSTextAlignmentLeft;

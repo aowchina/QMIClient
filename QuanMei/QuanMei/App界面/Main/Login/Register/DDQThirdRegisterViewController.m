@@ -14,6 +14,7 @@
 
 #import "DDQLoginSingleModel.h"
 #import "DDQUserInfoModel.h"
+#import "DDQBaseTabBarController.h"
 
 @interface DDQThirdRegisterViewController ()
 
@@ -21,11 +22,8 @@
 @property (strong,nonatomic) UIButton *sendMessageButton;
 @property (strong,nonatomic) UIButton *sureButton;
 
-@property (strong,nonatomic) UITabBarController *tabBarController;
-@property (strong,nonatomic) UINavigationController *mainNavigation;
-@property (strong,nonatomic) UINavigationController *groupNavigation;
-@property (strong,nonatomic) UINavigationController *preferenceNavigation;
-@property (strong,nonatomic) UINavigationController *mineNavigation;
+@property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
+
 @end
 
 @implementation DDQThirdRegisterViewController
@@ -35,44 +33,8 @@
     [self layoutNavigationBar];
     [self layoutControllerView];
     
-    DDQMainViewController *mainController = [[DDQMainViewController alloc] init];
-    self.mainNavigation = [[UINavigationController alloc] initWithRootViewController:mainController];
-    
-    DDQGroupViewController *groupController = [[DDQGroupViewController alloc] init];
-    self.groupNavigation = [[UINavigationController alloc] initWithRootViewController:groupController];
-    
-    DDQPreferenceViewController *preferenceController = [[DDQPreferenceViewController alloc] init];
-    self.preferenceNavigation = [[UINavigationController alloc] initWithRootViewController:preferenceController];
-    
-    DDQMineViewController *mineController = [[DDQMineViewController alloc] init];
-    self.mineNavigation = [[UINavigationController alloc] initWithRootViewController:mineController];
-    
-    self.tabBarController = [[UITabBarController alloc] init];
-    _tabBarController.viewControllers = @[_mainNavigation,_groupNavigation,_preferenceNavigation,_mineNavigation];
-    
-    UITabBar *tabBar = _tabBarController.tabBar;
-    [tabBar setTintColor:[UIColor meiHongSe]];
-    [tabBar setBackgroundColor:[UIColor whiteColor]];
-    UITabBarItem *item0 = [tabBar.items objectAtIndex:0];
-    UITabBarItem *item1 = [tabBar.items objectAtIndex:1];
-    UITabBarItem *item2 = [tabBar.items objectAtIndex:2];
-    UITabBarItem *item3 = [tabBar.items objectAtIndex:3];
-    item0.selectedImage = [[UIImage imageNamed:@"首页"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item0.image = [[UIImage imageNamed:@"全美_首页"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item0.title = @"首页";
-    
-    item1.selectedImage = [[UIImage imageNamed:@"美人圈"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item1.image = [[UIImage imageNamed:@"首页－美人圈"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item1.title = @"美人圈";
-    
-    item2.selectedImage = [[UIImage imageNamed:@"特惠"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item2.image = [[UIImage imageNamed:@"首页_特惠"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item2.title = @"特惠";
-    
-    item3.selectedImage = [[UIImage imageNamed:@"6"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item3.image = [[UIImage imageNamed:@"wode-0"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item3.title = @"我的";
-
+    self.baseTabBarC = [DDQBaseTabBarController sharedController];
+  
     self.view.backgroundColor = [UIColor myGrayColor];
 }
 
@@ -83,6 +45,8 @@
         
         //网络连接无错误
         if (errorDic == nil) {
+            
+            
             
         } else {
             //第一个参数:添加到谁上
@@ -261,7 +225,7 @@
                                     infoModel.isLogin            = YES;
                                     
                                     
-                                    [UIApplication sharedApplication].keyWindow.rootViewController = self.tabBarController;
+                                    [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
                                     
                                 } else {
                                     

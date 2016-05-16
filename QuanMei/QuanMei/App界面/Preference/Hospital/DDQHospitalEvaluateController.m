@@ -189,7 +189,7 @@
     }];
     dashesLine.startPoint       = CGPointMake(0, 1);
     dashesLine.endPoint         = CGPointMake(100, 1);
-    dashesLine.lineColor        = [UIColor grayColor];
+    dashesLine.lineColor        = kLeftColor;
     dashesLine.backgroundColor  = [UIColor clearColor];
     
     float value1 = ([self.sm floatValue]/5.0)*100;
@@ -256,10 +256,10 @@
     }];
     average_label.font          = [UIFont systemFontOfSize:12.0f];
     average_label.text          = @"平均水平";
-    average_label.textColor     = [UIColor grayColor];
+    average_label.textColor     = kLeftColor;
     
     
-    UIView *lineView            = [[UIView alloc] initWithFrame:CGRectMake(0, _headerView.frame.size.height*0.6, kScreenWidth, 1)];
+    UIView *lineView            = [[UIView alloc] initWithFrame:CGRectMake(0, _headerView.frame.size.height*0.65, kScreenWidth, 1)];
     [topView addSubview:lineView];
     lineView.backgroundColor    = [UIColor backgroundColor];
    
@@ -289,7 +289,7 @@
         make.centerY.equalTo(firstView.mas_centerY);
         make.height.equalTo(firstView.mas_height).multipliedBy(1).offset(-40);
     }];
-    first_line.backgroundColor = [UIColor backgroundColor];
+    first_line.backgroundColor = kLeftColor;
     
     UIButton *first_button      = [[UIButton alloc] init];
     [firstView addSubview:first_button];
@@ -304,18 +304,6 @@
     [first_button setTitleColor:[UIColor meiHongSe] forState:UIControlStateNormal];
     [first_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
     
-//    UILabel *allEvaluate_label      = [[UILabel alloc] init];
-//    [firstView addSubview:allEvaluate_label];
-//    [allEvaluate_label mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.bottom.equalTo(first_Label.mas_top);
-//        make.width.equalTo(firstView.mas_width).offset(-1);
-//        make.height.equalTo(firstView.mas_height).multipliedBy(0.25);
-//        make.left.equalTo(firstView.mas_left);
-//    }];
-//    allEvaluate_label.text          = allEvaluate;
-//    allEvaluate_label.font          = [UIFont systemFontOfSize:10.0f];
-//    allEvaluate_label.textAlignment = NSTextAlignmentCenter;
-
     //分区2
     UIView *secondView         = [[UIView alloc] initWithFrame:CGRectMake(kScreenWidth*0.25,0 , kScreenWidth*0.25,view_height)];
     secondView.backgroundColor = [UIColor whiteColor];
@@ -329,7 +317,7 @@
         make.centerY.equalTo(secondView.mas_centerY);
         make.height.equalTo(secondView.mas_height).multipliedBy(1).offset(-40);
     }];
-    second_line.backgroundColor = [UIColor backgroundColor];
+    second_line.backgroundColor = kLeftColor;
 
     UIButton *second_button      = [[UIButton alloc] init];
     [secondView addSubview:second_button];
@@ -341,22 +329,8 @@
     }];
     [second_button setTitle:@"好评" forState:UIControlStateNormal];
     second_button.tag = 2;
-    [second_button setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [second_button setTitleColor:kLeftColor forState:UIControlStateNormal];
     [second_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
-
-    
-//    UILabel *goodEvaluate_label      = [[UILabel alloc] init];
-//    [secondView addSubview:goodEvaluate_label];
-//    [goodEvaluate_label mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.bottom.equalTo(secondView.mas_centerY);
-//        make.width.equalTo(secondView.mas_width);
-//        make.height.equalTo(secondView.mas_height).multipliedBy(0.25);
-//        make.centerX.equalTo(secondView.mas_centerX);
-//    }];
-//    goodEvaluate_label.text          = goodEvaluate;
-//    goodEvaluate_label.font          = [UIFont systemFontOfSize:10.0f];
-//    goodEvaluate_label.textAlignment = NSTextAlignmentCenter;
-    
     
     
     //分区3
@@ -372,7 +346,7 @@
         make.centerY.equalTo(thirdView.mas_centerY);
         make.height.equalTo(thirdView.mas_height).multipliedBy(1).offset(-40);
     }];
-    third_line.backgroundColor = [UIColor backgroundColor];
+    third_line.backgroundColor = kLeftColor;
 
     
     UIButton *third_button      = [[UIButton alloc] init];
@@ -385,24 +359,9 @@
     }];
     [third_button setTitle:@"中评" forState:UIControlStateNormal];
     third_button.tag = 3;
-    [third_button setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [third_button setTitleColor:kLeftColor forState:UIControlStateNormal];
     [third_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
 
-    
-//    UILabel *middleEvaluate_label      = [[UILabel alloc] init];
-//    [thirdView addSubview:middleEvaluate_label];
-//    [middleEvaluate_label mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.bottom.equalTo(thirdView.mas_centerY);
-//        make.width.equalTo(thirdView.mas_width);
-//        make.height.equalTo(thirdView.mas_height).multipliedBy(0.25);
-//        make.centerX.equalTo(thirdView.mas_centerX);
-//    }];
-//    middleEvaluate_label.text          = middleEvaluate;
-//    middleEvaluate_label.font          = [UIFont systemFontOfSize:10.0f];
-//    middleEvaluate_label.textAlignment = NSTextAlignmentCenter;
-
-
-    
     //分区4
     UIView *fourthView         = [[UIView alloc] initWithFrame:CGRectMake(kScreenWidth*0.75, 0, kScreenWidth*0.25,view_height)];
     fourthView.backgroundColor = [UIColor whiteColor];
@@ -412,10 +371,7 @@
     UIButton *fourth_button      = [[UIButton alloc] init];
     [fourthView addSubview:fourth_button];
     [fourth_button mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.top.equalTo(fourthView.mas_centerY);
-//        make.width.equalTo(fourthView.mas_width);
-//        make.centerX.equalTo(fourthView.mas_centerX);
-//        make.height.equalTo(fourthView.mas_height).multipliedBy(0.25);
+        
         make.centerX.equalTo(fourthView.mas_centerX);
         make.centerY.equalTo(fourthView.mas_centerY);
         make.width.equalTo(fourthView.mas_width);
@@ -424,22 +380,11 @@
     }];
     [fourth_button setTitle:@"差评" forState:UIControlStateNormal];
     fourth_button.tag = 4;
-    [fourth_button setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [fourth_button setTitleColor:kLeftColor forState:UIControlStateNormal];
     [fourth_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
 
     self.temp_button = first_button;
-//    UILabel *badEvaluate_label      = [[UILabel alloc] init];
-//    [fourthView addSubview:badEvaluate_label];
-//    [badEvaluate_label mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.bottom.equalTo(fourthView.mas_centerY);
-//        make.width.equalTo(fourthView.mas_width);
-//        make.height.equalTo(fourthView.mas_height).multipliedBy(0.25);
-//        make.centerX.equalTo(fourthView.mas_centerX);
-//    }];
-//    badEvaluate_label.text          = badEvaluate;
-//    badEvaluate_label.font          = [UIFont systemFontOfSize:10.0f];
-//    badEvaluate_label.textAlignment = NSTextAlignmentCenter;
-    
+
     return current_View;
 }
 
@@ -450,7 +395,7 @@
     } else{
     
         [button setTitleColor:[UIColor meiHongSe] forState:UIControlStateNormal];
-        [self.temp_button setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+        [self.temp_button setTitleColor:kLeftColor forState:UIControlStateNormal];
         self.temp_button = button;
         if (button.tag == 1) {
             

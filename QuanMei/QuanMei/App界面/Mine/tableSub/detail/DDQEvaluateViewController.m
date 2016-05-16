@@ -10,7 +10,7 @@
 #import "StarsView.h"
 
 
-@interface DDQEvaluateViewController ()<UITextViewDelegate>
+@interface DDQEvaluateViewController ()<UITextViewDelegate,StarsDelegate>
 {
     UIImageView * tempImageView;
     NSString * huaString;
@@ -20,7 +20,14 @@
 @property (nonatomic ,strong)UILabel *alabel;
 
 //xing
-@property (nonatomic, strong, readwrite) StarsView *effectStarsView;
+@property (nonatomic, strong) StarsView *effectStarsView1;
+@property (nonatomic, strong) StarsView *effectStarsView2;
+@property (nonatomic, strong) StarsView *effectStarsView3;
+
+@property ( strong, nonatomic) NSString *star_str1;
+@property ( strong, nonatomic) NSString *star_str2;
+@property ( strong, nonatomic) NSString *star_str3;
+
 @end
 
 @implementation DDQEvaluateViewController
@@ -69,7 +76,7 @@
     UIView *lineview1 = [[UIView alloc]initWithFrame:CGRectMake(0   ,
                                                                _textView.frame.origin.y + _textView.frame.size.height,
                                                                 kScreenWidth, 2)];
-    lineview1.backgroundColor = [UIColor grayColor];
+    lineview1.backgroundColor = [UIColor backgroundColor];
     
     [headerView addSubview:lineview1];
     
@@ -137,7 +144,7 @@
                                                                headerView.frame.origin.y +headerView.frame.size.height,
                                                                kScreenWidth,
                                                                 5)];
-    lineView2.backgroundColor = [UIColor grayColor];
+    lineView2.backgroundColor = [UIColor backgroundColor];
     
     [self.view addSubview:lineView2];
     ///////header//////
@@ -153,7 +160,7 @@
     //星星
     UIView *fenshuView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, kScreenHeight, footView.frame.size.height/3*2)];
     
-    fenshuView.backgroundColor  = [UIColor orangeColor];
+    fenshuView.backgroundColor  = [UIColor backgroundColor];
     
     [footView addSubview:fenshuView];
     
@@ -181,14 +188,14 @@
     shenmeiLabel.font = [UIFont systemFontOfSize:15];
     
     [fenshuView addSubview:shenmeiLabel];
-    self.effectStarsView = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+    self.effectStarsView1 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
     
-    self.effectStarsView.frame = CGRectMake(shenmeiLabel.frame.origin.x +shenmeiLabel.frame.size.width,
+    self.effectStarsView1.frame = CGRectMake(shenmeiLabel.frame.origin.x +shenmeiLabel.frame.size.width,
                                             shenmeiLabel.frame.origin.y,
                                             kScreenWidth/3*2,
                                             shenmeiLabel.frame.size.height);
     
-    [fenshuView addSubview:self.effectStarsView];
+    [fenshuView addSubview:self.effectStarsView1];
 
     //环境
     UILabel * huanjingTitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, fenshuViewHeight/2, kScreenWidth/3, fenshuViewHeight/4)];
@@ -200,14 +207,14 @@
     huanjingTitleLabel.font = [UIFont systemFontOfSize:15];
     
     [fenshuView addSubview:huanjingTitleLabel];
-    self.effectStarsView = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+    self.effectStarsView2 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
     
-    self.effectStarsView.frame = CGRectMake(huanjingTitleLabel.frame.origin.x +huanjingTitleLabel.frame.size.width,
+    self.effectStarsView2.frame = CGRectMake(huanjingTitleLabel.frame.origin.x +huanjingTitleLabel.frame.size.width,
                                             huanjingTitleLabel.frame.origin.y,
                                             kScreenWidth/3*2,
                                             huanjingTitleLabel.frame.size.height);
     
-    [fenshuView addSubview:self.effectStarsView];
+    [fenshuView addSubview:self.effectStarsView2];
 
     //服务
     UILabel * fuwuTitleLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, fenshuViewHeight/4*3, kScreenWidth/3, fenshuViewHeight/4)];
@@ -219,13 +226,13 @@
     fuwuTitleLabel.font = [UIFont systemFontOfSize:15];
     
     [fenshuView addSubview:fuwuTitleLabel];
-    self.effectStarsView = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+    self.effectStarsView3 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
     
-    self.effectStarsView.frame = CGRectMake(fuwuTitleLabel.frame.origin.x +fuwuTitleLabel.frame.size.width,
+    self.effectStarsView3.frame = CGRectMake(fuwuTitleLabel.frame.origin.x +fuwuTitleLabel.frame.size.width,
                                             fuwuTitleLabel.frame.origin.y,
                                             kScreenWidth/3*2,
                                             fuwuTitleLabel.frame.size.height);
-    [fenshuView addSubview:self.effectStarsView];
+    [fenshuView addSubview:self.effectStarsView3];
 
     //星星
     
@@ -235,7 +242,7 @@
                                                                fenshuView.frame.size.height +fenshuView.frame.origin.y,
                                                                kScreenHeight,
                                                                 5)];
-    lineView3.backgroundColor = [UIColor grayColor];
+    lineView3.backgroundColor = [UIColor backgroundColor];
     [footView addSubview:lineView3];
     
     //提交
@@ -252,6 +259,9 @@
     button.backgroundColor = [UIColor redColor];
     
     [footView addSubview:button];
+    self.effectStarsView1.delegate = self;
+    self.effectStarsView2.delegate = self;
+    self.effectStarsView3.delegate = self;
 }
 
 //12-08
@@ -370,7 +380,7 @@
             Byte *byteArray2 = (Byte *)[data2 bytes];
             NSMutableString *titleString = [[NSMutableString alloc] init];
             for(int i=0;i<[data2 length];i++) {
-            [titleString appendFormat:@"%d#",byteArray2[i]];
+                [titleString appendFormat:@"%d#",byteArray2[i]];
             }
             
             if (huaString != nil)
@@ -380,15 +390,15 @@
                 NSString *spellString = [SpellParameters getBasePostString];
                 
                 //拼参数
-                NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@*%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],_orderid,_hid,huaString,@"5",@"5",@"5",titleString];
+                NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@*%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],_orderid,_hid,huaString,self.star_str1,self.star_str2,self.star_str3,titleString];
                 
                 //加密
                 DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
                 NSString *post_encryption = [post stringWithPost:post_baseString];
                 //传
                 NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kOrderPjUrl];
-                
-                if ([post_dic objectForKey:@"errorcode"]==0) {
+
+                if ([[post_dic objectForKey:@"errorcode"] intValue]==0) {
                     
                     dispatch_async(dispatch_get_main_queue(), ^{
                         
@@ -403,8 +413,13 @@
                 {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         
-                        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                        [alertView show];
+                        if ([post_dic[@"errorcode"] intValue] == 20) {
+                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"订单已不存在" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                            [alertView show];
+                        } else {
+                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                            [alertView show];
+                        }
 
                     });
                 }
@@ -436,6 +451,7 @@
 {
     UIBarButtonItem *done =  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(leaveEditMode)];
     self.navigationItem.rightBarButtonItem = done;
+    [_alabel removeFromSuperview];
 }
 - (void)textViewDidEndEditing:(UITextView *)textView {
     
@@ -458,19 +474,17 @@
 }
 
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
+- (void)stars_viewCount:(NSInteger)cout View:(StarsView *)view {
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    if (view == self.effectStarsView1) {
+        self.star_str1 = [NSString stringWithFormat:@"%ld",cout+1];
+    }
+    if (view == self.effectStarsView2) {
+        self.star_str2 = [NSString stringWithFormat:@"%ld",cout+1];
+    }
+    if (view == self.effectStarsView3) {
+        self.star_str3 = [NSString stringWithFormat:@"%ld",cout+1];
+    }
 }
-*/
 
 @end

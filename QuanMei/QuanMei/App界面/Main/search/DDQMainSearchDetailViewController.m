@@ -24,6 +24,8 @@
 
 @property (nonatomic ,assign)CGFloat  rowHeight;
 
+@property ( strong, nonatomic) MBProgressHUD *hud;
+
 @end
 
 @implementation DDQMainSearchDetailViewController
@@ -40,9 +42,11 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     _wenzhangArray = [[NSMutableArray alloc]init];
-//    [self asyncListForSearchWenzhang];
+
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
     
-//    [self creatViewSearchDetail];
 }
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -55,12 +59,26 @@
     self.navigationController.navigationBar.translucent = NO;
     
     //title 颜色
-    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor meiHongSe]};
     
     //返回颜色
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.tintColor = [UIColor meiHongSe];
     
-    [self asyncListForSearchWenzhang];
+    
+    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        
+        if (errorDic) {
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"当前网络异常" andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+        
+            [self.hud show:YES];
+            [self asyncListForSearchWenzhang];
+            
+        }
+        
+    }];
 
 }
 
@@ -92,42 +110,51 @@
         //接受字典
         NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kSearchWenzhangUrl];
         
-        NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
-        
-        
-        //10-19
-        //10-30
-        if (![get_JsonDic isKindOfClass:[NSNull class]]) {
-            //12-21
-            for (NSDictionary *dic1 in get_JsonDic) {
-                NSDictionary * dic = [DDQPublic nullDic:dic1];
-
-                DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                //精或热
-                articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
-                articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
-                articleModel.articleTitle  = [dic valueForKey:@"title"];
-                articleModel.groupName     = [dic valueForKey:@"groupname"];
-                articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                articleModel.userName      = [dic valueForKey:@"username"];
-                articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
-                articleModel.plTime        = [dic valueForKey:@"pubtime"];
-                articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
-                articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
-                articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
-                articleModel.introString   = [dic valueForKey:@"text"];
-                articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
-            
-                
-                [_wenzhangArray addObject:articleModel];
-            
-            }
-        }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self creatViewSearchDetail];
-//            [tableView reloadData];
+            
+            if ([get_postDic[@"errorcode"] intValue] == 0) {
+                
+                NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
+
+                if (![get_JsonDic isKindOfClass:[NSNull class]]) {
+                    //12-21
+                    for (NSDictionary *dic1 in get_JsonDic) {
+                        NSDictionary * dic = [DDQPublic nullDic:dic1];
+                        
+                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                        //精或热
+                        articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
+                        articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
+                        articleModel.articleTitle  = [dic valueForKey:@"title"];
+                        articleModel.groupName     = [dic valueForKey:@"groupname"];
+                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
+                        articleModel.userName      = [dic valueForKey:@"username"];
+                        articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
+                        articleModel.plTime        = [dic valueForKey:@"pubtime"];
+                        articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
+                        articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
+                        articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
+                        articleModel.introString   = [dic valueForKey:@"text"];
+                        articleModel.imgArray      = [dic valueForKey:@"imgs"];
+                        articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
+                        
+                        
+                        [_wenzhangArray addObject:articleModel];
+                        
+                    }
+                }
+                
+                [self.hud hide:YES];
+                [self creatViewSearchDetail];
+                
+            } else {
+                
+                [self.hud hide:YES];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }
+
         });
     });
 }

@@ -17,7 +17,7 @@
         
         _title = [[UILabel alloc]init];
         
-        _title.textColor = [UIColor blackColor];
+        _title.textColor = kTextColor;
         _title.textAlignment  =1;
         
         //10-30

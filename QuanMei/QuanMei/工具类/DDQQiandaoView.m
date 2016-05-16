@@ -7,14 +7,13 @@
 //
 
 #import "DDQQiandaoView.h"
-
 @implementation DDQQiandaoView
 
 - (instancetype)initWithFrame:(CGRect)frame {
 
     self = [super initWithFrame:frame];
     if (self) {
-        self.backgroundColor = [[UIColor grayColor] colorWithAlphaComponent:0.5f];
+        self.backgroundColor = [[UIColor backgroundColor] colorWithAlphaComponent:0.5f];
         
         UIImageView *box_img = [UIImageView new];
         [self addSubview:box_img];
@@ -120,5 +119,7 @@
         [self.delegate qiandao_viewSelected:self];
     }
 }
+
+
 
 @end

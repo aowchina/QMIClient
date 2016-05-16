@@ -10,7 +10,7 @@
 #import "DDQHospitalHomePageController.h"
 #import "DDQBoundTelViewController.h"
 #import "SLActivityDetailCellHeader.h"
-
+#import "DDQNewPayController.h"
 #import "SLActivityModel.h"
 
 #import "Order.h"
@@ -18,8 +18,6 @@
 #import "DataSigner.h"
 
 #import <AlipaySDK/AlipaySDK.h>
-//完成预约
-#import "DDQOrderDetailViewController.h"
 //绑定手机
 #import "DDQBoundTelViewController.h"
 
@@ -193,7 +191,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         make.height.offset(30);
     }];
     title_label.text = @"分享";
-    title_label.textColor = [UIColor grayColor];
+    title_label.textColor = [UIColor backgroundColor];
     
     if ([WXApi isWXAppInstalled]&&[WXApi isWXAppSupportApi]) {
         
@@ -221,7 +219,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         }];
         wx_friend.text = @"微信";
         wx_friend.font = [UIFont systemFontOfSize:15.0f];
-        wx_friend.textColor = [UIColor grayColor];
+        wx_friend.textColor = [UIColor backgroundColor];
         
         
         //朋友圈
@@ -247,7 +245,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         }];
         wx_circle.text = @"朋友圈";
         wx_circle.font = [UIFont systemFontOfSize:15.0f];
-        wx_circle.textColor = [UIColor grayColor];
+        wx_circle.textColor = [UIColor backgroundColor];
         
         //QQ
         UIButton *qq_share = [[UIButton alloc] init];
@@ -272,7 +270,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         }];
         qq_shared.text = @"QQ";
         qq_shared.font = [UIFont systemFontOfSize:15.0f];
-        qq_shared.textColor = [UIColor grayColor];
+        qq_shared.textColor = [UIColor backgroundColor];
         
         UIButton *button = [[UIButton alloc] init];
         [temp_view addSubview:button];
@@ -284,7 +282,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         }];
         [button addTarget:self action:@selector(hiddenSharedView:) forControlEvents:UIControlEventTouchUpInside];
         [button setTitle:@"取消" forState:UIControlStateNormal];
-        [button setBackgroundColor:[UIColor grayColor]];
+        [button setBackgroundColor:kRightColor];
         button.showsTouchWhenHighlighted = YES;
         button.layer.cornerRadius = 5.0f;
 
@@ -312,7 +310,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         }];
         qq_shared.text = @"QQ";
         qq_shared.font = [UIFont systemFontOfSize:15.0f];
-        qq_shared.textColor = [UIColor grayColor];
+        qq_shared.textColor = [UIColor backgroundColor];
         
         UIButton *button = [[UIButton alloc] init];
         [temp_view addSubview:button];
@@ -324,7 +322,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         }];
         [button addTarget:self action:@selector(hiddenSharedView:) forControlEvents:UIControlEventTouchUpInside];
         [button setTitle:@"取消" forState:UIControlStateNormal];
-        [button setBackgroundColor:[UIColor grayColor]];
+        [button setBackgroundColor:[UIColor backgroundColor]];
         button.showsTouchWhenHighlighted = YES;
         button.layer.cornerRadius = 5.0f;
     }
@@ -442,6 +440,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     //10-30
     self.tableView.bounces = NO;
     
+    self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenHeight, 35)];
     _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     [self.view addSubview:self.tableView];
@@ -505,10 +504,14 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     //   进入猫友页面--- %@ ---",friendID);
 }
 
-- (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedHospitalID:(NSString *)hospitalID {
+- (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedHospitalID:(NSString *)hospitalID HospitalName:(NSString *)name {
     
+    SLActivityModel *model = [[SLActivityModel alloc] init];
+    model = self.preferenceDataArray.lastObject;
+
     DDQHospitalHomePageController *pageController = [[DDQHospitalHomePageController alloc] init];
     pageController.hospital_id = hospitalID;
+    pageController.hospital_name = name;
     [self.navigationController pushViewController:pageController animated:YES];
 }
 
@@ -540,7 +543,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         {
             UILabel *label =[[UILabel alloc]initWithFrame:CGRectMake(0, 200, kScreenWidth, 30)];
             
-            label.text = @"活动被喵星人劫持了.....";
+            label.text = @"暂无活动.....";
             
             label.textAlignment = 1 ;
             
@@ -636,20 +639,12 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     
     if (errorcode == 0) {
         
-        DDQOrderDetailViewController * detailVC = [[DDQOrderDetailViewController alloc]init];
+        DDQNewPayController *new_payC = [[DDQNewPayController alloc]init];
         
         NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-        
-        detailVC.dj = activityModel.dj;
-        
-        detailVC.name = activityModel.name;
-        
-        detailVC.tel = get_jsonDic[@"tel"];
-        detailVC.tid = self.dataSource.hid;
-        detailVC.orderid = get_jsonDic[@"orderid"];
-        detailVC.price = activityModel.newval;
+        new_payC.orderid = get_jsonDic[@"orderid"];
         self.navigationController.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:detailVC animated:YES];
+        [self.navigationController pushViewController:new_payC animated:YES];
         
     } else if(errorcode == 17) {
         

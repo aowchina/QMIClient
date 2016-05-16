@@ -41,34 +41,31 @@
 - (IBAction)sendMessButtonMethod:(id)sender {
     
     [SMSSDK getVerificationCodeByMethod:SMSGetCodeMethodSMS phoneNumber:self.phoneField.text zone:@"86" customIdentifier:nil result:^(NSError *error) {
-        
-        if (!error){
-            
+        if (!error) {
+            [self alertController:@"短信发送成功"];
             __block int timeout=60; //倒计时时间
             dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
             dispatch_source_t _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
             dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
             dispatch_source_set_event_handler(_timer, ^{
                 if(timeout<=0){ //倒计时结束，关闭
+                    dispatch_source_cancel(_timer);
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        dispatch_source_cancel(_timer);
-                        self.sendCodeButton.titleLabel.text = @"重新获取";
-                        self.sendCodeButton.titleLabel.textAlignment = NSTextAlignmentCenter;
-                        self.sendCodeButton.userInteractionEnabled = YES;
+                        _sendCodeButton.titleLabel.text = @"重新获取";
+                        _sendCodeButton.titleLabel.textAlignment = NSTextAlignmentCenter;
+                        _sendCodeButton.userInteractionEnabled = YES;
                     });
                 }else{
-                    
+                    int seconds = timeout % 60;
+                    NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        int seconds = timeout % 60;
-                        NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
                         //设置界面的按钮显示 根据自己需求设置
                         [UIView beginAnimations:nil context:nil];
                         [UIView setAnimationDuration:1];
-                        [self.sendCodeButton setTitle:[NSString stringWithFormat:@"(%@秒)有效",strTime] forState:UIControlStateNormal];
-                        //                        self.sendCodeButton.titleLabel.text = [NSString stringWithFormat:@"(%@秒)有效",strTime];
+                        [_sendCodeButton setTitle:[NSString stringWithFormat:@"(%@秒)后获取",strTime] forState:UIControlStateNormal];
                         [UIView commitAnimations];
-                        [self.sendCodeButton setBackgroundColor:[UIColor grayColor]];
-                        self.sendCodeButton.userInteractionEnabled = NO;
+                        [_sendCodeButton setBackgroundColor:[UIColor grayColor]];
+                        _sendCodeButton.userInteractionEnabled = NO;
                         
                     });
                     timeout--;
@@ -76,14 +73,16 @@
             });
             dispatch_resume(_timer);
         } else {
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"codesenderrtitle", nil)
                                                             message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"getVerificationCode"]]
                                                            delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"确定", nil)
+                                                  cancelButtonTitle:NSLocalizedString(@"sure", nil)
                                                   otherButtonTitles:nil, nil];
             [alert show];
         }
     }];
+
+    
 
 
 }

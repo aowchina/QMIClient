@@ -74,6 +74,8 @@
 
 @property ( strong, nonatomic)DDQSearchBar *searchBar;
 
+@property ( strong, nonatomic) MBProgressHUD *hud;
+
 @end
 
 @implementation DDQMainSearchViewController
@@ -88,8 +90,8 @@
     self.searchBar.layer.cornerRadius = 15.0f;
     self.navigationItem.titleView = self.searchBar;
     self.searchBar.backgroundColor = [UIColor whiteColor];
-    self.searchBar.layer.borderWidth = 1;
-    self.searchBar.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    self.searchBar.layer.borderWidth = 2.0f;
+    self.searchBar.layer.borderColor = [UIColor backgroundColor].CGColor;
     self.searchBar.layer.masksToBounds = YES;
     
     //11-06
@@ -101,6 +103,10 @@
     
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"确定" style:UIBarButtonItemStyleDone target:self action:@selector(searchBarEndEditing)];
     self.navigationItem.rightBarButtonItem = rightItem;
+    
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
     
 }
 - (void)searchBarEndEditing {
@@ -120,7 +126,21 @@
         
         [_searchTableView removeFromSuperview];
         
-        [self asyncListForSearchVC];
+        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+            
+            if (errorDic) {
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"当前网络异常" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            } else {
+            
+                
+                [self.hud show:YES];
+                [self asyncListForSearchVC];
+
+            }
+            
+        }];
     }
     
 }
@@ -149,27 +169,6 @@
 }
 
 #pragma mark - delegate for searchBar
-//- (void)searchBarEndEditing:(NSString *)text {
-//    
-//    [self.view endEditing:YES];
-//    if (text == nil) {
-//        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"请重新填写查找的内容" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-//        
-//        [alertView show];
-//    }
-//    else
-//    {
-//        searchBarText = text;
-//        
-//        [searchHearderView removeFromSuperview];
-//        
-//        [_searchTableView removeFromSuperview];
-//        
-//        [self asyncListForSearchVC];
-//        
-//    }
-//    
-//}
 
 //页面布局
 - (void)creatView
@@ -199,6 +198,7 @@
     _searchTableView.tableHeaderView = [self collectionForSearchVC];
     //去线
     _searchTableView.tableFooterView=[[UIView alloc]init];
+    _searchTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
     [self.view addSubview:_searchTableView];
 }
@@ -802,97 +802,109 @@
         //接受字典
         NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kSearchUrl];
         
-        NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
         
+        if ([get_postDic[@"errorcode"] intValue] == 0) {
+            
+            NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
+
+            if (![get_JsonDic isKindOfClass:[NSNull class]]) {
+                
+                //            DDQMainSearchModel * model = [[DDQMainSearchModel alloc]init];
+                
+                tehui_count = get_JsonDic[@"th_amount"];
+                riji_count = get_JsonDic[@"rj_amount"];
+                tiezi_count = get_JsonDic[@"tz_amount"];
+                _godsSearchArray = [[NSMutableArray alloc]init];
+                _diarySearchArray = [[NSMutableArray alloc]init];
+                _postSearchArray = [[NSMutableArray alloc]init];
+                if (![DDQPublic isBlankString:tehui_count]) {
+                    
+                    
+                    for (NSDictionary *dic1 in get_JsonDic[@"th"])
+                    {
+                        NSDictionary * dic = [DDQPublic nullDic:dic1];
+                        
+                        zhutiModel *thmodel = [[zhutiModel alloc]init];
+                        
+                        thmodel.fname = dic[@"fname"];
+                        thmodel.ID = dic[@"id"];
+                        thmodel.name = dic[@"name"];
+                        thmodel.newval = dic[@"newval"];
+                        thmodel.oldval = dic[@"oldval"];
+                        thmodel.simg = dic[@"simg"];
+                        thmodel.hname = dic[@"hname"];
+                        
+                        [_godsSearchArray addObject: thmodel];
+                        
+                    }
+                }
+                if (![DDQPublic isBlankString:riji_count]) {
+                    
+                    for (NSDictionary *dic1 in get_JsonDic[@"rj"]) {
+                        
+                        NSDictionary * dic = [DDQPublic nullDic:dic1];
+                        
+                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                        //精或热
+                        articleModel.isJing        = [dic valueForKey:@"isjing"];//1是精,0不是
+                        articleModel.articleTitle  = [dic valueForKey:@"title"];
+                        articleModel.articleType   = [dic valueForKey:@"type"];
+                        articleModel.introString   = [dic valueForKey:@"text"];
+                        articleModel.replyNum      = [dic valueForKey:@"pl"];
+                        articleModel.thumbNum      = [dic valueForKey:@"zan"];
+                        articleModel.groupName     = [dic valueForKey:@"groupname"];
+                        articleModel.articleId     = dic[@"id"];
+                        articleModel.userid = [dic valueForKey:@"userid"];
+                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
+                        articleModel.userName      = [dic valueForKey:@"username"];
+                        articleModel.imgArray      = [dic valueForKey:@"imgs"];
+                        articleModel.ctime         = [dic valueForKey:@"ctime"];
+                        
+                        
+                        [_diarySearchArray addObject:articleModel];
+                    }
+                }
+                if (![DDQPublic isBlankString:tiezi_count])
+                {
+                    for (NSDictionary *dic1 in get_JsonDic[@"tz"])
+                    {
+                        NSDictionary * dic = [DDQPublic nullDic:dic1];
+                        
+                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                        //精或热
+                        articleModel.isJing        = [dic valueForKey:@"isjing"];//1是精,0不是
+                        articleModel.articleTitle  = [dic valueForKey:@"title"];
+                        articleModel.articleType   = [dic valueForKey:@"type"];
+                        articleModel.introString   = [dic valueForKey:@"text"];
+                        articleModel.replyNum      = [dic valueForKey:@"pl"];
+                        articleModel.thumbNum      = [dic valueForKey:@"zan"];
+                        
+                        articleModel.groupName     = [dic valueForKey:@"groupname"];
+                        articleModel.articleId     = dic[@"id"];
+                        articleModel.userid = [dic valueForKey:@"userid"];
+                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
+                        articleModel.userName      = [dic valueForKey:@"username"];
+                        articleModel.imgArray      = [dic valueForKey:@"imgs"];
+                        articleModel.ctime         = [dic valueForKey:@"ctime"];
+                        
+                        [_postSearchArray addObject: articleModel];
+                    }
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.hud hide:YES];
+                    [self creatView];
+                });
+                
+            }
+
+        } else {
         
-        //10-19
-        //10-30
-        if (![get_JsonDic isKindOfClass:[NSNull class]]) {
-            
-            //            DDQMainSearchModel * model = [[DDQMainSearchModel alloc]init];
-            
-            tehui_count = get_JsonDic[@"th_amount"];
-            riji_count = get_JsonDic[@"rj_amount"];
-            tiezi_count = get_JsonDic[@"tz_amount"];
-            _godsSearchArray = [[NSMutableArray alloc]init];
-            _diarySearchArray = [[NSMutableArray alloc]init];
-            _postSearchArray = [[NSMutableArray alloc]init];
-            if (![DDQPublic isBlankString:tehui_count]) {
-                
-                
-                for (NSDictionary *dic1 in get_JsonDic[@"th"])
-                {
-                    NSDictionary * dic = [DDQPublic nullDic:dic1];
-                    
-                    zhutiModel *thmodel = [[zhutiModel alloc]init];
-                    
-                    thmodel.fname = dic[@"fname"];
-                    thmodel.ID = dic[@"id"];
-                    thmodel.name = dic[@"name"];
-                    thmodel.newval = dic[@"newval"];
-                    thmodel.oldval = dic[@"oldval"];
-                    thmodel.simg = dic[@"simg"];
-                    thmodel.hname = dic[@"hname"];
-                    
-                    [_godsSearchArray addObject: thmodel];
-                    
-                }
-            }
-            if (![DDQPublic isBlankString:riji_count]) {
-                
-                for (NSDictionary *dic1 in get_JsonDic[@"rj"]) {
-                    
-                    NSDictionary * dic = [DDQPublic nullDic:dic1];
-                    
-                    DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                    //精或热
-                    articleModel.isJing        = [dic valueForKey:@"isjing"];//1是精,0不是
-                    articleModel.articleTitle  = [dic valueForKey:@"title"];
-                    articleModel.articleType   = [dic valueForKey:@"type"];
-                    articleModel.introString   = [dic valueForKey:@"text"];
-                    articleModel.replyNum      = [dic valueForKey:@"pl"];
-                    articleModel.thumbNum      = [dic valueForKey:@"zan"];
-                    articleModel.groupName     = [dic valueForKey:@"groupname"];
-                    articleModel.articleId     = dic[@"id"];
-                    articleModel.userid = [dic valueForKey:@"userid"];
-                    articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                    articleModel.userName      = [dic valueForKey:@"username"];
-                    articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                    articleModel.ctime         = [dic valueForKey:@"ctime"];
-                    
-                    
-                    [_diarySearchArray addObject:articleModel];
-                }
-            }
-            if (![DDQPublic isBlankString:tiezi_count])
-            {
-                for (NSDictionary *dic1 in get_JsonDic[@"tz"])
-                {
-                    NSDictionary * dic = [DDQPublic nullDic:dic1];
-                    
-                    DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                    //精或热
-                    articleModel.isJing        = [dic valueForKey:@"isjing"];//1是精,0不是
-                    articleModel.articleTitle  = [dic valueForKey:@"title"];
-                    articleModel.articleType   = [dic valueForKey:@"type"];
-                    articleModel.introString   = [dic valueForKey:@"text"];
-                    articleModel.replyNum      = [dic valueForKey:@"pl"];
-                    articleModel.thumbNum      = [dic valueForKey:@"zan"];
-                    
-                    articleModel.groupName     = [dic valueForKey:@"groupname"];
-                    articleModel.articleId     = dic[@"id"];
-                    articleModel.userid = [dic valueForKey:@"userid"];
-                    articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                    articleModel.userName      = [dic valueForKey:@"username"];
-                    articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                    articleModel.ctime         = [dic valueForKey:@"ctime"];
-                    
-                    [_postSearchArray addObject: articleModel];
-                }
-            }
-            
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self creatView];
+                [self.hud hide:YES];
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
             });
             
         }

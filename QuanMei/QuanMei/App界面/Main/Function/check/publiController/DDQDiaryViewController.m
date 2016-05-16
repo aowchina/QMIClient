@@ -140,7 +140,6 @@ static int page = 2;
                 //请求回来有东西
                 if (get_jsonDic.count != 0) {
                 
-                    NSLog(@"%@",get_jsonDic);
                     //12-21
                     for (NSDictionary *dic1 in get_jsonDic) {
                         

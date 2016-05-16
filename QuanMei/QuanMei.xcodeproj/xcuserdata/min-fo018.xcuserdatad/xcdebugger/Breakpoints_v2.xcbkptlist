@@ -9,29 +9,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/Function/check/publiController/DDQDiaryViewController.m"
-            timestampString = "482926563.150005"
+            filePath = "QuanMei/AppDelegate.m"
+            timestampString = "485085708.042718"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "52"
-            endingLineNumber = "52"
-            landmarkName = "-viewDidLoad"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/Function/check/publiController/DDQDiaryViewController.m"
-            timestampString = "482927467.020006"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "146"
-            endingLineNumber = "146"
-            landmarkName = "-analysisProjectDiaryWithPage:"
+            startingLineNumber = "580"
+            endingLineNumber = "580"
+            landmarkName = "-qiandao_viewSelected:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -41,13 +25,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/Login/Register/DDQThirdRegisterViewController.m"
-            timestampString = "482928438.673853"
+            filePath = "QuanMei/App&#x754c;&#x9762;/Mine/tableSub/NewOrderListUI/SubC/DDQEvaluateController.m"
+            timestampString = "485090455.575145"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "165"
-            endingLineNumber = "165"
-            landmarkName = "-sendMessage"
+            startingLineNumber = "145"
+            endingLineNumber = "145"
+            landmarkName = "-tableView:didSelectRowAtIndexPath:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -57,141 +41,13 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/Login/Register/DDQThirdRegisterViewController.m"
-            timestampString = "482928461.365472"
+            filePath = "QuanMei/App&#x754c;&#x9762;/Mine/tableSub/detail/DDQEvaluateViewController.m"
+            timestampString = "485093310.567979"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "228"
-            endingLineNumber = "228"
-            landmarkName = "-pushToMainViewController"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/Login/Register/DDQThirdRegisterViewController.m"
-            timestampString = "482928456.142759"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "246"
-            endingLineNumber = "246"
-            landmarkName = "-pushToMainViewController"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/Login/Register/DDQThirdRegisterViewController.m"
-            timestampString = "482928489.505116"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "264"
-            endingLineNumber = "264"
-            landmarkName = "-pushToMainViewController"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Preference/DDQPreferenceViewController.m"
-            timestampString = "483352399.630571"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "475"
-            endingLineNumber = "475"
-            landmarkName = "-collectionView:didSelectItemAtIndexPath:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Preference/DDQPreferenceViewController.m"
-            timestampString = "483352399.630571"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "484"
-            endingLineNumber = "484"
-            landmarkName = "-collectionView:didSelectItemAtIndexPath:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/Function/lesson/DDQTeacherIntroViewController.m"
-            timestampString = "482984566.169311"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "107"
-            endingLineNumber = "107"
-            landmarkName = "-intro_selectedType"
-            landmarkType = "5">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__51-[DDQTeacherIntroViewController intro_selectedType]_block_invoke_2"
-                  moduleName = "QuanMei"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/min-fo018/Desktop/%E5%85%A8%E7%BE%8E/%E5%85%A8%E7%BE%8E/QuanMei%202/QuanMei/App%E7%95%8C%E9%9D%A2/Main/Function/lesson/DDQTeacherIntroViewController.m"
-                  timestampString = "483352400.741924"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "107"
-                  endingLineNumber = "107"
-                  offsetFromSymbolStart = "728">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "__51-[DDQTeacherIntroViewController intro_selectedType]_block_invoke_3"
-                  moduleName = "QuanMei"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/min-fo018/Desktop/%E5%85%A8%E7%BE%8E/%E5%85%A8%E7%BE%8E/QuanMei%202/QuanMei/App%E7%95%8C%E9%9D%A2/Main/Function/lesson/DDQTeacherIntroViewController.m"
-                  timestampString = "483352400.742078"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "107"
-                  endingLineNumber = "107"
-                  offsetFromSymbolStart = "15">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "QuanMei/App&#x754c;&#x9762;/Main/search/DDQMainSearchViewController.m"
-            timestampString = "483160258.289087"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "129"
-            endingLineNumber = "129"
-            landmarkName = "-touchesBegan:withEvent:"
+            startingLineNumber = "396"
+            endingLineNumber = "396"
+            landmarkName = "-buttonClicked"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

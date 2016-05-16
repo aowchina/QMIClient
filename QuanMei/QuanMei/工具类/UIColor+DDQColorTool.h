@@ -20,6 +20,7 @@
 
 +(instancetype)myBlueColor;
 +(instancetype)myGrayColor;
-
 +(instancetype)titleColor;
++ (instancetype)payColor;
+
 @end

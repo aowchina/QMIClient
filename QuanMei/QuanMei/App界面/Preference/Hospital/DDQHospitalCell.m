@@ -58,7 +58,7 @@
         }];
         dashesLine.startPoint = CGPointMake(0, 3);
         dashesLine.endPoint = CGPointMake(kScreenWidth, 3);
-        dashesLine.lineColor = [UIColor grayColor];
+        dashesLine.lineColor = kRightColor;
     }
     return self;
 }

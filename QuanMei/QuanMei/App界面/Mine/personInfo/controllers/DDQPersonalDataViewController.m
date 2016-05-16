@@ -634,7 +634,6 @@ NSString *errorcode = [NSString stringWithFormat:@"%@",post_Dic[@"errorcode"]];
                 if (!connectionError) {
                     
                     id dic = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-                    NSLog(@"%@",dic);
                     if ([dic[@"errorcode"] intValue] == 0) {
                         self.hud.detailsLabelText = @"头像上传成功";
                         [self.hud show:YES];

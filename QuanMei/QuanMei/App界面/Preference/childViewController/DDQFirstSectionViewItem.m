@@ -17,10 +17,10 @@
         [view mas_makeConstraints:^(MASConstraintMaker *make) {
             make.centerX.equalTo(self.contentView.mas_centerX);
             make.centerY.equalTo(self.contentView.mas_centerY);
-            make.width.equalTo(@70);
-            make.height.equalTo(@70);
+            make.width.equalTo(@60);
+            make.height.equalTo(@60);
         }];
-        [view.layer setCornerRadius:35.0f];
+        [view.layer setCornerRadius:30.0f];
         [view.layer setBorderWidth:1.0f];
         [view.layer setBorderColor:[UIColor colorWithRed:229/255.0 green:136/255.0 blue:160/255.0 alpha:1].CGColor];
         

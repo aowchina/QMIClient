@@ -68,12 +68,12 @@
     self.descriptionButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width*0.5, view.frame.size.height)];
     [self.descriptionButton setBackgroundColor:[UIColor whiteColor]];
     [self.descriptionButton setTitle:@"项目简介" forState:UIControlStateNormal];
-    [self.descriptionButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [self.descriptionButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [self.descriptionButton addTarget:self action:@selector(changeToProjectDetailViewController) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:self.descriptionButton];
     
     self.diaryButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.bounds.size.width*0.5, 0, self.view.bounds.size.width*0.5, view.frame.size.height)];
-    [self.diaryButton setBackgroundColor:[UIColor grayColor]];
+    [self.diaryButton setBackgroundColor:kLeftColor];
     [self.diaryButton setTitle:@"相关日记" forState:UIControlStateNormal];
     [self.diaryButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.diaryButton addTarget:self action:@selector(changeToUserDiaryViewController) forControlEvents:UIControlEventTouchUpInside];
@@ -87,7 +87,7 @@
     [self.view addSubview:_diaryVC.view];
 
     [self.diaryButton setBackgroundColor:[UIColor whiteColor]];
-    [self.diaryButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+    [self.diaryButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
 //
 //    [self transitionFromViewController:_projectDetailVC toViewController:_diaryVC duration:0 options:UIViewAnimationOptionTransitionNone animations:nil completion:^(BOOL finished) {
 //        if (!finished) {
@@ -96,7 +96,7 @@
 //            [_projectDetailVC removeFromParentViewController];
 //        }
 //    }];
-    [self.descriptionButton setBackgroundColor:[UIColor lightGrayColor]];
+    [self.descriptionButton setBackgroundColor:kLeftColor];
     [self.descriptionButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.view bringSubviewToFront:_diaryVC.view];
 
@@ -104,8 +104,8 @@
 
 -(void)changeToProjectDetailViewController {
     
-    [self.descriptionButton setBackgroundColor:[UIColor lightGrayColor]];
-    [self.descriptionButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.descriptionButton setBackgroundColor:[UIColor whiteColor]];
+    [self.descriptionButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
 //
 //    [self transitionFromViewController:_diaryVC toViewController:_projectDetailVC duration:0 options:UIViewAnimationOptionTransitionNone animations:nil completion:^(BOOL finished) {
 //        if (!finished) {
@@ -114,8 +114,8 @@
 //            [_diaryVC removeFromParentViewController];
 //        }
 //    }];
-    [self.diaryButton setBackgroundColor:[UIColor whiteColor]];
-    [self.diaryButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+    [self.diaryButton setBackgroundColor:kLeftColor];
+    [self.diaryButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [self.view bringSubviewToFront:_projectDetailVC.view];
 
 }

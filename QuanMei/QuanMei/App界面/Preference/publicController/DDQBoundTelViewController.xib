@@ -133,7 +133,7 @@
                         </mask>
                     </variation>
                 </textField>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NkQ-pt-m7B">
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NkQ-pt-m7B">
                     <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                     <state key="normal" title="获取验证码">
                         <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -235,7 +235,7 @@
                     <include reference="xcy-vT-rpy"/>
                 </mask>
             </variation>
-            <point key="canvasLocation" x="589" y="267"/>
+            <point key="canvasLocation" x="468" y="268"/>
         </view>
     </objects>
     <resources>

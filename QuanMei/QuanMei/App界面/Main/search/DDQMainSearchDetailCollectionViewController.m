@@ -27,6 +27,10 @@
 @property (nonatomic ,strong)UIScrollView * mainScrollView;
 
 @property (nonatomic ,strong)NSMutableArray * godsArray;
+
+
+@property ( strong, nonatomic) MBProgressHUD *hud;
+
 @end
 
 @implementation DDQMainSearchDetailCollectionViewController
@@ -39,7 +43,10 @@
     page_id = @"1";
     
     _godsArray = [[NSMutableArray alloc]init];
-
+    
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -58,8 +65,21 @@
     //返回颜色
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     
+    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        
+        if (errorDic) {
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"当前网络异常" andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+            
+        
+            [self.hud show:YES];
+            [self asyncListForSearchDetailVC];
+        }
+        
+    }];
     
-    [self asyncListForSearchDetailVC];
 }
 
 - (void)asyncListForSearchDetailVC
@@ -89,36 +109,49 @@
         //接受字典
         NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kSearchTehuiUrl];
         
-        NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
         
-        
-        //10-19
-        //10-30
-        if (![get_JsonDic isKindOfClass:[NSNull class]] && get_JsonDic!=nil) {
-            
-            //12-21
-            for (NSDictionary *dic1 in get_JsonDic) {
-                
-                NSDictionary * dic = [DDQPublic nullDic:dic1];
-                
-                zhutiModel *thmodel = [[zhutiModel alloc]init];
-                
-                thmodel.fname = dic[@"fname"];
-                thmodel.ID = dic[@"id"];
-                thmodel.name = dic[@"name"];
-                thmodel.newval = dic[@"newval"];
-                thmodel.oldval = dic[@"oldval"];
-                thmodel.simg = dic[@"simg"];
-                thmodel.hname = dic[@"hname"];
-                
-                [_godsArray addObject:thmodel];
+        if (get_postDic[@"errorcode"] == 0) {
+            //10-19
+            //10-30
+            NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
 
+            if (![get_JsonDic isKindOfClass:[NSNull class]] && get_JsonDic!=nil) {
+                
+                //12-21
+                for (NSDictionary *dic1 in get_JsonDic) {
+                    
+                    NSDictionary * dic = [DDQPublic nullDic:dic1];
+                    
+                    zhutiModel *thmodel = [[zhutiModel alloc]init];
+                    
+                    thmodel.fname = dic[@"fname"];
+                    thmodel.ID = dic[@"id"];
+                    thmodel.name = dic[@"name"];
+                    thmodel.newval = dic[@"newval"];
+                    thmodel.oldval = dic[@"oldval"];
+                    thmodel.simg = dic[@"simg"];
+                    thmodel.hname = dic[@"hname"];
+                    
+                    [_godsArray addObject:thmodel];
+                    
+                }
             }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.hud hide:YES];
+                [self crratSearchCollectionView];
+            });
+            
+        } else {
+        
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.hud hide:YES];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+            });
+            
         }
         
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self crratSearchCollectionView];
-        });
+        
     });
 
 }

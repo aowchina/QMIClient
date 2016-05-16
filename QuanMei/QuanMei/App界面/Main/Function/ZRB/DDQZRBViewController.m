@@ -22,7 +22,13 @@
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor meiHongSe]};
     [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     
+    UILabel *label = [[UILabel alloc] init];
+    self.navigationItem.titleView = label;
+    label.text = @"整容宝";
+    label.textColor = [UIColor meiHongSe];
+    
     [self addControl];
+    
 }
 
 #pragma mark - controls
@@ -31,7 +37,7 @@
     self.mainScrollView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.mainScrollView];
     UIImage *image = [UIImage imageNamed:@"美容宝"];
-    self.mainScrollView.contentSize = CGSizeMake(kScreenWidth, image.size.width);
+    self.mainScrollView.contentSize = CGSizeMake(kScreenWidth, image.size.height);
     
     UIImageView *firstImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, image.size.width)];
     [self.mainScrollView addSubview:firstImageView];

@@ -252,23 +252,6 @@
             
             self.viewBottom_H = reply_tableView.frame.size.height;
 
-//        } else {
-//            
-//            UIView *bottom_view = [[UIView alloc] init];
-//            [self.contentView addSubview:bottom_view];
-//            [bottom_view mas_makeConstraints:^(MASConstraintMaker *make) {
-//                make.right.equalTo(self.contentView.mas_right);
-//                make.height.offset(10);
-//                make.left.equalTo(self.contentView.mas_left);
-//                make.top.equalTo(self.contentView.mas_bottom);
-//            }];
-//            bottom_view.tag = 8;
-//            bottom_view.backgroundColor = [UIColor backgroundColor];
-//            
-//            self.viewBottom_H = 10;
-//
-//        }
-
     }
 
 }

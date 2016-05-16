@@ -21,7 +21,7 @@
 #import "DDQMyLessonViewController.h"
 #import "DDQUserInfoModel.h"
 #import "DDQMineInfoModel.h"
-
+#import "DDQNewOrderListController.h"
 #import "DDQMineTableViewCell.h"
 
 #import "DDQOrderViewController.h"
@@ -70,7 +70,8 @@
 - (void)viewWillAppear:(BOOL)animated {
     
     self.navigationController.navigationBar.translucent = NO;
-    
+    [self setNavigationBar];
+
     [self.hud show:YES];
     [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
         
@@ -96,10 +97,9 @@
 
 //11-30-15
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
     
-    //    self.hidesBottomBarWhenPushed = YES;
-    [self setNavigationBar];
     self.mineInfoModel = [[DDQMineInfoModel alloc] init];
 
     [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
@@ -150,6 +150,76 @@
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor meiHongSe]};
     self.navigationController.navigationBar.tintColor           = [UIColor meiHongSe];
     self.navigationItem.rightBarButtonItem                      = rightItem;
+    [self layOutNavigationBar];
+    
+}
+
+-(void)layOutNavigationBar {
+    //拿到单例model
+    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];//这是登陆过后的data值
+    
+    if (infoModel.isLogin == YES) {
+        
+        if (![infoModel.userimg isEqualToString:@""]&&infoModel.userimg != nil) {//判断用户是否有头像
+            
+            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+            
+            [imageView sd_setImageWithURL:[NSURL URLWithString:infoModel.userimg]];
+            imageView.layer.cornerRadius     = 15.0f;
+            imageView.contentMode            = UIViewContentModeScaleAspectFit;
+            imageView.layer.masksToBounds    = YES;
+            //打开用户交互
+            imageView.userInteractionEnabled = YES;
+            
+//            添加手势
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userIconHandle)];
+            [imageView addGestureRecognizer:tap];
+            
+            UIBarButtonItem *leftItem             = [[UIBarButtonItem alloc] initWithCustomView:imageView];
+            self.navigationItem.leftBarButtonItem = leftItem;
+            
+            
+        } else {
+            
+            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+            
+            [imageView setImage:[UIImage imageNamed:@"default_pic"]];
+            imageView.layer.cornerRadius     = 15.0f;
+            imageView.contentMode            = UIViewContentModeScaleAspectFit;
+            imageView.layer.masksToBounds    = YES;
+            //打开用户交互
+            imageView.userInteractionEnabled = YES;
+            
+            //添加手势
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToMineViewController)];
+            [imageView addGestureRecognizer:tap];
+            
+            UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithCustomView:imageView];
+            self.navigationItem.leftBarButtonItem = leftItem;
+        }
+        
+    } else {
+        
+        UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"登录" style:UIBarButtonItemStyleDone target:self action:@selector(pushToLoginViewController)];
+        //10-19
+        //11-06
+        leftItem.tintColor        = [UIColor meiHongSe];
+        
+        self.navigationItem.leftBarButtonItem = leftItem;
+    }
+    
+}
+#pragma mark - navigationBar item target aciton
+-(void)pushToLoginViewController {
+    DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
+    loginVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:loginVC animated:NO];
+}
+
+-(void)pushToMineViewController {
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
+    
 }
 
 #pragma mark - initTabelView
@@ -365,7 +435,7 @@
     [self.userMessage mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.backgroundImageView.mas_centerX);
         make.bottom.equalTo(self.backgroundImageView.mas_bottom).with.offset(-10);
-        make.width.offset(kScreenWidth * 0.4);
+        make.width.offset(kScreenWidth * 0.5);
         make.height.offset(kScreenHeight * 0.2 * 0.18);
     }];
     [self.userMessage.layer setCornerRadius:kScreenHeight * 0.2 * 0.2/2];
@@ -392,7 +462,7 @@
     [imageView_1 mas_makeConstraints:^(MASConstraintMaker *make) {
     
         make.centerY.equalTo(self.userMessage.mas_centerY);
-        make.left.equalTo(self.userMessage.mas_left).offset(10);
+        make.left.equalTo(self.userMessage.mas_left).offset(5);
         make.width.and.height.offset(10);
         
     }];
@@ -400,7 +470,7 @@
 
     [label_1 mas_makeConstraints:^(MASConstraintMaker *make) {
     
-        make.left.equalTo(imageView_1.mas_right).offset(5);
+        make.left.equalTo(imageView_1.mas_right);
         make.centerY.equalTo(imageView_1.mas_centerY);
         
     }];
@@ -446,7 +516,7 @@
         self.userName.textColor = [UIColor whiteColor];
 
     } else {
-        self.userName.textColor = [UIColor backgroundColor];
+        self.userName.textColor = [UIColor whiteColor];
 
     }
     [self.userName setText:self.mineInfoModel.username];
@@ -479,38 +549,38 @@
     _userLV.textAlignment = NSTextAlignmentCenter;
     
     
-    UIImageView *iconBgImageView = [[UIImageView alloc] init];
-    [self.backgroundImageView addSubview:iconBgImageView];
-    [iconBgImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(self.backgroundImageView.mas_centerX);
-        make.centerY.equalTo(self.backgroundImageView.mas_centerY).with.offset(-30);
-        make.width.offset(80);
-        make.height.offset(80);
-    }];
-    iconBgImageView.layer.cornerRadius = 40.f;
-    iconBgImageView.userInteractionEnabled = YES;
-    iconBgImageView.layer.masksToBounds = YES;
-    [iconBgImageView setImage:[UIImage imageNamed:@"userIcon"]];
+//    UIImageView *iconBgImageView = [[UIImageView alloc] init];
+//    [self.backgroundImageView addSubview:iconBgImageView];
+//    [iconBgImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.centerX.equalTo(self.backgroundImageView.mas_centerX);
+//        make.centerY.equalTo(self.backgroundImageView.mas_centerY).with.offset(-30);
+//        make.width.offset(80);
+//        make.height.offset(80);
+//    }];
+//    iconBgImageView.layer.cornerRadius = 40.f;
+//    iconBgImageView.userInteractionEnabled = YES;
+//    iconBgImageView.layer.masksToBounds = YES;
+//    [iconBgImageView setImage:[UIImage imageNamed:@"userIcon"]];
     
-    self.userImageView = [[UIImageView alloc] init];
-    [self.backgroundImageView addSubview:self.userImageView];
-    [self.userImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(self.backgroundImageView.mas_centerX);
-        make.centerY.equalTo(self.backgroundImageView.mas_centerY).with.offset(-30);
-        make.width.offset(70);
-        make.height.offset(70);
-    }];
-    [self.userImageView.layer setCornerRadius:35.0f];
-    [self.userImageView.layer setMasksToBounds:YES];
+//    self.userImageView = [[UIImageView alloc] init];
+//    [self.backgroundImageView addSubview:self.userImageView];
+//    [self.userImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.centerX.equalTo(self.backgroundImageView.mas_centerX);
+//        make.centerY.equalTo(self.backgroundImageView.mas_centerY).with.offset(-30);
+//        make.width.offset(70);
+//        make.height.offset(70);
+//    }];
+//    [self.userImageView.layer setCornerRadius:35.0f];
+//    [self.userImageView.layer setMasksToBounds:YES];
     
-    NSURL *url = [NSURL URLWithString:self.mineInfoModel.userimg];
-    [_userImageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"default_pic"]];
-    
-    _userImageView.userInteractionEnabled = YES;
-    
-    UITapGestureRecognizer *iconGest = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userIconHandle)];
-    [_userImageView addGestureRecognizer:iconGest];
-    
+//    NSURL *url = [NSURL URLWithString:self.mineInfoModel.userimg];
+//    [_userImageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"default_pic"]];
+//    
+//    _userImageView.userInteractionEnabled = YES;
+//    
+//    UITapGestureRecognizer *iconGest = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userIconHandle)];
+//    [_userImageView addGestureRecognizer:iconGest];
+//    
     UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userImgButtonClicked)];
     [_backgroundImageView setUserInteractionEnabled:YES];
     [_backgroundImageView addGestureRecognizer:gesture];
@@ -588,7 +658,7 @@
 }
 
 - (void)saveImage:(UIImage*)currentImage withName:(NSString *)imageName{
-    NSData *imageData = UIImageJPEGRepresentation(currentImage, 0.8);
+    NSData *imageData = UIImageJPEGRepresentation(currentImage, 1);
     
     NSString *fullPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:imageName];
     
@@ -692,7 +762,7 @@
         //网络请求
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:kEditBgImgUrl]];
         
-        [urlRequest setTimeoutInterval:5000];
+        [urlRequest setTimeoutInterval:20.0];
         [urlRequest setHTTPMethod:@"POST"];
         [urlRequest setValue:@"keep-alive" forHTTPHeaderField:@"connection"];
         [urlRequest setValue:CHARSET forHTTPHeaderField:@"Charsert"];
@@ -872,7 +942,7 @@ static NSString *uuidKey = @"ModelCenter uuid key";
         _mainTabelView.backgroundColor = [UIColor backgroundColor];
         [self.view addSubview:_mainTabelView];
         
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height*0.25)];
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height*0.25 + 35)];
         
         UIButton *button = [[UIButton alloc] init];
         [view addSubview:button];
@@ -887,6 +957,8 @@ static NSString *uuidKey = @"ModelCenter uuid key";
         [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [button setShowsTouchWhenHighlighted:YES];
         [button addTarget:self action:@selector(popMainViewController) forControlEvents:UIControlEventTouchUpInside];
+        button.layer.cornerRadius = 5.0f;
+        button.layer.masksToBounds = YES;
         _mainTabelView.tableFooterView = view;
     }
     return _mainTabelView;
@@ -1001,7 +1073,8 @@ static NSString *identifier = @"cell";
     //我的评论
     DDQMyCommentViewController *myCommentVC = [[DDQMyCommentViewController alloc] init];
 
-    DDQOrderViewController * orderView = [[DDQOrderViewController alloc]init];
+//    DDQOrderViewController * orderView = [[DDQOrderViewController alloc]init];
+    DDQNewOrderListController *orderC = [[DDQNewOrderListController alloc] init];
 
     DDQMyCollectViewController *collectVC = [[DDQMyCollectViewController alloc] init];
     
@@ -1020,8 +1093,8 @@ static NSString *identifier = @"cell";
         
     } else if (indexPath.section == 2){
         
-        orderView.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:orderView animated:YES];
+        orderC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:orderC animated:YES];
 
     } else if (indexPath.section == 3) {
     

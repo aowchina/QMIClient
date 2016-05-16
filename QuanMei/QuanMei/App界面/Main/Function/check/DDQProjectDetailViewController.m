@@ -93,7 +93,7 @@
 -(void)initTableView
 {
     //114
-    _scroll = [[UIScrollView alloc]initWithFrame:CGRectMake(0,0,WIDTH,HEIGHT-(50+HEIGHT*0.02))];
+    _scroll = [[UIScrollView alloc]initWithFrame:CGRectMake(0,0,WIDTH,HEIGHT-64)];
     _scroll.contentSize = CGSizeMake(WIDTH, HEIGHT*3);
     _scroll.delegate = self;
     _scroll.backgroundColor = [UIColor backgroundColor];

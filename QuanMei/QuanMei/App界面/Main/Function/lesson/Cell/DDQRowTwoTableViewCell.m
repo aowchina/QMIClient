@@ -23,7 +23,7 @@
             make.height.offset(20);
         }];
         
-        NSAttributedString *atrributedString = [[NSAttributedString alloc] initWithString:@"数量:" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.0f],NSForegroundColorAttributeName:[UIColor grayColor]}];
+        NSAttributedString *atrributedString = [[NSAttributedString alloc] initWithString:@"数量:" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.0f],NSForegroundColorAttributeName:kLeftColor}];
         self.rt_countLabel.font = [UIFont systemFontOfSize:14.0f];
         self.rt_countLabel.attributedText = atrributedString;
         
@@ -62,15 +62,15 @@
         [self.rt_addBtn addTarget:self action:@selector(addButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
         
         self.rt_minusBtn.layer.borderWidth = 1.0f;
-        self.rt_minusBtn.layer.borderColor = [UIColor grayColor].CGColor;
-        [self.rt_minusBtn setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+        self.rt_minusBtn.layer.borderColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.7f].CGColor;
+        [self.rt_minusBtn setTitleColor:kLeftColor forState:UIControlStateNormal];
         
         self.rt_addBtn.layer.borderWidth = 1.0f;
-        self.rt_addBtn.layer.borderColor = [UIColor grayColor].CGColor;
-        [self.rt_addBtn setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+        self.rt_addBtn.layer.borderColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.7f].CGColor;
+        [self.rt_addBtn setTitleColor:kLeftColor forState:UIControlStateNormal];
 
         self.rt_showLabel.layer.borderWidth = 1.0f;
-        self.rt_showLabel.layer.borderColor = [UIColor grayColor].CGColor;
+        self.rt_showLabel.layer.borderColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.7f].CGColor;
         
 //        UIView *lineview = [UIView new];
 //        [self.contentView addSubview:lineview];

@@ -151,7 +151,7 @@
             UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
             
             [imageView setImage:[UIImage imageNamed:@"default_pic"]];
-            imageView.layer.cornerRadius     = 20.0f;
+            imageView.layer.cornerRadius     = 15.0f;
             imageView.contentMode            = UIViewContentModeScaleAspectFit;
             imageView.layer.masksToBounds    = YES;
             //打开用户交互
@@ -183,6 +183,7 @@
 }
 
 -(void)pushToMineViewController {
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
 
 }
@@ -512,7 +513,7 @@ static BOOL isFresh = NO;
         ListModel *model = [_act_list objectAtIndex:indexPath.row];
         activityVC.hid = model.act_list_hid;
         activityVC.pid = model.act_list_pid;
-        activityVC.ImgURL = model.act_list_simg;
+        activityVC.ImgURL = model.act_list_bimg;
         activityVC.hidesBottomBarWhenPushed = YES;
         [self.navigationController pushViewController:activityVC animated:YES];
 
@@ -520,15 +521,12 @@ static BOOL isFresh = NO;
     
 }
 
--(void)leftitem
-{
+-(void)leftitem{
     
     DDQMineViewController *ddqmainVC = [[DDQMineViewController alloc]init];
     ddqmainVC.hidesBottomBarWhenPushed = YES;
     [self.navigationController pushViewController:ddqmainVC animated:YES];
-    
-    
-    
+   
 }
 
 -(void)titleImg

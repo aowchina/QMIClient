@@ -140,7 +140,7 @@
 {
     _aView = [[UIView alloc]initWithFrame:CGRectMake(0,0, kScreenWidth, kScreenHeight - 64)];
     
-    _aView.backgroundColor = [UIColor lightGrayColor];
+    _aView.backgroundColor = [UIColor backgroundColor];
     
     [self.view addSubview:_aView];
     
@@ -280,7 +280,7 @@
         
         
         UIView *lineView = [[UIView alloc]initWithFrame:CGRectMake(0 ,tubiaoView.frame.origin.y +tubiaoView.frame.size.height+1 ,  footView.frame.size.width, 1)];
-        lineView.backgroundColor = [UIColor lightGrayColor];
+        lineView.backgroundColor = [UIColor backgroundColor];
         
         [footView addSubview:lineView];
     }
@@ -393,9 +393,9 @@
         cell.title.text = model.name;
         
         //11-06
-        cell.layer.borderColor=[UIColor darkGrayColor].CGColor;
+        cell.layer.borderColor=[UIColor colorWithRed:227.0f/255.0f green:226.0f/255.0f blue:226.0f/255.0f alpha:1.0f].CGColor;
         
-        cell.layer.cornerRadius = 10;
+        cell.layer.cornerRadius = 5;
         
         cell.layer.borderWidth=1;
         
@@ -455,7 +455,7 @@
             [_tagDic removeObjectForKey:[NSString stringWithFormat:@"%ld",(long)weizhi]];
             
             //10-06
-            cell.layer.borderColor=[UIColor darkGrayColor].CGColor;
+            cell.layer.borderColor=[UIColor backgroundColor].CGColor;
             cell.layer.borderWidth=1;
         }
         
@@ -846,7 +846,7 @@
         
         UIView *lineView1 =[[UIView alloc]initWithFrame:CGRectMake(10, xuanzeLabel.frame.size.height, _showView.frame.size.width-20, 2)];
         
-        lineView1.backgroundColor= [UIColor lightGrayColor];
+        lineView1.backgroundColor= [UIColor backgroundColor];
         
         [_showView addSubview:lineView1];
         
@@ -866,7 +866,7 @@
         
         UIView *lineView2 = [[UIView alloc]initWithFrame:CGRectMake(10, _showView.frame.size.height/2-2, _showView.frame.size.width-20, 1)];
         
-        lineView2.backgroundColor = [UIColor lightGrayColor];
+        lineView2.backgroundColor = [UIColor backgroundColor];
         
         [_showView addSubview:lineView2];
         
@@ -886,7 +886,7 @@
         
         UIView *lineView3 = [[UIView alloc]initWithFrame:CGRectMake(10, _showView.frame.size.height/4*3, _showView.frame.size.width-20, 1)];
         
-        lineView3.backgroundColor = [UIColor lightGrayColor];
+        lineView3.backgroundColor = [UIColor backgroundColor];
         
         [_showView addSubview:lineView3];
         
@@ -955,11 +955,16 @@
     [picker setDidFinishSelectThumbnails:^(NSArray *thumbnails) {
         //      缩略图%@",thumbnails);
         
+          }];
+    
+    //返回选中的原图
+    [picker setDidFinishSelectImages:^(NSArray *images) {
+        //    "原图%@",images);
         _linshiPhotoArray = _collectionArray;
         
         NSArray *arr = [[NSArray alloc]init];
         
-        for (UIImage *image in thumbnails) {
+        for (UIImage *image in images) {
             
             //存到本地,存为nsdata类型
             [self saveImage:image withName:@"avatar.png"];
@@ -990,11 +995,7 @@
         [_photoCollectionView reloadData];
         
         [self dismissViewPostingVC];
-    }];
-    
-    //返回选中的原图
-    [picker setDidFinishSelectImages:^(NSArray *images) {
-        //    "原图%@",images);
+
     }];
     
     [self presentViewController:picker animated:YES completion:nil];
@@ -1034,16 +1035,16 @@
     
     //12-02
     //设置image的尺寸
-    
-    CGSize imagesize = image.size;
-    
-    imagesize.height = image.size.height*(kScreenWidth/kScreenHeight);
-    
-    imagesize.width = image.size.width*(kScreenWidth/kScreenHeight);
+//    
+//    CGSize imagesize = image.size;
+//    
+//    imagesize.height = image.size.height*(kScreenWidth/kScreenHeight);
+//    
+//    imagesize.width = image.size.width*(kScreenWidth/kScreenHeight);
     
     //对图片大小进行压缩--
     
-    image = [self imageWithImage:image scaledToSize:imagesize];
+//    image = [self imageWithImage:image scaledToSize:imagesize];
     
     [self saveImage:image withName:@"avatar.png"];
     

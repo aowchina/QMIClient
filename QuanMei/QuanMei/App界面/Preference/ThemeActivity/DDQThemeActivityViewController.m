@@ -147,7 +147,7 @@ static int page = 2;
 -(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     UICollectionReusableView *reusableView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header" forIndexPath:indexPath];
     if (kind == UICollectionElementKindSectionHeader){
-        UIImageView *headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(15, 0, reusableView.frame.size.width-30, reusableView.frame.size.height)];
+        UIImageView *headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, reusableView.frame.size.width, reusableView.frame.size.width / 1.9)];
         [reusableView addSubview:headerImageView];
         [headerImageView sd_setImageWithURL:[NSURL URLWithString:_ImgURL] placeholderImage:[UIImage imageNamed:@"default_pic"]];
         return reusableView;

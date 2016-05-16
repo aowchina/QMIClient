@@ -174,7 +174,7 @@ static int num = 2;
         make.height.offset(30);
     }];
     title_label.text = @"分享";
-    title_label.textColor = [UIColor grayColor];
+    title_label.textColor = [UIColor backgroundColor];
     
     if ([WXApi isWXAppInstalled]&&[WXApi isWXAppSupportApi]) {
         
@@ -202,7 +202,7 @@ static int num = 2;
         }];
         wx_friend.text = @"微信";
         wx_friend.font = [UIFont systemFontOfSize:15.0f];
-        wx_friend.textColor = [UIColor grayColor];
+        wx_friend.textColor = [UIColor backgroundColor];
         
         
         //朋友圈
@@ -228,7 +228,7 @@ static int num = 2;
         }];
         wx_circle.text = @"朋友圈";
         wx_circle.font = [UIFont systemFontOfSize:15.0f];
-        wx_circle.textColor = [UIColor grayColor];
+        wx_circle.textColor = [UIColor backgroundColor];
         
         //QQ
         UIButton *qq_share = [[UIButton alloc] init];
@@ -253,7 +253,7 @@ static int num = 2;
         }];
         qq_shared.text = @"QQ";
         qq_shared.font = [UIFont systemFontOfSize:15.0f];
-        qq_shared.textColor = [UIColor grayColor];
+        qq_shared.textColor = [UIColor backgroundColor];
         
         UIButton *button = [[UIButton alloc] init];
         [temp_view addSubview:button];
@@ -265,7 +265,7 @@ static int num = 2;
         }];
         [button addTarget:self action:@selector(hiddenSharedView:) forControlEvents:UIControlEventTouchUpInside];
         [button setTitle:@"取消" forState:UIControlStateNormal];
-        [button setBackgroundColor:[UIColor grayColor]];
+        [button setBackgroundColor:kRightColor];
         button.showsTouchWhenHighlighted = YES;
         button.layer.cornerRadius = 5.0f;
         
@@ -293,7 +293,7 @@ static int num = 2;
         }];
         qq_shared.text = @"QQ";
         qq_shared.font = [UIFont systemFontOfSize:15.0f];
-        qq_shared.textColor = [UIColor grayColor];
+        qq_shared.textColor = [UIColor backgroundColor];
         
         UIButton *button = [[UIButton alloc] init];
         [temp_view addSubview:button];
@@ -305,7 +305,7 @@ static int num = 2;
         }];
         [button addTarget:self action:@selector(hiddenSharedView:) forControlEvents:UIControlEventTouchUpInside];
         [button setTitle:@"取消" forState:UIControlStateNormal];
-        [button setBackgroundColor:[UIColor grayColor]];
+        [button setBackgroundColor:kRightColor];
         button.showsTouchWhenHighlighted = YES;
         button.layer.cornerRadius = 5.0f;
 

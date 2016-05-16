@@ -28,23 +28,23 @@
     [self.pm_zanButton setFrame:CGRectMake(0, 0, kScreenWidth*0.5, 50)];
 
     self.pm_replyButton.backgroundColor = [UIColor whiteColor];
-    [self.pm_replyButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [self.pm_replyButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     
-    self.pm_zanButton.backgroundColor = [UIColor grayColor];
+    self.pm_zanButton.backgroundColor = kLeftColor;
     [self.pm_zanButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     self.temp_button = self.pm_replyButton;
 
     self.myReplyedVC = [DDQMyReplyedViewController new];
     [self addChildViewController:self.myReplyedVC];
     
-    self.myReplyedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-10, self.view.frame.size.width, kScreenHeight);
+    self.myReplyedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-5, self.view.frame.size.width, kScreenHeight);
     
     [self.view addSubview:self.myReplyedVC.view];
     
     self.myZanedVC = [DDQMyZanedViewController new];
     [self addChildViewController:self.myZanedVC];
     
-    self.myZanedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-10, self.view.frame.size.width, kScreenHeight);
+    self.myZanedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-5, self.view.frame.size.width, kScreenHeight);
     
     [self.view addSubview:self.myZanedVC.view];
 
@@ -87,9 +87,9 @@
     
     sender.backgroundColor = [UIColor whiteColor];
     
-    [sender setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [sender setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     
-    self.temp_button.backgroundColor = [UIColor grayColor];
+    self.temp_button.backgroundColor = kLeftColor;
     
     [self.temp_button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
@@ -101,7 +101,7 @@
     
         [self.view bringSubviewToFront:self.myZanedVC.view];
     }
-    
+
 }
 
 

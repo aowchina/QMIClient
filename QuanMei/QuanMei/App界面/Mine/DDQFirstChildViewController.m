@@ -261,7 +261,7 @@ static NSString *identifier = @"cell";
                             make.centerX.equalTo(temp_img.mas_centerX);
                             make.height.offset(20);
                         }];
-                        tip_onelabel.text = @"暂无日记";
+                        tip_onelabel.text = @"暂无帖子";
                         tip_onelabel.textAlignment = NSTextAlignmentCenter;
                         tip_onelabel.font = [UIFont systemFontOfSize:16.0f];
                         

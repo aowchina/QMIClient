@@ -169,7 +169,7 @@
             UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
             
             [imageView setImage:[UIImage imageNamed:@"default_pic"]];
-            imageView.layer.cornerRadius     = 20.0f;
+            imageView.layer.cornerRadius     = 15.0f;
             imageView.contentMode            = UIViewContentModeScaleAspectFit;
             imageView.layer.masksToBounds    = YES;
             //打开用户交互
@@ -205,7 +205,7 @@
 -(void)pushToMineViewController {
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
-    
+
 }
 
 #pragma mark - netWork

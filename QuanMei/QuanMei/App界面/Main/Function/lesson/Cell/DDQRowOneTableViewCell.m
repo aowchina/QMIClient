@@ -43,7 +43,7 @@
             make.bottom.equalTo(self.contentView.mas_bottom);
             make.height.offset(1);
         }];
-        lineview.backgroundColor = [[UIColor lightGrayColor] colorWithAlphaComponent:0.8f];
+        lineview.backgroundColor = [UIColor backgroundColor];
     }
     return self;
 }

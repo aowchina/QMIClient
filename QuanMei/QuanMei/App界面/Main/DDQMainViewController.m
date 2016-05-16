@@ -33,7 +33,6 @@
 #import "DDQMyWalletViewController.h"
 //10-30
 #import "DDQLoopView.h"
-#import "DDQQiandaoView.h"
 #import "DDQSearchBar.h"
 //11-06
 #import "DDQMainSearchViewController.h"
@@ -41,7 +40,7 @@
 #import "DDQLunBoModel.h"
 #import "DDQThirdRegisterViewController.h"
 
-@interface DDQMainViewController ()<UITableViewDelegate,UITableViewDataSource,MBProgressHUDDelegate,UISearchBarDelegate,UIScrollViewDelegate,DDQLoopViewDelegate,QiandaoDelegate,SearchDelegate>
+@interface DDQMainViewController ()<UITableViewDelegate,UITableViewDataSource,MBProgressHUDDelegate,UISearchBarDelegate,UIScrollViewDelegate,DDQLoopViewDelegate,SearchDelegate>
 /**
  *  headerView
  */
@@ -130,8 +129,8 @@
     searchBar.layer.cornerRadius = 15.0f;
     self.navigationItem.titleView = searchBar;
     searchBar.backgroundColor = [UIColor whiteColor];
-    searchBar.layer.borderWidth = 1;
-    searchBar.layer.borderColor = [UIColor lightGrayColor].CGColor;
+    searchBar.layer.borderWidth = 2.0f;
+    searchBar.layer.borderColor = [UIColor backgroundColor].CGColor;
     searchBar.layer.masksToBounds = YES;
     searchBar.delegate = self;
     
@@ -450,7 +449,7 @@ static BOOL isHidden = NO;
     self.mainTableView.dataSource = self;
     [self.view addSubview:self.mainTableView];
     //头视图
-    self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth,kScreenHeight*0.45)];
+    self.headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth,kScreenHeight*0.5)];
 
     self.automaticallyAdjustsScrollViewInsets = NO;
     self.headerView.backgroundColor = [UIColor backgroundColor];
@@ -1058,7 +1057,7 @@ static NSString *identifier3 = @"hot";
             UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
             
             [imageView setImage:[UIImage imageNamed:@"default_pic"]];
-            imageView.layer.cornerRadius     = 20.0f;
+            imageView.layer.cornerRadius     = 15.0f;
             imageView.contentMode            = UIViewContentModeScaleAspectFit;
             imageView.layer.masksToBounds    = YES;
             //打开用户交互
@@ -1089,7 +1088,9 @@ static NSString *identifier3 = @"hot";
     if ([[NSUserDefaults standardUserDefaults] valueForKey:@"zanData"] || [[NSUserDefaults standardUserDefaults] valueForKey:@"replyData"]) {
         
         [button setBackgroundImage:[UIImage imageNamed:@"xiao-xi--tishi"] forState:UIControlStateNormal];
+        
     }
+    
     self.rightItem = [[UIBarButtonItem alloc] initWithCustomView:button];
     
     self.navigationItem.rightBarButtonItem = self.rightItem;
@@ -1172,7 +1173,7 @@ static NSString *identifier3 = @"hot";
     UIView *temp_viewone = [[UIView alloc] init];
     [self.currentView addSubview:temp_viewone];
     [temp_viewone mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.equalTo(self.view.mas_width).multipliedBy(0.2 );
+        make.width.equalTo(self.view.mas_width).multipliedBy(0.25);
         make.left.equalTo(self.view.mas_left);
         make.height.equalTo(self.currentView.mas_height);
         make.top.equalTo(self.currentView.mas_top);
@@ -1240,25 +1241,25 @@ static NSString *identifier3 = @"hot";
     /**
      签到
      */
-    UIView *temp_viewthree = [[UIView alloc] init];
-    [self.currentView addSubview:temp_viewthree];
-    [temp_viewthree mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.equalTo(temp_viewtwo.mas_width);
-        make.left.equalTo(temp_viewtwo.mas_right);
-        make.height.equalTo(self.currentView.mas_height);
-        make.top.equalTo(self.currentView.mas_top);
-    }];
-    
-    self.qiandao_button = [[UIButton alloc] init];
-    [temp_viewthree addSubview:self.qiandao_button];
-    [self.qiandao_button mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(temp_viewthree.mas_centerX);
-        make.centerY.equalTo(temp_viewthree.mas_centerY);
-        make.height.offset(imgW);
-        make.width.offset(imgW);
-    }];
-    //10-19
-    [self.qiandao_button addTarget:self action:@selector(qiandaoMethod) forControlEvents:(UIControlEventTouchUpInside)];
+//    UIView *temp_viewthree = [[UIView alloc] init];
+//    [self.currentView addSubview:temp_viewthree];
+//    [temp_viewthree mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.width.equalTo(temp_viewtwo.mas_width);
+//        make.left.equalTo(temp_viewtwo.mas_right);
+//        make.height.equalTo(self.currentView.mas_height);
+//        make.top.equalTo(self.currentView.mas_top);
+//    }];
+//    
+//    self.qiandao_button = [[UIButton alloc] init];
+//    [temp_viewthree addSubview:self.qiandao_button];
+//    [self.qiandao_button mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.centerX.equalTo(temp_viewthree.mas_centerX);
+//        make.centerY.equalTo(temp_viewthree.mas_centerY);
+//        make.height.offset(imgW);
+//        make.width.offset(imgW);
+//    }];
+//    //10-19
+//    [self.qiandao_button addTarget:self action:@selector(qiandaoMethod) forControlEvents:(UIControlEventTouchUpInside)];
     
     /**
      整容宝
@@ -1266,8 +1267,8 @@ static NSString *identifier3 = @"hot";
     UIView *temp_viewfour = [[UIView alloc] init];
     [self.currentView addSubview:temp_viewfour];
     [temp_viewfour mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.equalTo(temp_viewthree.mas_width);
-        make.left.equalTo(temp_viewthree.mas_right);
+        make.width.equalTo(temp_viewtwo.mas_width);
+        make.left.equalTo(temp_viewtwo.mas_right);
         make.height.equalTo(self.currentView.mas_height);
         make.top.equalTo(self.currentView.mas_top);
     }];
@@ -1345,81 +1346,17 @@ static NSString *identifier3 = @"hot";
 
 //11-06
 #pragma mark - searchbar for delegate
-//- (BOOL)searchBarShouldBeginEditing:(UISearchBar *)searchBar
-//{
-//    [searchBar resignFirstResponder];
-//    DDQMainSearchViewController *detailView = [[DDQMainSearchViewController alloc]init];
-//    
-//    detailView.hidesBottomBarWhenPushed = YES;
-//    //12-04
-//    [self.navigationController pushViewController:detailView animated:NO];   
-//    return YES;
-//}
 - (void)searchBarBegainEditing:(NSString *)text {
 
     DDQMainSearchViewController *detailView = [[DDQMainSearchViewController alloc]init];
     
     detailView.hidesBottomBarWhenPushed = YES;
     //12-04
-    [self.navigationController pushViewController:detailView animated:YES];
+    [self.navigationController pushViewController:detailView animated:NO];
+    
 }
+
 #pragma mark - button and gesture target action
-//button
-- (void)qiandaoMethod {
-        
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSString *poststr = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:poststr];
-        
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kQD_Url];
-        
-        NSString *str = get_postDic[@"errorcode"];
-        int num = [str intValue];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (num == 0) {
-                
-                NSString *jifen = [postEncryption stringWithDic:get_postDic];
-                [self.qiandao_button setBackgroundImage:[UIImage imageNamed:@"已签到"] forState:UIControlStateNormal];
-                
-                DDQQiandaoView *qiandao_view = [[DDQQiandaoView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
-                qiandao_view.delegate = self;
-                qiandao_view.huodefenshu.text = [NSString stringWithFormat:@"恭喜获得积分:+%@",jifen];
-                [[UIApplication sharedApplication].keyWindow addSubview:qiandao_view];
-                
-            } else if (num == 13){
-                [self alertController:@"今日已签到"];
-            } else if (num == 15) {
-                [self alertController:@"签到失败请重试"];
-            } else if (num == 11 || num == 12) {
-                
-                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-                [UIApplication sharedApplication].keyWindow.rootViewController = [DDQLoginViewController new];
-                
-            } else {
-                [self alertController:@"服务器繁忙"];
-            }
-        });
-        
-    });
-}
-
-- (void)qiandao_view:(DDQQiandaoView *)view {
-    
-    [view removeFromSuperview];
-}
-
-- (void)qiandao_viewSelected:(DDQQiandaoView *)view {
-    
-    [view removeFromSuperview];
-    DDQMyWalletViewController *myWallet = [DDQMyWalletViewController new];
-    myWallet.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:myWallet animated:YES];
-}
 
 -(void)pushToCheckViewController {
     DDQCheckViewController *checkVC = [[DDQCheckViewController alloc] init];
@@ -1516,6 +1453,7 @@ static NSString *identifier3 = @"hot";
 -(void)pushToMineViewController {
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
+
 }
 
 //10-19聊天

@@ -96,7 +96,7 @@
         doctor_skill.text  = doctorSkill;
         
         _newRect                  = [intro boundingRectWithSize:CGSizeMake(kScreenWidth, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
-        bottomLabel.frame         = CGRectMake(0, 50, _newRect.size.width, _newRect.size.height);
+        bottomLabel.frame         = CGRectMake(0, 60, _newRect.size.width, _newRect.size.height);
         bottomLabel.text          = intro;
         bottomLabel.font          = [UIFont systemFontOfSize:13.0f];
         bottomLabel.numberOfLines = 0;
@@ -120,7 +120,7 @@
         doctor_skill.text  = doctorSkill;
 
         _newRect                  = [intro boundingRectWithSize:CGSizeMake(kScreenWidth, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
-        bottomLabel.frame         = CGRectMake(0, 55, _newRect.size.width, _newRect.size.height);
+        bottomLabel.frame         = CGRectMake(3, 65, _newRect.size.width, _newRect.size.height);
         bottomLabel.text          = intro;
         bottomLabel.font          = [UIFont systemFontOfSize:13.0f];
         bottomLabel.numberOfLines = 0;
@@ -144,7 +144,7 @@
         doctor_skill.text  = doctorSkill;
         
         _newRect                  = [intro boundingRectWithSize:CGSizeMake(kScreenWidth, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
-        bottomLabel.frame         = CGRectMake(0, 65, _newRect.size.width, _newRect.size.height);
+        bottomLabel.frame         = CGRectMake(3, 70, _newRect.size.width, _newRect.size.height);
         bottomLabel.text          = intro;
         bottomLabel.font          = [UIFont systemFontOfSize:13.0f];
         bottomLabel.numberOfLines = 0;
@@ -168,7 +168,7 @@
         doctor_skill.text  = doctorSkill;
         
         _newRect                  = [intro boundingRectWithSize:CGSizeMake(kScreenWidth, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
-        bottomLabel.frame         = CGRectMake(0, 70, _newRect.size.width, _newRect.size.height);
+        bottomLabel.frame         = CGRectMake(4, 80, _newRect.size.width, _newRect.size.height);
         bottomLabel.text          = intro;
         bottomLabel.font          = [UIFont systemFontOfSize:13.0f];
         bottomLabel.numberOfLines = 0;

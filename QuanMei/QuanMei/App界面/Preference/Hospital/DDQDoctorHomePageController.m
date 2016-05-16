@@ -34,9 +34,6 @@
     [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
         
         if (errorDic == nil) {
-//            [_homepage_sourceArray removeAllObjects];
-//            [self asyDoctorNetWork];
-//            [self.mainTableView.header endRefreshing];
             
         } else {
             
@@ -44,6 +41,10 @@
             [self.mainTableView.header endRefreshing];
         }
     }];
+    
+    self.title = @"主力医生";
+
+    
 }
 
 -(void)viewWillAppear:(BOOL)animated {
@@ -136,7 +137,7 @@
 //    if (!introCell) {
         introCell = [[DDQDoctorIntroCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         [introCell cellWithDoctorIntro:homepage_model.intro andImageStr:homepage_model.img andDoctorName:homepage_model.name andDoctorSkill:homepage_model.direction andDoctorMajor:homepage_model.pos];
-        self.rowHeight = introCell.newRect.size.height;
+        self.rowHeight = introCell.newRect.size.height + 10;
         introCell.selectionStyle = UITableViewCellSelectionStyleNone;
 //    }
     
@@ -172,6 +173,7 @@
     return view;
     
 }
+
 #pragma mark - other methods
 -(void)alertController:(NSString *)message {
     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];

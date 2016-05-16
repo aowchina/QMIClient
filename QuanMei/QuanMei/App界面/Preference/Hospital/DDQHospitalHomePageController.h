@@ -11,5 +11,5 @@
 @interface DDQHospitalHomePageController : UIViewController
 
 @property (copy,nonatomic) NSString *hospital_id;
-
+@property ( strong, nonatomic) NSString *hospital_name;
 @end

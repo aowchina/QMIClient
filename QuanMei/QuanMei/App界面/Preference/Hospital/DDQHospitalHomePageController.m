@@ -93,6 +93,8 @@ typedef void(^ItemHeightBlock)(CGFloat height,BOOL isFinished);
             [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
+    
+    self.title = self.hospital_name;
 }
 
 -(void)viewDidDisappear:(BOOL)animated {
@@ -317,7 +319,7 @@ static int tehui_page = 2;
                 
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 
-                UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 5, self.view.frame.size.width, 30)];
+                UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 35)];
                 tempView.backgroundColor = [UIColor whiteColor];
                 [cell.contentView addSubview:tempView];
                 
@@ -373,7 +375,7 @@ static int tehui_page = 2;
             
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             
-            UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 5, self.view.frame.size.width, 30)];
+            UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 35)];
             tempView.backgroundColor = [UIColor whiteColor];
             [cell.contentView addSubview:tempView];
             
@@ -495,7 +497,7 @@ static int tehui_page = 2;
             model = _temp_pjArray[indexPath.row];
         }
         if (model != nil) {
-            
+        
             DDQHospitalEvaluateController *hospitalEvaluateVC = [[DDQHospitalEvaluateController alloc] init];
             hospitalEvaluateVC.hospitalId = model.hid;
             hospitalEvaluateVC.fw = self.homePageModel.fw;
@@ -505,7 +507,7 @@ static int tehui_page = 2;
             [self.navigationController pushViewController:hospitalEvaluateVC animated:YES];
             
         }
-        
+    
     }
 }
 

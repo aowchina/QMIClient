@@ -21,71 +21,37 @@
 #import "payRequsestHandler.h"
 #import "DDQUserInfoModel.h"
 #import "Reachability.h"
-@interface AppDelegate ()<WXApiDelegate>
+#import "DDQBaseTabBarController.h"
+#import "IQKeyboardManager.h"
+#import "DDQQiandaoView.h"
+#import "DDQMyWalletViewController.h"
+@interface AppDelegate ()<WXApiDelegate,QiandaoDelegate>
 
-@property (strong,nonatomic) UITabBarController *tabBarController;
-@property (strong,nonatomic) UINavigationController *mainNavigation;
-@property (strong,nonatomic) UINavigationController *groupNavigation;
-@property (strong,nonatomic) UINavigationController *preferenceNavigation;
-@property (strong,nonatomic) UINavigationController *mineNavigation;
+@property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
+
 @end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    DDQMainViewController *mainController = [[DDQMainViewController alloc] init];
-    self.mainNavigation = [[UINavigationController alloc] initWithRootViewController:mainController];
-    
-    DDQGroupViewController *groupController = [[DDQGroupViewController alloc] init];
-    self.groupNavigation = [[UINavigationController alloc] initWithRootViewController:groupController];
-    
-    DDQPreferenceViewController *preferenceController = [[DDQPreferenceViewController alloc] init];
-    self.preferenceNavigation = [[UINavigationController alloc] initWithRootViewController:preferenceController];
-    
-    DDQMineViewController *mineController = [[DDQMineViewController alloc] init];
-    self.mineNavigation = [[UINavigationController alloc] initWithRootViewController:mineController];
-    
-    self.tabBarController = [[UITabBarController alloc] init];
-    _tabBarController.viewControllers = @[_mainNavigation,_groupNavigation,_preferenceNavigation,_mineNavigation];
-
-    UITabBar *tabBar = _tabBarController.tabBar;
-    [tabBar setTintColor:[UIColor meiHongSe]];
-    [tabBar setBackgroundColor:[UIColor whiteColor]];
-    UITabBarItem *item0 = [tabBar.items objectAtIndex:0];
-    UITabBarItem *item1 = [tabBar.items objectAtIndex:1];
-    UITabBarItem *item2 = [tabBar.items objectAtIndex:2];
-    UITabBarItem *item3 = [tabBar.items objectAtIndex:3];
-    item0.selectedImage = [[UIImage imageNamed:@"首页"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item0.image = [[UIImage imageNamed:@"全美_首页"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item0.title = @"首页";
-    
-    item1.selectedImage = [[UIImage imageNamed:@"美人圈"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item1.image = [[UIImage imageNamed:@"首页－美人圈"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item1.title = @"美人圈";
-    
-    item2.selectedImage = [[UIImage imageNamed:@"特惠"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item2.image = [[UIImage imageNamed:@"首页_特惠"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item2.title = @"特惠";
-    
-    item3.selectedImage = [[UIImage imageNamed:@"6"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item3.image = [[UIImage imageNamed:@"wode-0"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item3.title = @"我的";
-    
-    [self.window setRootViewController:_tabBarController];
+   
+    self.baseTabBarC = [DDQBaseTabBarController sharedController];
+    [self.window setRootViewController:self.baseTabBarC];
     [self.window makeKeyAndVisible];
     self.window.backgroundColor = [UIColor whiteColor];
 
-    
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     [defaultCenter addObserver:self selector:@selector(changeTabBarSelectedController:) name:@"change" object:nil];
     [defaultCenter addObserver:self selector:@selector(gestureChangeTabBarSelectedController:) name:@"change1" object:nil];
     [defaultCenter addObserver:self selector:@selector(groupChangSelectController:) name:@"changeGroup" object:nil];
     [defaultCenter addObserver:self selector:@selector(mineChangSelectController:) name:@"minechange" object:nil];
 
+
     [SMSSDK registerApp:kShardAppKey
               withSecret:kShardSecret];
     
     [WXApi registerApp:kWeChatKey];
+
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_7_1
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
@@ -119,20 +85,20 @@
     
     [self checkUserState];
     
- 
-
+    IQKeyboardManager *keyboard_manager = [IQKeyboardManager sharedManager];
+    keyboard_manager.enable = YES;
+    keyboard_manager.shouldResignOnTouchOutside = YES;
+    keyboard_manager.shouldToolbarUsesTextFieldTintColor = YES;
+    keyboard_manager.enableAutoToolbar = NO;
     
     return YES;
 }
 
 #pragma mark - 处理推送的Delegate
 //记录点赞的人数
-
-
 - (void)networkDidReceiveMessage:(NSNotification *)notification {
 
     NSDictionary *userInfo = [notification userInfo];
-    
 
     int zan_count = 1;
     int reply_count = 1;
@@ -147,7 +113,6 @@
         NSString *dateString = [dateFormatter stringFromDate:currentDate];
         
         //把日期存起来
-        
         NSString *temp_string = [[NSUserDefaults standardUserDefaults] valueForKey:@"zanData"];
         
         if (temp_string == nil) {
@@ -244,6 +209,7 @@
                                               cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                               otherButtonTitles:nil, nil];
         [alert show];
+        
     }
     
     
@@ -255,8 +221,6 @@
     NSString *spellString = [SpellParameters getBasePostString];
 
     NSString *baseString = [NSString stringWithFormat:@"%@*%@",spellString,[APService registrationID]];
-
-    NSLog(@"-----%@",[APService registrationID]);
     
     DDQPOSTEncryption *post_encryption = [[DDQPOSTEncryption alloc] init];
 
@@ -415,9 +379,10 @@
             infoModel.userid    = [jsonDic valueForKey:@"userid"];
             infoModel.isLogin   = 1;
             [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
-            self.window.rootViewController = self.tabBarController;
+            self.window.rootViewController = self.baseTabBarC;
             //                    [UIApplication sharedApplication].keyWindow.rootViewController = self.tabBarController;
-            
+            [self outQiandao];
+
         } else {
             
         }
@@ -463,35 +428,40 @@
 
 #pragma mark - gesture and target seletedItem
 -(void)changeTabBarSelectedController:(NSNotification *)info {
+    
     if ([[info.userInfo valueForKey:@"firstname"] isEqualToString:@"more1"]) {
-        _tabBarController.selectedViewController = _preferenceNavigation;
-        [_tabBarController setSelectedIndex:2];
+        
+        [self.baseTabBarC setSelectedIndex:2];
+        
     }
+    
 }
 - (void)groupChangSelectController:(NSNotification *)info {
+    
     if ([[info.userInfo valueForKey:@"beautiful"]isEqualToString:@"morebeautiful"]) {
-        _tabBarController.selectedViewController = _groupNavigation;
-        [_tabBarController setSelectedIndex:1];
+        
+        [self.baseTabBarC setSelectedIndex:1];
 
     }
     
 }
 -(void)gestureChangeTabBarSelectedController:(NSNotification *)info {
+    
     if ([[info.userInfo valueForKey:@"secondname"] isEqualToString:@"more2"]) {
-        _tabBarController.selectedViewController = _preferenceNavigation;
-        [_tabBarController setSelectedIndex:2];
+        
+        [self.baseTabBarC setSelectedIndex:2];
+        
     }
+    
 }
 - (void)mineChangSelectController:(NSNotification *)info {
-
+    
     if ([[info.userInfo valueForKey:@"mine"] isEqualToString:@"mine"]) {
         
-        _tabBarController.selectedViewController = _mainNavigation;
-        [_tabBarController setSelectedIndex:3];
+        [self.baseTabBarC setSelectedIndex:3];
         
     }
 }
-
 
 
 #pragma mark - 调init方法
@@ -508,30 +478,44 @@
             NSString *postString = [post_encryption stringWithPost:baseString];
             NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kInitUrl];
            // dispatch_async(dispatch_get_main_queue(), ^{
-                
-                NSString *errorcodeString = [postDic valueForKey:@"errorcode"];
-                
-                if ([errorcodeString intValue] == 0) {//请求成功后
-                    
-                    NSString *jsonString = [post_encryption stringWithDic:postDic];
-                    SBJsonParser *jsonParser = [[SBJsonParser alloc] init];
-                    NSMutableDictionary *jsonDic = [jsonParser objectWithString:jsonString];
-                    
-                    //用单例类记录用户信息
-                    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-                    
-                    infoModel.isLogin        = YES;
-                    infoModel.userimg        = [jsonDic valueForKey:@"userimg"];
-                    infoModel.userid         = [jsonDic valueForKey:@"userid"];
-                    
-                } else if([errorcodeString intValue] == 12) { //请求失败
-                
-                    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-                    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
-                    
-                } 
-            //});
+        
+        if (postDic != nil) {
             
+            NSString *errorcodeString = [postDic valueForKey:@"errorcode"];
+            
+            if ([errorcodeString intValue] == 0) {//请求成功后
+                
+                NSString *jsonString = [post_encryption stringWithDic:postDic];
+                SBJsonParser *jsonParser = [[SBJsonParser alloc] init];
+                NSMutableDictionary *jsonDic = [jsonParser objectWithString:jsonString];
+                
+                //用单例类记录用户信息
+                DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+                
+                infoModel.isLogin        = YES;
+                infoModel.userimg        = [jsonDic valueForKey:@"userimg"];
+                infoModel.userid         = [jsonDic valueForKey:@"userid"];
+                /**
+                 *  自动签到
+                 */
+                [self outQiandao];
+
+            } else if([errorcodeString intValue] == 12) { //请求失败
+                
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
+                self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
+                
+            }
+
+        } else {
+        
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
+            self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
+            
+        }
+        
+        //});
+        
        // });
        
     } else {
@@ -539,46 +523,67 @@
         self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
     }
 }
-#pragma mark - 检测网络连接状态
-- (void) reachabilityChanged: (NSNotification *)note {
-    Reachability* curReach = [note object];
-    NSParameterAssert([curReach isKindOfClass: [Reachability class]]);
-    [self updateInterfaceWithReachability: curReach];
-}
 
-//处理连接改变后的情况
-- (void) updateInterfaceWithReachability: (Reachability *) curReach {
-    //对连接改变做出响应的处理动作。
-    NetworkStatus status = [curReach currentReachabilityStatus];
+- (void)outQiandao {
     
-    if (status == NotReachable) {  //没有连接到网络就通知所有控制器
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //请求特惠列表
+        NSString *spellString = [SpellParameters getBasePostString];
+        NSString *poststr = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
+        //加密
+        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+        NSString *post_String = [postEncryption stringWithPost:poststr];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"changeStates" object:nil userInfo:@{@"states":[NSNumber numberWithBool:NO]}];
-    }
+        //接受字典
+        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kQD_Url];
+        
+        NSString *str = get_postDic[@"errorcode"];
+        int num = [str intValue];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (num == 0) {
+                
+                NSString *jifen = [postEncryption stringWithDic:get_postDic];
+                
+                DDQQiandaoView *qiandao_view = [[DDQQiandaoView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+                qiandao_view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6f];
+                qiandao_view.delegate = self;
+                qiandao_view.huodefenshu.text = [NSString stringWithFormat:@"恭喜获得积分:+%@",jifen];
+                [[UIApplication sharedApplication].keyWindow addSubview:qiandao_view];
+                
+            } else if (num == 13) {
+            } else if (num == 15) {
+            } else if (num == 11 || num == 12) {
+                
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
+                self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
+                
+            } else {
+            }
+        });
+        
+    });
+    
     
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+- (void)qiandao_view:(DDQQiandaoView *)view {
+    
+    [view removeFromSuperview];
+    
 }
 
-- (void)applicationDidEnterBackground:(UIApplication *)application {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-}
+- (void)qiandao_viewSelected:(DDQQiandaoView *)view {
+    
+    [view removeFromSuperview];
+    DDQMyWalletViewController *myWallet = [[DDQMyWalletViewController alloc] init];
+    myWallet.hidesBottomBarWhenPushed = YES;
+    if ([self.window.rootViewController isKindOfClass:[DDQBaseTabBarController class]]) {
+        
+        UIViewController *vc = self.baseTabBarC.selectedViewController;
+        [vc.navigationController pushViewController:myWallet animated:YES];
+        
+    }
 
-- (void)applicationWillEnterForeground:(UIApplication *)application {
-    [application setApplicationIconBadgeNumber:0];
-    [application cancelAllLocalNotifications];
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-}
-
-- (void)applicationWillTerminate:(UIApplication *)application {
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
 @end

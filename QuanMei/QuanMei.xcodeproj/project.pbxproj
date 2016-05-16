@@ -132,7 +132,6 @@
 		5484F3741B93E50500B29764 /* NSLayoutConstraint+MASDebugAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 5484F3661B93E50500B29764 /* NSLayoutConstraint+MASDebugAdditions.m */; };
 		5484F3751B93E50500B29764 /* View+MASAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 5484F3681B93E50500B29764 /* View+MASAdditions.m */; };
 		5484F3761B93E50500B29764 /* ViewController+MASAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 5484F36B1B93E50500B29764 /* ViewController+MASAdditions.m */; };
-		5484F4151B93EE8C00B29764 /* DDQBarTitleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5484F4121B93EE8C00B29764 /* DDQBarTitleView.m */; };
 		5484F4181B93EEC000B29764 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5484F4171B93EEC000B29764 /* Accelerate.framework */; };
 		5484F41A1B93EEC900B29764 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5484F4191B93EEC900B29764 /* CoreGraphics.framework */; };
 		548AA3621BD480B40099739F /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 548AA3611BD480B40099739F /* libc++.dylib */; };
@@ -354,12 +353,67 @@
 		A62FCB641C0F506900C0A185 /* DDQUserDetailCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A62FCB621C0F506900C0A185 /* DDQUserDetailCell.xib */; };
 		A62FCB671C10364E00C0A185 /* DDQLoginNumCell.m in Sources */ = {isa = PBXBuildFile; fileRef = A62FCB661C10364E00C0A185 /* DDQLoginNumCell.m */; };
 		A62FCB6A1C113F5300C0A185 /* DDQSwitchModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A62FCB691C113F5300C0A185 /* DDQSwitchModel.m */; };
+		B909BFF81CCF0C0500C389BA /* DDQServerController.m in Sources */ = {isa = PBXBuildFile; fileRef = B909BFF61CCF0C0500C389BA /* DDQServerController.m */; };
+		B909BFF91CCF0C0500C389BA /* DDQServerController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B909BFF71CCF0C0500C389BA /* DDQServerController.xib */; };
+		B909BFFC1CCF0D2F00C389BA /* DDQServerCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B909BFFB1CCF0D2F00C389BA /* DDQServerCell.m */; };
+		B909C0021CCF1B8900C389BA /* NSString+DDQStringRect.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0011CCF1B8900C389BA /* NSString+DDQStringRect.m */; };
+		B909C0061CCF3F5200C389BA /* DDQEvaluateController.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0041CCF3F5200C389BA /* DDQEvaluateController.m */; };
+		B909C0071CCF3F5200C389BA /* DDQEvaluateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B909C0051CCF3F5200C389BA /* DDQEvaluateController.xib */; };
+		B909C00A1CCF410D00C389BA /* DDQEvaluateCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0091CCF410D00C389BA /* DDQEvaluateCell.m */; };
+		B909C00E1CCF43EB00C389BA /* DDQCancelController.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C00C1CCF43EB00C389BA /* DDQCancelController.m */; };
+		B909C00F1CCF43EB00C389BA /* DDQCancelController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B909C00D1CCF43EB00C389BA /* DDQCancelController.xib */; };
+		B909C0121CCF440900C389BA /* DDQCancelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0111CCF440900C389BA /* DDQCancelCell.m */; };
+		B909C0151CCF46E500C389BA /* DDQOrderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0141CCF46E500C389BA /* DDQOrderCell.m */; };
+		B909C0191CCF482300C389BA /* DDQOrderController.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0171CCF482300C389BA /* DDQOrderController.m */; };
+		B909C01A1CCF482300C389BA /* DDQOrderController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B909C0181CCF482300C389BA /* DDQOrderController.xib */; };
+		B91242AF1CE30F230045E3A6 /* DDQBaseTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = B91242AE1CE30F230045E3A6 /* DDQBaseTabBarController.m */; };
+		B922400F1CE45E7A00CB1981 /* IQNSArray+Sort.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FEC1CE45E7A00CB1981 /* IQNSArray+Sort.m */; };
+		B92240101CE45E7A00CB1981 /* IQUIScrollView+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FEE1CE45E7A00CB1981 /* IQUIScrollView+Additions.m */; };
+		B92240111CE45E7A00CB1981 /* IQUITextFieldView+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FF01CE45E7A00CB1981 /* IQUITextFieldView+Additions.m */; };
+		B92240121CE45E7A00CB1981 /* IQUIView+Hierarchy.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FF21CE45E7A00CB1981 /* IQUIView+Hierarchy.m */; };
+		B92240131CE45E7A00CB1981 /* IQUIViewController+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FF41CE45E7A00CB1981 /* IQUIViewController+Additions.m */; };
+		B92240141CE45E7A00CB1981 /* IQUIWindow+Hierarchy.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FF61CE45E7A00CB1981 /* IQUIWindow+Hierarchy.m */; };
+		B92240151CE45E7A00CB1981 /* IQKeyboardManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FFB1CE45E7A00CB1981 /* IQKeyboardManager.m */; };
+		B92240161CE45E7A00CB1981 /* IQKeyboardReturnKeyHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FFD1CE45E7A00CB1981 /* IQKeyboardReturnKeyHandler.m */; };
+		B92240171CE45E7A00CB1981 /* IQTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = B92240001CE45E7A00CB1981 /* IQTextView.m */; };
+		B92240181CE45E7A00CB1981 /* IQBarButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B92240031CE45E7A00CB1981 /* IQBarButtonItem.m */; };
+		B92240191CE45E7A00CB1981 /* IQPreviousNextView.m in Sources */ = {isa = PBXBuildFile; fileRef = B92240051CE45E7A00CB1981 /* IQPreviousNextView.m */; };
+		B922401A1CE45E7A00CB1981 /* IQTitleBarButtonItem.m in Sources */ = {isa = PBXBuildFile; fileRef = B92240071CE45E7A00CB1981 /* IQTitleBarButtonItem.m */; };
+		B922401B1CE45E7A00CB1981 /* IQToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B92240091CE45E7A00CB1981 /* IQToolbar.m */; };
+		B922401C1CE45E7A00CB1981 /* IQUIView+IQKeyboardToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = B922400B1CE45E7A00CB1981 /* IQUIView+IQKeyboardToolbar.m */; };
+		B922401D1CE45E7A00CB1981 /* IQKeyboardManager.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B922400E1CE45E7A00CB1981 /* IQKeyboardManager.bundle */; };
 		B9355D8A1C89961100208DF7 /* img_quanmei.png in Resources */ = {isa = PBXBuildFile; fileRef = B9355D871C89961100208DF7 /* img_quanmei.png */; };
 		B9355D8B1C89961100208DF7 /* img_quanmei@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = B9355D881C89961100208DF7 /* img_quanmei@3x.png */; };
 		B9355D8C1C89961100208DF7 /* img_quanmei@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B9355D891C89961100208DF7 /* img_quanmei@2x.png */; };
+		B9425A071CCDBA6700FDC1CA /* DDQBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9425A061CCDBA6700FDC1CA /* DDQBaseViewController.m */; };
+		B9425A0F1CCDBBBF00FDC1CA /* DDQNewOrderListController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9425A0D1CCDBBBF00FDC1CA /* DDQNewOrderListController.m */; };
+		B9425A101CCDBBBF00FDC1CA /* DDQNewOrderListController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9425A0E1CCDBBBF00FDC1CA /* DDQNewOrderListController.xib */; };
+		B9425A291CCDF5A000FDC1CA /* DDQPayController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9425A271CCDF5A000FDC1CA /* DDQPayController.m */; };
+		B9425A2A1CCDF5A000FDC1CA /* DDQPayController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9425A281CCDF5A000FDC1CA /* DDQPayController.xib */; };
+		B9425A2F1CCDF7DF00FDC1CA /* DDQPayCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B9425A2D1CCDF7DF00FDC1CA /* DDQPayCell.m */; };
+		B96475C31CE9609A00A49A45 /* QRCode.m in Sources */ = {isa = PBXBuildFile; fileRef = B96475C21CE9609A00A49A45 /* QRCode.m */; };
 		B9A076491CCA29BD006C7F4D /* DDQSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = B9A076481CCA29BD006C7F4D /* DDQSearchBar.m */; };
+		B9C235CC1CE6C48600BC7CBA /* ProjectNetWork.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C235CB1CE6C48600BC7CBA /* ProjectNetWork.m */; };
+		B9C235CF1CE6F01F00BC7CBA /* DDQAlipay.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C235CE1CE6F01F00BC7CBA /* DDQAlipay.m */; };
+		B9C235D21CE6F02C00BC7CBA /* DDQWXPay.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C235D11CE6F02C00BC7CBA /* DDQWXPay.m */; };
+		B9C78CD01CE6FC5D001028D5 /* DDQPayModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CCF1CE6FC5D001028D5 /* DDQPayModel.m */; };
+		B9C78CE71CE6FDF1001028D5 /* MJExtensionConst.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CD41CE6FDF1001028D5 /* MJExtensionConst.m */; };
+		B9C78CE81CE6FDF1001028D5 /* MJFoundation.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CD61CE6FDF1001028D5 /* MJFoundation.m */; };
+		B9C78CE91CE6FDF1001028D5 /* MJProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CD81CE6FDF1001028D5 /* MJProperty.m */; };
+		B9C78CEA1CE6FDF1001028D5 /* MJPropertyKey.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CDA1CE6FDF1001028D5 /* MJPropertyKey.m */; };
+		B9C78CEB1CE6FDF1001028D5 /* MJPropertyType.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CDC1CE6FDF1001028D5 /* MJPropertyType.m */; };
+		B9C78CEC1CE6FDF1001028D5 /* NSObject+MJClass.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CDE1CE6FDF1001028D5 /* NSObject+MJClass.m */; };
+		B9C78CED1CE6FDF1001028D5 /* NSObject+MJCoding.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CE01CE6FDF1001028D5 /* NSObject+MJCoding.m */; };
+		B9C78CEE1CE6FDF1001028D5 /* NSObject+MJKeyValue.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CE21CE6FDF1001028D5 /* NSObject+MJKeyValue.m */; };
+		B9C78CEF1CE6FDF1001028D5 /* NSObject+MJProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CE41CE6FDF1001028D5 /* NSObject+MJProperty.m */; };
+		B9C78CF01CE6FDF1001028D5 /* NSString+MJExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CE61CE6FDF1001028D5 /* NSString+MJExtension.m */; };
+		B9C78CF41CE714EC001028D5 /* DDQNewOrderDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CF21CE714EC001028D5 /* DDQNewOrderDetailController.m */; };
+		B9C78CF81CE72B2B001028D5 /* DDQNewOrderDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CF71CE72B2B001028D5 /* DDQNewOrderDetailView.m */; };
+		B9CD92BC1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B9CD92BB1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m */; };
 		B9F30AF91CAB6E9B007F0737 /* DDQLoopView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F30AF61CAB6E9B007F0737 /* DDQLoopView.m */; };
 		B9F30AFA1CAB6E9B007F0737 /* LoopCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F30AF81CAB6E9B007F0737 /* LoopCollectionViewCell.m */; };
+		B9FD44751CE07FB7003B195C /* DDQPayView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9FD44741CE07FB7003B195C /* DDQPayView.m */; };
+		B9FD447B1CE09A77003B195C /* DDQNewPayController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9FD447A1CE09A77003B195C /* DDQNewPayController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -613,8 +667,6 @@
 		5484F3691B93E50500B29764 /* View+MASShorthandAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "View+MASShorthandAdditions.h"; sourceTree = "<group>"; };
 		5484F36A1B93E50500B29764 /* ViewController+MASAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ViewController+MASAdditions.h"; sourceTree = "<group>"; };
 		5484F36B1B93E50500B29764 /* ViewController+MASAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ViewController+MASAdditions.m"; sourceTree = "<group>"; };
-		5484F4111B93EE8C00B29764 /* DDQBarTitleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQBarTitleView.h; sourceTree = "<group>"; };
-		5484F4121B93EE8C00B29764 /* DDQBarTitleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQBarTitleView.m; sourceTree = "<group>"; };
 		5484F4171B93EEC000B29764 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		5484F4191B93EEC900B29764 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		548AA3611BD480B40099739F /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
@@ -1111,15 +1163,122 @@
 		A62FCB661C10364E00C0A185 /* DDQLoginNumCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQLoginNumCell.m; sourceTree = "<group>"; };
 		A62FCB681C113F5300C0A185 /* DDQSwitchModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQSwitchModel.h; sourceTree = "<group>"; };
 		A62FCB691C113F5300C0A185 /* DDQSwitchModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQSwitchModel.m; sourceTree = "<group>"; };
+		B909BFF51CCF0C0500C389BA /* DDQServerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQServerController.h; sourceTree = "<group>"; };
+		B909BFF61CCF0C0500C389BA /* DDQServerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQServerController.m; sourceTree = "<group>"; };
+		B909BFF71CCF0C0500C389BA /* DDQServerController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DDQServerController.xib; sourceTree = "<group>"; };
+		B909BFFA1CCF0D2F00C389BA /* DDQServerCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQServerCell.h; sourceTree = "<group>"; };
+		B909BFFB1CCF0D2F00C389BA /* DDQServerCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQServerCell.m; sourceTree = "<group>"; };
+		B909C0001CCF1B8900C389BA /* NSString+DDQStringRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+DDQStringRect.h"; sourceTree = "<group>"; };
+		B909C0011CCF1B8900C389BA /* NSString+DDQStringRect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+DDQStringRect.m"; sourceTree = "<group>"; };
+		B909C0031CCF3F5200C389BA /* DDQEvaluateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQEvaluateController.h; sourceTree = "<group>"; };
+		B909C0041CCF3F5200C389BA /* DDQEvaluateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQEvaluateController.m; sourceTree = "<group>"; };
+		B909C0051CCF3F5200C389BA /* DDQEvaluateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DDQEvaluateController.xib; sourceTree = "<group>"; };
+		B909C0081CCF410D00C389BA /* DDQEvaluateCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQEvaluateCell.h; sourceTree = "<group>"; };
+		B909C0091CCF410D00C389BA /* DDQEvaluateCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQEvaluateCell.m; sourceTree = "<group>"; };
+		B909C00B1CCF43EB00C389BA /* DDQCancelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQCancelController.h; sourceTree = "<group>"; };
+		B909C00C1CCF43EB00C389BA /* DDQCancelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQCancelController.m; sourceTree = "<group>"; };
+		B909C00D1CCF43EB00C389BA /* DDQCancelController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DDQCancelController.xib; sourceTree = "<group>"; };
+		B909C0101CCF440900C389BA /* DDQCancelCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQCancelCell.h; sourceTree = "<group>"; };
+		B909C0111CCF440900C389BA /* DDQCancelCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQCancelCell.m; sourceTree = "<group>"; };
+		B909C0131CCF46E500C389BA /* DDQOrderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderCell.h; sourceTree = "<group>"; };
+		B909C0141CCF46E500C389BA /* DDQOrderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderCell.m; sourceTree = "<group>"; };
+		B909C0161CCF482300C389BA /* DDQOrderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderController.h; sourceTree = "<group>"; };
+		B909C0171CCF482300C389BA /* DDQOrderController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderController.m; sourceTree = "<group>"; };
+		B909C0181CCF482300C389BA /* DDQOrderController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DDQOrderController.xib; sourceTree = "<group>"; };
+		B91242AD1CE30F230045E3A6 /* DDQBaseTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQBaseTabBarController.h; sourceTree = "<group>"; };
+		B91242AE1CE30F230045E3A6 /* DDQBaseTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQBaseTabBarController.m; sourceTree = "<group>"; };
+		B9223FEB1CE45E7A00CB1981 /* IQNSArray+Sort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQNSArray+Sort.h"; sourceTree = "<group>"; };
+		B9223FEC1CE45E7A00CB1981 /* IQNSArray+Sort.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IQNSArray+Sort.m"; sourceTree = "<group>"; };
+		B9223FED1CE45E7A00CB1981 /* IQUIScrollView+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQUIScrollView+Additions.h"; sourceTree = "<group>"; };
+		B9223FEE1CE45E7A00CB1981 /* IQUIScrollView+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IQUIScrollView+Additions.m"; sourceTree = "<group>"; };
+		B9223FEF1CE45E7A00CB1981 /* IQUITextFieldView+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQUITextFieldView+Additions.h"; sourceTree = "<group>"; };
+		B9223FF01CE45E7A00CB1981 /* IQUITextFieldView+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IQUITextFieldView+Additions.m"; sourceTree = "<group>"; };
+		B9223FF11CE45E7A00CB1981 /* IQUIView+Hierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQUIView+Hierarchy.h"; sourceTree = "<group>"; };
+		B9223FF21CE45E7A00CB1981 /* IQUIView+Hierarchy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IQUIView+Hierarchy.m"; sourceTree = "<group>"; };
+		B9223FF31CE45E7A00CB1981 /* IQUIViewController+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQUIViewController+Additions.h"; sourceTree = "<group>"; };
+		B9223FF41CE45E7A00CB1981 /* IQUIViewController+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IQUIViewController+Additions.m"; sourceTree = "<group>"; };
+		B9223FF51CE45E7A00CB1981 /* IQUIWindow+Hierarchy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQUIWindow+Hierarchy.h"; sourceTree = "<group>"; };
+		B9223FF61CE45E7A00CB1981 /* IQUIWindow+Hierarchy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IQUIWindow+Hierarchy.m"; sourceTree = "<group>"; };
+		B9223FF81CE45E7A00CB1981 /* IQKeyboardManagerConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQKeyboardManagerConstants.h; sourceTree = "<group>"; };
+		B9223FF91CE45E7A00CB1981 /* IQKeyboardManagerConstantsInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQKeyboardManagerConstantsInternal.h; sourceTree = "<group>"; };
+		B9223FFA1CE45E7A00CB1981 /* IQKeyboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQKeyboardManager.h; sourceTree = "<group>"; };
+		B9223FFB1CE45E7A00CB1981 /* IQKeyboardManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IQKeyboardManager.m; sourceTree = "<group>"; };
+		B9223FFC1CE45E7A00CB1981 /* IQKeyboardReturnKeyHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQKeyboardReturnKeyHandler.h; sourceTree = "<group>"; };
+		B9223FFD1CE45E7A00CB1981 /* IQKeyboardReturnKeyHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IQKeyboardReturnKeyHandler.m; sourceTree = "<group>"; };
+		B9223FFF1CE45E7A00CB1981 /* IQTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQTextView.h; sourceTree = "<group>"; };
+		B92240001CE45E7A00CB1981 /* IQTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IQTextView.m; sourceTree = "<group>"; };
+		B92240021CE45E7A00CB1981 /* IQBarButtonItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQBarButtonItem.h; sourceTree = "<group>"; };
+		B92240031CE45E7A00CB1981 /* IQBarButtonItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IQBarButtonItem.m; sourceTree = "<group>"; };
+		B92240041CE45E7A00CB1981 /* IQPreviousNextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQPreviousNextView.h; sourceTree = "<group>"; };
+		B92240051CE45E7A00CB1981 /* IQPreviousNextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IQPreviousNextView.m; sourceTree = "<group>"; };
+		B92240061CE45E7A00CB1981 /* IQTitleBarButtonItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQTitleBarButtonItem.h; sourceTree = "<group>"; };
+		B92240071CE45E7A00CB1981 /* IQTitleBarButtonItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IQTitleBarButtonItem.m; sourceTree = "<group>"; };
+		B92240081CE45E7A00CB1981 /* IQToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IQToolbar.h; sourceTree = "<group>"; };
+		B92240091CE45E7A00CB1981 /* IQToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IQToolbar.m; sourceTree = "<group>"; };
+		B922400A1CE45E7A00CB1981 /* IQUIView+IQKeyboardToolbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQUIView+IQKeyboardToolbar.h"; sourceTree = "<group>"; };
+		B922400B1CE45E7A00CB1981 /* IQUIView+IQKeyboardToolbar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "IQUIView+IQKeyboardToolbar.m"; sourceTree = "<group>"; };
+		B922400C1CE45E7A00CB1981 /* KeyboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardManager.h; sourceTree = "<group>"; };
+		B922400E1CE45E7A00CB1981 /* IQKeyboardManager.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = IQKeyboardManager.bundle; sourceTree = "<group>"; };
 		B9355D871C89961100208DF7 /* img_quanmei.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = img_quanmei.png; sourceTree = "<group>"; };
 		B9355D881C89961100208DF7 /* img_quanmei@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "img_quanmei@3x.png"; sourceTree = "<group>"; };
 		B9355D891C89961100208DF7 /* img_quanmei@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "img_quanmei@2x.png"; sourceTree = "<group>"; };
+		B9425A051CCDBA6700FDC1CA /* DDQBaseViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQBaseViewController.h; sourceTree = "<group>"; };
+		B9425A061CCDBA6700FDC1CA /* DDQBaseViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQBaseViewController.m; sourceTree = "<group>"; };
+		B9425A0C1CCDBBBF00FDC1CA /* DDQNewOrderListController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQNewOrderListController.h; sourceTree = "<group>"; };
+		B9425A0D1CCDBBBF00FDC1CA /* DDQNewOrderListController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQNewOrderListController.m; sourceTree = "<group>"; };
+		B9425A0E1CCDBBBF00FDC1CA /* DDQNewOrderListController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DDQNewOrderListController.xib; sourceTree = "<group>"; };
+		B9425A261CCDF5A000FDC1CA /* DDQPayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQPayController.h; sourceTree = "<group>"; };
+		B9425A271CCDF5A000FDC1CA /* DDQPayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQPayController.m; sourceTree = "<group>"; };
+		B9425A281CCDF5A000FDC1CA /* DDQPayController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DDQPayController.xib; sourceTree = "<group>"; };
+		B9425A2C1CCDF7DF00FDC1CA /* DDQPayCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQPayCell.h; sourceTree = "<group>"; };
+		B9425A2D1CCDF7DF00FDC1CA /* DDQPayCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQPayCell.m; sourceTree = "<group>"; };
+		B96475C11CE9609A00A49A45 /* QRCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRCode.h; sourceTree = "<group>"; };
+		B96475C21CE9609A00A49A45 /* QRCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRCode.m; sourceTree = "<group>"; };
 		B9A076471CCA29BD006C7F4D /* DDQSearchBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQSearchBar.h; sourceTree = "<group>"; };
 		B9A076481CCA29BD006C7F4D /* DDQSearchBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQSearchBar.m; sourceTree = "<group>"; };
+		B9C235CA1CE6C48600BC7CBA /* ProjectNetWork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectNetWork.h; sourceTree = "<group>"; };
+		B9C235CB1CE6C48600BC7CBA /* ProjectNetWork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProjectNetWork.m; sourceTree = "<group>"; };
+		B9C235CD1CE6F01F00BC7CBA /* DDQAlipay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQAlipay.h; sourceTree = "<group>"; };
+		B9C235CE1CE6F01F00BC7CBA /* DDQAlipay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQAlipay.m; sourceTree = "<group>"; };
+		B9C235D01CE6F02B00BC7CBA /* DDQWXPay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQWXPay.h; sourceTree = "<group>"; };
+		B9C235D11CE6F02C00BC7CBA /* DDQWXPay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQWXPay.m; sourceTree = "<group>"; };
+		B9C78CCE1CE6FC5D001028D5 /* DDQPayModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQPayModel.h; sourceTree = "<group>"; };
+		B9C78CCF1CE6FC5D001028D5 /* DDQPayModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQPayModel.m; sourceTree = "<group>"; };
+		B9C78CD21CE6FDF1001028D5 /* MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtension.h; sourceTree = "<group>"; };
+		B9C78CD31CE6FDF1001028D5 /* MJExtensionConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJExtensionConst.h; sourceTree = "<group>"; };
+		B9C78CD41CE6FDF1001028D5 /* MJExtensionConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJExtensionConst.m; sourceTree = "<group>"; };
+		B9C78CD51CE6FDF1001028D5 /* MJFoundation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJFoundation.h; sourceTree = "<group>"; };
+		B9C78CD61CE6FDF1001028D5 /* MJFoundation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJFoundation.m; sourceTree = "<group>"; };
+		B9C78CD71CE6FDF1001028D5 /* MJProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJProperty.h; sourceTree = "<group>"; };
+		B9C78CD81CE6FDF1001028D5 /* MJProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJProperty.m; sourceTree = "<group>"; };
+		B9C78CD91CE6FDF1001028D5 /* MJPropertyKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJPropertyKey.h; sourceTree = "<group>"; };
+		B9C78CDA1CE6FDF1001028D5 /* MJPropertyKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJPropertyKey.m; sourceTree = "<group>"; };
+		B9C78CDB1CE6FDF1001028D5 /* MJPropertyType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJPropertyType.h; sourceTree = "<group>"; };
+		B9C78CDC1CE6FDF1001028D5 /* MJPropertyType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJPropertyType.m; sourceTree = "<group>"; };
+		B9C78CDD1CE6FDF1001028D5 /* NSObject+MJClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+MJClass.h"; sourceTree = "<group>"; };
+		B9C78CDE1CE6FDF1001028D5 /* NSObject+MJClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJClass.m"; sourceTree = "<group>"; };
+		B9C78CDF1CE6FDF1001028D5 /* NSObject+MJCoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+MJCoding.h"; sourceTree = "<group>"; };
+		B9C78CE01CE6FDF1001028D5 /* NSObject+MJCoding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJCoding.m"; sourceTree = "<group>"; };
+		B9C78CE11CE6FDF1001028D5 /* NSObject+MJKeyValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+MJKeyValue.h"; sourceTree = "<group>"; };
+		B9C78CE21CE6FDF1001028D5 /* NSObject+MJKeyValue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJKeyValue.m"; sourceTree = "<group>"; };
+		B9C78CE31CE6FDF1001028D5 /* NSObject+MJProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+MJProperty.h"; sourceTree = "<group>"; };
+		B9C78CE41CE6FDF1001028D5 /* NSObject+MJProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+MJProperty.m"; sourceTree = "<group>"; };
+		B9C78CE51CE6FDF1001028D5 /* NSString+MJExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MJExtension.h"; sourceTree = "<group>"; };
+		B9C78CE61CE6FDF1001028D5 /* NSString+MJExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MJExtension.m"; sourceTree = "<group>"; };
+		B9C78CF11CE714EC001028D5 /* DDQNewOrderDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQNewOrderDetailController.h; sourceTree = "<group>"; };
+		B9C78CF21CE714EC001028D5 /* DDQNewOrderDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQNewOrderDetailController.m; sourceTree = "<group>"; };
+		B9C78CF61CE72B2B001028D5 /* DDQNewOrderDetailView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQNewOrderDetailView.h; sourceTree = "<group>"; };
+		B9C78CF71CE72B2B001028D5 /* DDQNewOrderDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQNewOrderDetailView.m; sourceTree = "<group>"; };
+		B9CD92BA1CE8BEAB0049C05C /* DDQNewOrderDetailModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQNewOrderDetailModel.h; sourceTree = "<group>"; };
+		B9CD92BB1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQNewOrderDetailModel.m; sourceTree = "<group>"; };
 		B9F30AF51CAB6E9B007F0737 /* DDQLoopView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQLoopView.h; sourceTree = "<group>"; };
 		B9F30AF61CAB6E9B007F0737 /* DDQLoopView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQLoopView.m; sourceTree = "<group>"; };
 		B9F30AF71CAB6E9B007F0737 /* LoopCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoopCollectionViewCell.h; sourceTree = "<group>"; };
 		B9F30AF81CAB6E9B007F0737 /* LoopCollectionViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoopCollectionViewCell.m; sourceTree = "<group>"; };
+		B9FD44731CE07FB7003B195C /* DDQPayView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQPayView.h; sourceTree = "<group>"; };
+		B9FD44741CE07FB7003B195C /* DDQPayView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQPayView.m; sourceTree = "<group>"; };
+		B9FD44791CE09A77003B195C /* DDQNewPayController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQNewPayController.h; sourceTree = "<group>"; };
+		B9FD447A1CE09A77003B195C /* DDQNewPayController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQNewPayController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1649,6 +1808,8 @@
 				5484F3501B93E4F400B29764 /* 第三方库 */,
 				5484F32E1B93E4AF00B29764 /* AppDelegate.h */,
 				5484F32F1B93E4AF00B29764 /* AppDelegate.m */,
+				B91242AD1CE30F230045E3A6 /* DDQBaseTabBarController.h */,
+				B91242AE1CE30F230045E3A6 /* DDQBaseTabBarController.m */,
 				5484F3771B93E55400B29764 /* App界面 */,
 				5484F3781B93E57800B29764 /* 工具类 */,
 				5495DC5D1BC62F7B00DCD0A4 /* SDK */,
@@ -1689,6 +1850,10 @@
 		5484F3501B93E4F400B29764 /* 第三方库 */ = {
 			isa = PBXGroup;
 			children = (
+				B96475C11CE9609A00A49A45 /* QRCode.h */,
+				B96475C21CE9609A00A49A45 /* QRCode.m */,
+				B9C78CD11CE6FDF1001028D5 /* MJExtension */,
+				B9223FE91CE45E7A00CB1981 /* IQKeyboardManager */,
 				542019631BCF304A005E8750 /* AFNetworking */,
 				54CD24E51BC925FE00AFF846 /* SBJson */,
 				5495DC6E1BC648F500DCD0A4 /* SDWebImage */,
@@ -1768,18 +1933,8 @@
 				540204C71BBA6EFF00EEB807 /* 网络相关 */,
 				545FDB411BB944220074289B /* 单例 */,
 				548AF9501B9BE7240072F29B /* AppColor */,
-				5484F42B1B93F04100B29764 /* SreachBar */,
 			);
 			path = "工具类";
-			sourceTree = "<group>";
-		};
-		5484F42B1B93F04100B29764 /* SreachBar */ = {
-			isa = PBXGroup;
-			children = (
-				5484F4111B93EE8C00B29764 /* DDQBarTitleView.h */,
-				5484F4121B93EE8C00B29764 /* DDQBarTitleView.m */,
-			);
-			name = SreachBar;
 			sourceTree = "<group>";
 		};
 		548AF9501B9BE7240072F29B /* AppColor */ = {
@@ -2422,6 +2577,9 @@
 				54EB706F1C1AE990005BD9D3 /* DDQOrderTableViewCell.m */,
 				54EB70701C1AE990005BD9D3 /* DDQOrderViewController.h */,
 				54EB70711C1AE990005BD9D3 /* DDQOrderViewController.m */,
+				B9425A051CCDBA6700FDC1CA /* DDQBaseViewController.h */,
+				B9425A061CCDBA6700FDC1CA /* DDQBaseViewController.m */,
+				B9425A081CCDBB8900FDC1CA /* NewOrderListUI */,
 				54EB70721C1AE990005BD9D3 /* detail */,
 			);
 			path = tableSub;
@@ -2840,6 +2998,85 @@
 			path = Framework;
 			sourceTree = "<group>";
 		};
+		B9223FE91CE45E7A00CB1981 /* IQKeyboardManager */ = {
+			isa = PBXGroup;
+			children = (
+				B9223FEA1CE45E7A00CB1981 /* Categories */,
+				B9223FF71CE45E7A00CB1981 /* Constants */,
+				B9223FFA1CE45E7A00CB1981 /* IQKeyboardManager.h */,
+				B9223FFB1CE45E7A00CB1981 /* IQKeyboardManager.m */,
+				B9223FFC1CE45E7A00CB1981 /* IQKeyboardReturnKeyHandler.h */,
+				B9223FFD1CE45E7A00CB1981 /* IQKeyboardReturnKeyHandler.m */,
+				B9223FFE1CE45E7A00CB1981 /* IQTextView */,
+				B92240011CE45E7A00CB1981 /* IQToolbar */,
+				B922400C1CE45E7A00CB1981 /* KeyboardManager.h */,
+				B922400D1CE45E7A00CB1981 /* Resources */,
+			);
+			path = IQKeyboardManager;
+			sourceTree = "<group>";
+		};
+		B9223FEA1CE45E7A00CB1981 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				B9223FEB1CE45E7A00CB1981 /* IQNSArray+Sort.h */,
+				B9223FEC1CE45E7A00CB1981 /* IQNSArray+Sort.m */,
+				B9223FED1CE45E7A00CB1981 /* IQUIScrollView+Additions.h */,
+				B9223FEE1CE45E7A00CB1981 /* IQUIScrollView+Additions.m */,
+				B9223FEF1CE45E7A00CB1981 /* IQUITextFieldView+Additions.h */,
+				B9223FF01CE45E7A00CB1981 /* IQUITextFieldView+Additions.m */,
+				B9223FF11CE45E7A00CB1981 /* IQUIView+Hierarchy.h */,
+				B9223FF21CE45E7A00CB1981 /* IQUIView+Hierarchy.m */,
+				B9223FF31CE45E7A00CB1981 /* IQUIViewController+Additions.h */,
+				B9223FF41CE45E7A00CB1981 /* IQUIViewController+Additions.m */,
+				B9223FF51CE45E7A00CB1981 /* IQUIWindow+Hierarchy.h */,
+				B9223FF61CE45E7A00CB1981 /* IQUIWindow+Hierarchy.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		B9223FF71CE45E7A00CB1981 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				B9223FF81CE45E7A00CB1981 /* IQKeyboardManagerConstants.h */,
+				B9223FF91CE45E7A00CB1981 /* IQKeyboardManagerConstantsInternal.h */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		B9223FFE1CE45E7A00CB1981 /* IQTextView */ = {
+			isa = PBXGroup;
+			children = (
+				B9223FFF1CE45E7A00CB1981 /* IQTextView.h */,
+				B92240001CE45E7A00CB1981 /* IQTextView.m */,
+			);
+			path = IQTextView;
+			sourceTree = "<group>";
+		};
+		B92240011CE45E7A00CB1981 /* IQToolbar */ = {
+			isa = PBXGroup;
+			children = (
+				B92240021CE45E7A00CB1981 /* IQBarButtonItem.h */,
+				B92240031CE45E7A00CB1981 /* IQBarButtonItem.m */,
+				B92240041CE45E7A00CB1981 /* IQPreviousNextView.h */,
+				B92240051CE45E7A00CB1981 /* IQPreviousNextView.m */,
+				B92240061CE45E7A00CB1981 /* IQTitleBarButtonItem.h */,
+				B92240071CE45E7A00CB1981 /* IQTitleBarButtonItem.m */,
+				B92240081CE45E7A00CB1981 /* IQToolbar.h */,
+				B92240091CE45E7A00CB1981 /* IQToolbar.m */,
+				B922400A1CE45E7A00CB1981 /* IQUIView+IQKeyboardToolbar.h */,
+				B922400B1CE45E7A00CB1981 /* IQUIView+IQKeyboardToolbar.m */,
+			);
+			path = IQToolbar;
+			sourceTree = "<group>";
+		};
+		B922400D1CE45E7A00CB1981 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B922400E1CE45E7A00CB1981 /* IQKeyboardManager.bundle */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		B9355D861C89960900208DF7 /* 启动图 */ = {
 			isa = PBXGroup;
 			children = (
@@ -2848,6 +3085,112 @@
 				B9355D891C89961100208DF7 /* img_quanmei@2x.png */,
 			);
 			path = "启动图";
+			sourceTree = "<group>";
+		};
+		B9425A081CCDBB8900FDC1CA /* NewOrderListUI */ = {
+			isa = PBXGroup;
+			children = (
+				B9425A0C1CCDBBBF00FDC1CA /* DDQNewOrderListController.h */,
+				B9425A0D1CCDBBBF00FDC1CA /* DDQNewOrderListController.m */,
+				B9425A0E1CCDBBBF00FDC1CA /* DDQNewOrderListController.xib */,
+				B909C0001CCF1B8900C389BA /* NSString+DDQStringRect.h */,
+				B909C0011CCF1B8900C389BA /* NSString+DDQStringRect.m */,
+				B9C235C91CE6C45800BC7CBA /* MyNetWork */,
+				B9FD44661CE0762B003B195C /* PayC */,
+				B9425A251CCDF59600FDC1CA /* SubC */,
+			);
+			path = NewOrderListUI;
+			sourceTree = "<group>";
+		};
+		B9425A251CCDF59600FDC1CA /* SubC */ = {
+			isa = PBXGroup;
+			children = (
+				B9425A261CCDF5A000FDC1CA /* DDQPayController.h */,
+				B9425A271CCDF5A000FDC1CA /* DDQPayController.m */,
+				B9425A281CCDF5A000FDC1CA /* DDQPayController.xib */,
+				B909BFF51CCF0C0500C389BA /* DDQServerController.h */,
+				B909BFF61CCF0C0500C389BA /* DDQServerController.m */,
+				B909BFF71CCF0C0500C389BA /* DDQServerController.xib */,
+				B909C0031CCF3F5200C389BA /* DDQEvaluateController.h */,
+				B909C0041CCF3F5200C389BA /* DDQEvaluateController.m */,
+				B909C0051CCF3F5200C389BA /* DDQEvaluateController.xib */,
+				B909C00B1CCF43EB00C389BA /* DDQCancelController.h */,
+				B909C00C1CCF43EB00C389BA /* DDQCancelController.m */,
+				B909C00D1CCF43EB00C389BA /* DDQCancelController.xib */,
+				B909C0161CCF482300C389BA /* DDQOrderController.h */,
+				B909C0171CCF482300C389BA /* DDQOrderController.m */,
+				B909C0181CCF482300C389BA /* DDQOrderController.xib */,
+				B9C78CCD1CE6FC4C001028D5 /* CModel */,
+				B9425A2B1CCDF7BC00FDC1CA /* CCell */,
+			);
+			path = SubC;
+			sourceTree = "<group>";
+		};
+		B9425A2B1CCDF7BC00FDC1CA /* CCell */ = {
+			isa = PBXGroup;
+			children = (
+				B9425A2C1CCDF7DF00FDC1CA /* DDQPayCell.h */,
+				B9425A2D1CCDF7DF00FDC1CA /* DDQPayCell.m */,
+				B909BFFA1CCF0D2F00C389BA /* DDQServerCell.h */,
+				B909BFFB1CCF0D2F00C389BA /* DDQServerCell.m */,
+				B909C0081CCF410D00C389BA /* DDQEvaluateCell.h */,
+				B909C0091CCF410D00C389BA /* DDQEvaluateCell.m */,
+				B909C0101CCF440900C389BA /* DDQCancelCell.h */,
+				B909C0111CCF440900C389BA /* DDQCancelCell.m */,
+				B909C0131CCF46E500C389BA /* DDQOrderCell.h */,
+				B909C0141CCF46E500C389BA /* DDQOrderCell.m */,
+			);
+			path = CCell;
+			sourceTree = "<group>";
+		};
+		B9C235C91CE6C45800BC7CBA /* MyNetWork */ = {
+			isa = PBXGroup;
+			children = (
+				B9C235CA1CE6C48600BC7CBA /* ProjectNetWork.h */,
+				B9C235CB1CE6C48600BC7CBA /* ProjectNetWork.m */,
+				B9C235CD1CE6F01F00BC7CBA /* DDQAlipay.h */,
+				B9C235CE1CE6F01F00BC7CBA /* DDQAlipay.m */,
+				B9C235D01CE6F02B00BC7CBA /* DDQWXPay.h */,
+				B9C235D11CE6F02C00BC7CBA /* DDQWXPay.m */,
+			);
+			path = MyNetWork;
+			sourceTree = "<group>";
+		};
+		B9C78CCD1CE6FC4C001028D5 /* CModel */ = {
+			isa = PBXGroup;
+			children = (
+				B9C78CCE1CE6FC5D001028D5 /* DDQPayModel.h */,
+				B9C78CCF1CE6FC5D001028D5 /* DDQPayModel.m */,
+			);
+			path = CModel;
+			sourceTree = "<group>";
+		};
+		B9C78CD11CE6FDF1001028D5 /* MJExtension */ = {
+			isa = PBXGroup;
+			children = (
+				B9C78CD21CE6FDF1001028D5 /* MJExtension.h */,
+				B9C78CD31CE6FDF1001028D5 /* MJExtensionConst.h */,
+				B9C78CD41CE6FDF1001028D5 /* MJExtensionConst.m */,
+				B9C78CD51CE6FDF1001028D5 /* MJFoundation.h */,
+				B9C78CD61CE6FDF1001028D5 /* MJFoundation.m */,
+				B9C78CD71CE6FDF1001028D5 /* MJProperty.h */,
+				B9C78CD81CE6FDF1001028D5 /* MJProperty.m */,
+				B9C78CD91CE6FDF1001028D5 /* MJPropertyKey.h */,
+				B9C78CDA1CE6FDF1001028D5 /* MJPropertyKey.m */,
+				B9C78CDB1CE6FDF1001028D5 /* MJPropertyType.h */,
+				B9C78CDC1CE6FDF1001028D5 /* MJPropertyType.m */,
+				B9C78CDD1CE6FDF1001028D5 /* NSObject+MJClass.h */,
+				B9C78CDE1CE6FDF1001028D5 /* NSObject+MJClass.m */,
+				B9C78CDF1CE6FDF1001028D5 /* NSObject+MJCoding.h */,
+				B9C78CE01CE6FDF1001028D5 /* NSObject+MJCoding.m */,
+				B9C78CE11CE6FDF1001028D5 /* NSObject+MJKeyValue.h */,
+				B9C78CE21CE6FDF1001028D5 /* NSObject+MJKeyValue.m */,
+				B9C78CE31CE6FDF1001028D5 /* NSObject+MJProperty.h */,
+				B9C78CE41CE6FDF1001028D5 /* NSObject+MJProperty.m */,
+				B9C78CE51CE6FDF1001028D5 /* NSString+MJExtension.h */,
+				B9C78CE61CE6FDF1001028D5 /* NSString+MJExtension.m */,
+			);
+			path = MJExtension;
 			sourceTree = "<group>";
 		};
 		B9F30AF41CAB6E8E007F0737 /* 轮播 */ = {
@@ -2861,6 +3204,31 @@
 				B9A076481CCA29BD006C7F4D /* DDQSearchBar.m */,
 			);
 			path = "轮播";
+			sourceTree = "<group>";
+		};
+		B9FD44661CE0762B003B195C /* PayC */ = {
+			isa = PBXGroup;
+			children = (
+				B9FD446C1CE078CE003B195C /* PayV */,
+				B9FD44791CE09A77003B195C /* DDQNewPayController.h */,
+				B9FD447A1CE09A77003B195C /* DDQNewPayController.m */,
+				B9C78CF11CE714EC001028D5 /* DDQNewOrderDetailController.h */,
+				B9C78CF21CE714EC001028D5 /* DDQNewOrderDetailController.m */,
+				B9CD92BA1CE8BEAB0049C05C /* DDQNewOrderDetailModel.h */,
+				B9CD92BB1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m */,
+			);
+			path = PayC;
+			sourceTree = "<group>";
+		};
+		B9FD446C1CE078CE003B195C /* PayV */ = {
+			isa = PBXGroup;
+			children = (
+				B9FD44731CE07FB7003B195C /* DDQPayView.h */,
+				B9FD44741CE07FB7003B195C /* DDQPayView.m */,
+				B9C78CF61CE72B2B001028D5 /* DDQNewOrderDetailView.h */,
+				B9C78CF71CE72B2B001028D5 /* DDQNewOrderDetailView.m */,
+			);
+			path = PayV;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2955,10 +3323,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B922401D1CE45E7A00CB1981 /* IQKeyboardManager.bundle in Resources */,
 				540811391C7FE58C00C79AF5 /* SMS_SDKLocalizable.strings in Resources */,
 				54632F351C8591D300377FAE /* 全美@3x.png in Resources */,
 				54EB703C1C1A6762005BD9D3 /* DDQMessageCell.xib in Resources */,
 				54037AC81C54C13900899228 /* DDQMyLessonViewController.xib in Resources */,
+				B909BFF91CCF0C0500C389BA /* DDQServerController.xib in Resources */,
 				5406EADB1C0EF87E0035FFA4 /* city.plist in Resources */,
 				546FF9881BCBE6E70038DB5A /* c.txt in Resources */,
 				54089F831C2024DD00084A65 /* DDQBoundTelViewController.xib in Resources */,
@@ -2968,7 +3338,9 @@
 				5408113C1C7FE58C00C79AF5 /* SMS_SDKLocalizable.strings in Resources */,
 				54EB70521C1AB46B005BD9D3 /* DDQParentMessageViewController.xib in Resources */,
 				54EA5CE71BDF8C6F000AE99F /* sg_seleted@2x.png in Resources */,
+				B909C0071CCF3F5200C389BA /* DDQEvaluateController.xib in Resources */,
 				54EE05381BC79F1D00BD3C21 /* TencentOpenApi_IOS_Bundle.bundle in Resources */,
+				B9425A101CCDBBBF00FDC1CA /* DDQNewOrderListController.xib in Resources */,
 				A62FCB641C0F506900C0A185 /* DDQUserDetailCell.xib in Resources */,
 				541BF6E01C158E7200F7D362 /* DDQResetViewController.xib in Resources */,
 				549CADC01C27FAB100786128 /* DDQFunctionCell.xib in Resources */,
@@ -2982,12 +3354,15 @@
 				546FF9861BCBDC510038DB5A /* p.txt in Resources */,
 				B9355D8B1C89961100208DF7 /* img_quanmei@3x.png in Resources */,
 				5406EAE21C0EF87E0035FFA4 /* DDQuserInfoCell.xib in Resources */,
+				B909C01A1CCF482300C389BA /* DDQOrderController.xib in Resources */,
 				54D81C181BE709CC00C11110 /* AlipaySDK.bundle in Resources */,
 				5406EADD1C0EF87E0035FFA4 /* myIcon.png in Resources */,
+				B909C00F1CCF43EB00C389BA /* DDQCancelController.xib in Resources */,
 				54EB70341C1A667E005BD9D3 /* DDQMessageViewController.xib in Resources */,
 				5484F33B1B93E4AF00B29764 /* LaunchScreen.xib in Resources */,
 				79D36B781BCFE98C007E2A35 /* MJRefresh.bundle in Resources */,
 				5484F3381B93E4AF00B29764 /* Images.xcassets in Resources */,
+				B9425A2A1CCDF5A000FDC1CA /* DDQPayController.xib in Resources */,
 				54FBA7B01BC8BC7900C1E991 /* read_me.txt in Resources */,
 				54FBA7BF1BC8FD1E00C1E991 /* WeiboSDK.bundle in Resources */,
 				54CF75871C227B21009EEA34 /* PushConfig.plist in Resources */,
@@ -3015,14 +3390,17 @@
 				79D36B6B1BCFE98C007E2A35 /* MJRefreshBackFooter.m in Sources */,
 				5495DCA61BC667CB00DCD0A4 /* DDQDetailControllerCell.m in Sources */,
 				54EB70791C1AE990005BD9D3 /* DDQOrderModel.m in Sources */,
+				B9C235CF1CE6F01F00BC7CBA /* DDQAlipay.m in Sources */,
+				B96475C31CE9609A00A49A45 /* QRCode.m in Sources */,
 				54EB707B1C1AE990005BD9D3 /* DDQOrderViewController.m in Sources */,
+				B9425A071CCDBA6700FDC1CA /* DDQBaseViewController.m in Sources */,
 				5484F36E1B93E50500B29764 /* MASConstraint.m in Sources */,
+				B9C235D21CE6F02C00BC7CBA /* DDQWXPay.m in Sources */,
 				54E248421C32662100F6394F /* WXApiManager.m in Sources */,
 				5484F3711B93E50500B29764 /* MASViewAttribute.m in Sources */,
 				54633E8F1BCFD44400197FB8 /* MBProgressHUD.m in Sources */,
 				79D2B4AD1BD0F4C6004660A0 /* DDQSecondSectionViewItem.m in Sources */,
 				5495DC951BC648F500DCD0A4 /* SDWebImageDownloader.m in Sources */,
-				5484F4151B93EE8C00B29764 /* DDQBarTitleView.m in Sources */,
 				79D2B4B31BD0F4C6004660A0 /* DDQScreenProjectSubTableViewController.m in Sources */,
 				5406EAE11C0EF87E0035FFA4 /* DDQuserInfoCell.m in Sources */,
 				542019771BCF304A005E8750 /* AFHTTPRequestOperation.m in Sources */,
@@ -3032,6 +3410,7 @@
 				546E14BC1BC5158E0091AFC9 /* DDQHotProjectViewCell.m in Sources */,
 				54FE8BB11C5EFFB4004E3736 /* WXUtil.mm in Sources */,
 				54A618B21BC3C46000131719 /* DDQProjectViewController.m in Sources */,
+				B9CD92BC1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m in Sources */,
 				54FE8BB71C5F2E9A004E3736 /* DDQLunBoModel.m in Sources */,
 				79D2B4C01BD0F6DE004660A0 /* DDQSetViewController.m in Sources */,
 				5484F3761B93E50500B29764 /* ViewController+MASAdditions.m in Sources */,
@@ -3043,8 +3422,10 @@
 				79D2B4AB1BD0F4C6004660A0 /* DDQFirstSectionViewItem.m in Sources */,
 				544DCA121BF1CB400074E24B /* DDQMyCommentChildModel.m in Sources */,
 				549A786D1BE211F2008B2123 /* DDQDoctorHomePageModel.m in Sources */,
+				B92240111CE45E7A00CB1981 /* IQUITextFieldView+Additions.m in Sources */,
 				549CADBF1C27FAB100786128 /* DDQFunctionCell.m in Sources */,
 				54CD52F41BCA435F00809932 /* DDQUserInfoModel.m in Sources */,
+				B9C78CED1CE6FDF1001028D5 /* NSObject+MJCoding.m in Sources */,
 				B9A076491CCA29BD006C7F4D /* DDQSearchBar.m in Sources */,
 				5495DC9B1BC648F500DCD0A4 /* UIImage+MultiFormat.m in Sources */,
 				54037ABD1C54972300899228 /* DDQTeacherlistModel.m in Sources */,
@@ -3068,6 +3449,7 @@
 				5495DC9A1BC648F500DCD0A4 /* UIImage+GIF.m in Sources */,
 				5484F36F1B93E50500B29764 /* MASConstraintMaker.m in Sources */,
 				5495DC941BC648F500DCD0A4 /* SDWebImageDecoder.m in Sources */,
+				B9425A0F1CCDBBBF00FDC1CA /* DDQNewOrderListController.m in Sources */,
 				54EB707D1C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.m in Sources */,
 				549A78701BE22476008B2123 /* DDQPublic.m in Sources */,
 				54089F8D1C2024DD00084A65 /* SLActivityModel.m in Sources */,
@@ -3080,12 +3462,14 @@
 				79D36B7B1BCFE98C007E2A35 /* UIScrollView+MJRefresh.m in Sources */,
 				5495DC911BC648F500DCD0A4 /* NSData+ImageContentType.m in Sources */,
 				5495DCA21BC649F100DCD0A4 /* DDQGroupHeaderModel.m in Sources */,
+				B909C0191CCF482300C389BA /* DDQOrderController.m in Sources */,
 				541BF6DF1C158E7200F7D362 /* DDQResetViewController.m in Sources */,
 				54D81C201BE709CD00C11110 /* MD5DataSigner.m in Sources */,
 				5484F3741B93E50500B29764 /* NSLayoutConstraint+MASDebugAdditions.m in Sources */,
 				54EA5CEA1BDF8C6F000AE99F /* SGCollectionController.m in Sources */,
 				545D42ED1C16DB3300AEF2A3 /* StarsView.m in Sources */,
 				79D36B6D1BCFE98C007E2A35 /* MJRefreshFooter.m in Sources */,
+				B92240151CE45E7A00CB1981 /* IQKeyboardManager.m in Sources */,
 				54A618A01BC3A24E00131719 /* DDQCheckViewController.m in Sources */,
 				5484828D1BE3142A001F76B9 /* DDQHospitalModel.m in Sources */,
 				5496E08F1BF03AF800F02A44 /* DDQNetUtils.m in Sources */,
@@ -3094,6 +3478,10 @@
 				54037ACF1C54C1EA00899228 /* DDQMyLessonCell.m in Sources */,
 				54089F851C2024DD00084A65 /* SLActivityDetailBaseCell.m in Sources */,
 				5495DC901BC648F500DCD0A4 /* MKAnnotationView+WebCache.m in Sources */,
+				B9C78CF01CE6FDF1001028D5 /* NSString+MJExtension.m in Sources */,
+				B909C0061CCF3F5200C389BA /* DDQEvaluateController.m in Sources */,
+				B9425A291CCDF5A000FDC1CA /* DDQPayController.m in Sources */,
+				B92240161CE45E7A00CB1981 /* IQKeyboardReturnKeyHandler.m in Sources */,
 				54EB70681C1AD79F005BD9D3 /* DDQMainSearchDetailViewController.m in Sources */,
 				54CD25011BC9264200AFF846 /* SBJsonStreamParser.m in Sources */,
 				54B50CA01BD9CFD600BD75C8 /* DDQDoctorIntroCell.m in Sources */,
@@ -3101,6 +3489,7 @@
 				541C4D041C19610C00F2B9C4 /* DDQMyReplyedModel.m in Sources */,
 				5456C1DF1BCF59BE00E674AA /* DDQGroupArticleModel.m in Sources */,
 				54EB707A1C1AE990005BD9D3 /* DDQOrderTableViewCell.m in Sources */,
+				B9C78CEB1CE6FDF1001028D5 /* MJPropertyType.m in Sources */,
 				79D2B4D81BD0F6ED004660A0 /* DDQUserProtocolViewController.m in Sources */,
 				54EB70691C1AD79F005BD9D3 /* DDQMainSearchModel.m in Sources */,
 				79D36B771BCFE98C007E2A35 /* MJRefreshStateHeader.m in Sources */,
@@ -3117,6 +3506,7 @@
 				549566DD1BD77BF600A3E493 /* DDQDoctorCell.m in Sources */,
 				5496E0A41BF07AE000F02A44 /* DDQOthersTableViewCell.m in Sources */,
 				5495DCA91BC667D200DCD0A4 /* DDQDetailControllerProjectCell.m in Sources */,
+				B9C78CEA1CE6FDF1001028D5 /* MJPropertyKey.m in Sources */,
 				79D36B6F1BCFE98C007E2A35 /* MJRefreshAutoGifFooter.m in Sources */,
 				54686F3E1BD6316100592129 /* DDQCommentModel.m in Sources */,
 				5406EADC1C0EF87E0035FFA4 /* MBProgressHUD+EBUsHUD.m in Sources */,
@@ -3127,15 +3517,19 @@
 				54E84C621BF1EEB700C4BCDA /* DDQMyWalletViewController.m in Sources */,
 				549566D61BD73F1700A3E493 /* DDQHospitalCommentCell.m in Sources */,
 				54E84C531BF1DCA700C4BCDA /* DDQFirstChildViewController.m in Sources */,
+				B909BFFC1CCF0D2F00C389BA /* DDQServerCell.m in Sources */,
 				5406EAD71C0EF87E0035FFA4 /* DDQPersonalDataViewController.m in Sources */,
 				546E14AB1BC4EA390091AFC9 /* DDQGroupHeaderViewItem.m in Sources */,
 				54F82C401BF08824003D1E2D /* DDQOthersCommentModel.m in Sources */,
 				543902111C489A070078F340 /* DDQTeacherIntroViewController.m in Sources */,
+				B9FD44751CE07FB7003B195C /* DDQPayView.m in Sources */,
 				54D91D311BD09E7300E1A222 /* DDQUserCommentViewController.m in Sources */,
 				A62FCB671C10364E00C0A185 /* DDQLoginNumCell.m in Sources */,
+				B909C00A1CCF410D00C389BA /* DDQEvaluateCell.m in Sources */,
 				54EF7AA31C7852AF0071DCB6 /* DDQMyWalletCell.m in Sources */,
 				540204D11BBA6F0600EEB807 /* NSString+MD5Addition.m in Sources */,
 				54D81C1F1BE709CD00C11110 /* DataVerifier.m in Sources */,
+				B9C235CC1CE6C48600BC7CBA /* ProjectNetWork.m in Sources */,
 				74FED31C1BEB0E9100452416 /* UICKeyChainStore.m in Sources */,
 				54E615021C48812D008D2CF5 /* DDQTeacherCollectionViewCell.m in Sources */,
 				5495DC9D1BC648F500DCD0A4 /* UIImageView+HighlightedWebCache.m in Sources */,
@@ -3154,6 +3548,7 @@
 				79D2B4D61BD0F6ED004660A0 /* DDQFeedbackController.m in Sources */,
 				54FE8BBA1C5F32EA004E3736 /* DDQBaoXianViewController.m in Sources */,
 				79D2B4D91BD0F6ED004660A0 /* DDQSetMessageCell.m in Sources */,
+				B91242AF1CE30F230045E3A6 /* DDQBaseTabBarController.m in Sources */,
 				A62FCB5F1C0F402800C0A185 /* DDQLevelCell.m in Sources */,
 				5420197E1BCF304A005E8750 /* AFURLResponseSerialization.m in Sources */,
 				5495DC981BC648F500DCD0A4 /* SDWebImagePrefetcher.m in Sources */,
@@ -3166,14 +3561,22 @@
 				541ABD551BD8E4260036286C /* DDQHospitalImageCell.m in Sources */,
 				54EE05D11BC7D4A800BD3C21 /* DDQMineViewController.m in Sources */,
 				5495DC991BC648F500DCD0A4 /* UIButton+WebCache.m in Sources */,
+				B92240191CE45E7A00CB1981 /* IQPreviousNextView.m in Sources */,
 				79D2B4AA1BD0F4C6004660A0 /* DDQFirstSectionViewController.m in Sources */,
 				548AF9591B9BE80F0072F29B /* UIColor+DDQColorTool.m in Sources */,
 				54D81C221BE709CD00C11110 /* openssl_wrapper.m in Sources */,
+				B9C78CE81CE6FDF1001028D5 /* MJFoundation.m in Sources */,
+				B92240141CE45E7A00CB1981 /* IQUIWindow+Hierarchy.m in Sources */,
+				B909BFF81CCF0C0500C389BA /* DDQServerController.m in Sources */,
 				54A618901BC3770E00131719 /* DDQSecondRegisterViewController.m in Sources */,
 				79D2B4B61BD0F4C6004660A0 /* DDQProjectViewCell.m in Sources */,
+				B92240131CE45E7A00CB1981 /* IQUIViewController+Additions.m in Sources */,
+				B922401B1CE45E7A00CB1981 /* IQToolbar.m in Sources */,
 				549566D31BD7360E00A3E493 /* DDQHospitalNameCell.m in Sources */,
+				B909C00E1CCF43EB00C389BA /* DDQCancelController.m in Sources */,
 				54A618891BC36A2400131719 /* DDQLoginViewController.m in Sources */,
 				79D2B4BA1BD0F4C6004660A0 /* DDQThemeActivityItem.m in Sources */,
+				B92240101CE45E7A00CB1981 /* IQUIScrollView+Additions.m in Sources */,
 				79D36B7D1BCFE98C007E2A35 /* Singleton.m in Sources */,
 				54D81C241BE709CD00C11110 /* RSADataVerifier.m in Sources */,
 				5475B28D1BCD186D00F1F59A /* DDQGroupViewController.m in Sources */,
@@ -3182,6 +3585,7 @@
 				54B50C9C1BD9CEE000BD75C8 /* DDQDoctorHomePageController.m in Sources */,
 				54E248481C32664500F6394F /* WXMediaMessage+messageConstruct.m in Sources */,
 				79D2B4AF1BD0F4C6004660A0 /* DDQScreenProjectDetailCollectionViewCell.m in Sources */,
+				B9C78CE71CE6FDF1001028D5 /* MJExtensionConst.m in Sources */,
 				54686F381BD6225700592129 /* DDQDiaryModel.m in Sources */,
 				54037AC31C54AEA600899228 /* DDQRowThreeTableViewCell.m in Sources */,
 				54089F8B1C2024DD00084A65 /* SLActivityDetailProcessCell.m in Sources */,
@@ -3200,10 +3604,12 @@
 				5420197B1BCF304A005E8750 /* AFSecurityPolicy.m in Sources */,
 				5495DC9C1BC648F500DCD0A4 /* UIImage+WebP.m in Sources */,
 				5454CF851BB8DDEF0098ABE8 /* DDQSingleModel.m in Sources */,
+				B922401C1CE45E7A00CB1981 /* IQUIView+IQKeyboardToolbar.m in Sources */,
 				541BF6DA1C1584E200F7D362 /* DDQBackPasswordViewController.m in Sources */,
 				54EA5CE81BDF8C6F000AE99F /* SGAssetModel.m in Sources */,
 				54D81C1D1BE709CD00C11110 /* base64.m in Sources */,
 				5484F3751B93E50500B29764 /* View+MASAdditions.m in Sources */,
+				B9C78CEE1CE6FDF1001028D5 /* NSObject+MJKeyValue.m in Sources */,
 				54CABC4C1BDA10190090855D /* BarChart.m in Sources */,
 				5484F3731B93E50500B29764 /* NSArray+MASAdditions.m in Sources */,
 				79D36B6E1BCFE98C007E2A35 /* MJRefreshHeader.m in Sources */,
@@ -3214,21 +3620,27 @@
 				541ABD4A1BD8A4ED0036286C /* DDQTableViewCell.m in Sources */,
 				54A6187F1BC360C800131719 /* DDQMainViewController.m in Sources */,
 				54EB707E1C1AE990005BD9D3 /* DDQOrderDetailViewController.m in Sources */,
+				B92240171CE45E7A00CB1981 /* IQTextView.m in Sources */,
 				54247AC21C7BF57F00A4BD63 /* DDQTagModel.m in Sources */,
 				540204D21BBA6F0600EEB807 /* PostData.m in Sources */,
 				54E248451C32663F00F6394F /* SendMessageToWXReq+requestWithTextOrMediaMessage.m in Sources */,
 				54CABC441BDA0B730090855D /* DDQHospitalEvaluateController.m in Sources */,
+				B909C0121CCF440900C389BA /* DDQCancelCell.m in Sources */,
 				54CABC4F1BDA29D40090855D /* DDQHospitalEvaluateCell.m in Sources */,
 				546E14B51BC4F5700091AFC9 /* DDQUserDiaryViewController.m in Sources */,
 				54686F3B1BD62F3D00592129 /* DDQUserCommentViewCell.m in Sources */,
 				54037AC71C54C13900899228 /* DDQMyLessonViewController.m in Sources */,
 				79D2B4B01BD0F4C6004660A0 /* DDQScreenProjectDetailTableViewCell.m in Sources */,
+				B9C78CD01CE6FC5D001028D5 /* DDQPayModel.m in Sources */,
 				5466576A1BDF44B9001B61DF /* DDQCommentFirstCell.m in Sources */,
 				54089F841C2024DD00084A65 /* DDQPreferenceDetailViewController.m in Sources */,
+				B909C0151CCF46E500C389BA /* DDQOrderCell.m in Sources */,
+				B9425A2F1CCDF7DF00FDC1CA /* DDQPayCell.m in Sources */,
 				54F82C3D1BF08804003D1E2D /* DDQOthersModel.m in Sources */,
 				54EE05231BC75BCD00BD3C21 /* DDQLoginSingleModel.m in Sources */,
 				549566C71BD72CB800A3E493 /* DDQDashesLine.m in Sources */,
 				B9F30AFA1CAB6E9B007F0737 /* LoopCollectionViewCell.m in Sources */,
+				B92240181CE45E7A00CB1981 /* IQBarButtonItem.m in Sources */,
 				54104A031BDB5B6E003BA2FF /* DDQCircleView.m in Sources */,
 				54CD25031BC9264200AFF846 /* SBJsonStreamParserAdapter.m in Sources */,
 				54F82C3A1BF087AE003D1E2D /* DDQOthersCommentCell.m in Sources */,
@@ -3238,26 +3650,34 @@
 				5420197C1BCF304A005E8750 /* AFURLConnectionOperation.m in Sources */,
 				5495DC931BC648F500DCD0A4 /* SDWebImageCompat.m in Sources */,
 				541BF6E31C159C7000F7D362 /* DDQScreenProjectViewController.m in Sources */,
+				B922400F1CE45E7A00CB1981 /* IQNSArray+Sort.m in Sources */,
 				54D81C231BE709CD00C11110 /* RSADataSigner.m in Sources */,
+				B909C0021CCF1B8900C389BA /* NSString+DDQStringRect.m in Sources */,
 				5495DC6D1BC63B6600DCD0A4 /* DDQZRBViewController.m in Sources */,
 				5495DC921BC648F500DCD0A4 /* SDImageCache.m in Sources */,
 				543D90081C47944E00A2E56C /* DDQTeacherListViewController.m in Sources */,
 				54089F8C1C2024DD00084A65 /* SLActivityDetailWebCell.m in Sources */,
+				B9C78CE91CE6FDF1001028D5 /* MJProperty.m in Sources */,
 				5495DC961BC648F500DCD0A4 /* SDWebImageDownloaderOperation.m in Sources */,
 				54FE8BB41C5F0042004E3736 /* ApiXml.mm in Sources */,
 				54CABC4B1BDA10180090855D /* UIView+ZXQuartz.m in Sources */,
+				B9FD447B1CE09A77003B195C /* DDQNewPayController.m in Sources */,
 				79D2B4AC1BD0F4C6004660A0 /* DDQSecondSectionViewController.m in Sources */,
 				79D36B711BCFE98C007E2A35 /* MJRefreshAutoStateFooter.m in Sources */,
 				54EA5CE91BDF8C6F000AE99F /* SGAssetsGroupController.m in Sources */,
+				B9C78CEF1CE6FDF1001028D5 /* NSObject+MJProperty.m in Sources */,
 				5406EADE1C0EF87E0035FFA4 /* UIView+Debug.m in Sources */,
 				541248051BE05C1E0045E5EB /* DDQHomePageModel.m in Sources */,
+				B9C78CF41CE714EC001028D5 /* DDQNewOrderDetailController.m in Sources */,
 				5406EADA1C0EF87E0035FFA4 /* SLValue Singleton.m in Sources */,
 				54E84C591BF1E9D500C4BCDA /* DDQMyCollectViewController.m in Sources */,
+				B92240121CE45E7A00CB1981 /* IQUIView+Hierarchy.m in Sources */,
 				5420197A1BCF304A005E8750 /* AFNetworkReachabilityManager.m in Sources */,
 				54A618931BC37BC100131719 /* DDQThirdRegisterViewController.m in Sources */,
 				54CD25091BC9264200AFF846 /* SBJsonUTF8Stream.m in Sources */,
 				B9F30AF91CAB6E9B007F0737 /* DDQLoopView.m in Sources */,
 				79D36B6C1BCFE98C007E2A35 /* MJRefreshComponent.m in Sources */,
+				B922401A1CE45E7A00CB1981 /* IQTitleBarButtonItem.m in Sources */,
 				54E84C5F1BF1ECD400C4BCDA /* DDQMyCollectModel.m in Sources */,
 				54F1BD831C1D48ED00A4D819 /* DDQHospitalEvaluteModel.m in Sources */,
 				5484F32D1B93E4AF00B29764 /* main.m in Sources */,
@@ -3272,6 +3692,7 @@
 				549566CF1BD7352500A3E493 /* DDQHospitalHomePageController.m in Sources */,
 				542E0EBB1BE0B04D0076CB7A /* DDQReplyModel.m in Sources */,
 				5484F3721B93E50500B29764 /* MASViewConstraint.m in Sources */,
+				B9C78CEC1CE6FDF1001028D5 /* NSObject+MJClass.m in Sources */,
 				5496E09E1BF0606500F02A44 /* DDQPOSTEncryption.m in Sources */,
 				5496E0A11BF0798A00F02A44 /* DDQOthersViewController.m in Sources */,
 				79D2B4D71BD0F6ED004660A0 /* DDQMessageSetViewController.m in Sources */,
@@ -3298,6 +3719,7 @@
 				54CD24FF1BC9264200AFF846 /* NSObject+SBJson.m in Sources */,
 				54E84C5C1BF1EC3700C4BCDA /* DDQMyCollectCell.m in Sources */,
 				546A756C1BCE80B40063AC3F /* DDQMainViewControllerModel.m in Sources */,
+				B9C78CF81CE72B2B001028D5 /* DDQNewOrderDetailView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3447,6 +3869,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/QuanMei/SDK/SMS_SDK",
@@ -3487,6 +3910,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/QuanMei/SDK/SMS_SDK",

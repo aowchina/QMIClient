@@ -8,7 +8,38 @@
 
 #import "DDQMyCommentChildCell.h"
 
+@interface DDQMyCommentChildCell ()
+
+@property ( strong, nonatomic) UIView *background_view;
+
+@end
+
 @implementation DDQMyCommentChildCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    
+    if (self) {
+        
+        self.background_view = [[UIView alloc] init];
+        [self.contentView addSubview:self.background_view];
+        self.backgroundColor = [UIColor backgroundColor];
+        self.background_view.backgroundColor = [UIColor whiteColor];
+        [self.background_view mas_makeConstraints:^(MASConstraintMaker *make) {
+            
+            make.left.equalTo(self.contentView.mas_left);
+            make.right.equalTo(self.contentView.mas_right);
+            make.top.equalTo(self.contentView.mas_top).offset(5);
+            make.bottom.equalTo(self.contentView.mas_bottom).offset(-5);
+
+        }];
+        
+    }
+    
+    return self;
+    
+}
 
 -(void)setCommentChildModel:(DDQMyCommentChildModel *)commentChildModel {
 
@@ -24,7 +55,7 @@
         img_h = 35;
     }
     UIImageView *userimg = [[UIImageView alloc] initWithFrame:CGRectMake(10, 10, img_w, img_h)];
-    [self.contentView addSubview:userimg];
+    [self.background_view addSubview:userimg];
     [userimg sd_setImageWithURL:[NSURL URLWithString:commentChildModel.userimg] placeholderImage:[UIImage imageNamed:@"default_pic"]];
     userimg.layer.cornerRadius = img_h*0.5;
     userimg.layer.masksToBounds= YES;
@@ -34,7 +65,7 @@
     CGRect nickRect = [commentChildModel.username boundingRectWithSize:CGSizeMake(kScreenWidth, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.0f]} context:nil];
     
     UILabel *username_label = [[UILabel alloc] init];
-    [self.contentView addSubview:username_label];
+    [self.background_view addSubview:username_label];
     [username_label mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(userimg.mas_centerY);
         make.width.offset(nickRect.size.width);
@@ -50,7 +81,7 @@
     CGRect pubtimeRect = [commentChildModel.pubtime boundingRectWithSize:CGSizeMake(kScreenWidth, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.0f]} context:nil];
     
     UILabel *pubtime_label = [[UILabel alloc] init];
-    [self.contentView addSubview:pubtime_label];
+    [self.background_view addSubview:pubtime_label];
     [pubtime_label mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(username_label.mas_centerY);
         make.width.offset(pubtimeRect.size.width);
@@ -71,7 +102,7 @@
 //    }
     
     UILabel *intro_label = [[UILabel alloc] initWithFrame:CGRectMake(img_w, 20+img_h, kScreenWidth - 20, introRect.size.height)];
-    [self.contentView addSubview:intro_label];
+    [self.background_view addSubview:intro_label];
     intro_label.numberOfLines = 0;
     intro_label.font          = [UIFont systemFontOfSize:13.0f];
     intro_label.text          = commentChildModel.title;
@@ -95,7 +126,7 @@
         [mutable_string replaceCharactersInRange:NSMakeRange(0, commentChildModel.username2.length) withAttributedString:attributed_comment];
         
         UILabel *background_label = [[UILabel alloc] init];
-        [self.contentView addSubview:background_label];
+        [self.background_view addSubview:background_label];
         [background_label mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(intro_label.mas_left);
             make.top.equalTo(intro_label.mas_bottom).offset(10);
@@ -125,7 +156,7 @@
     CGRect editRect = [edit_string boundingRectWithSize:CGSizeMake(100, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13.0f]} context:nil];
     
     UIView *delete_view = [[UIView alloc] init];
-    [self.contentView addSubview:delete_view];
+    [self.background_view addSubview:delete_view];
     [delete_view mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(background_label.mas_bottom).offset(5);
         make.width.offset(imgW+editRect.size.width+5);
@@ -157,7 +188,7 @@
     [delete_view addGestureRecognizer:view_tap];
     
     //新的高度
-    self.cell_height = img_w+35+introRect.size.height+newRect.size.height+imgH;
+    self.cell_height = img_w+45+introRect.size.height+newRect.size.height+imgH;
 
 }
 

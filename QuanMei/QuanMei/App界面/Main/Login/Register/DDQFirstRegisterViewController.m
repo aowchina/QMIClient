@@ -324,9 +324,7 @@
         NSDateFormatter *date_formatter = [[NSDateFormatter alloc] init];
         [date_formatter setDateFormat:@"yyyy-MM-dd"];
         NSDate *date = [date_formatter dateFromString:self.inputAgeField.text];
-        NSLog(@"%@",date);
         NSComparisonResult result = [date compare:[NSDate date]];
-        NSLog(@"%ld",result);
         if (result == -1) {
             DDQLoginSingleModel *model = [DDQLoginSingleModel singleModelByValue];
             model.nameString = self.inputNameField.text;

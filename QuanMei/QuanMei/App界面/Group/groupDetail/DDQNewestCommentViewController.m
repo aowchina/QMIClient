@@ -80,7 +80,7 @@
     self.hud = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:self.hud];
     
-    self.hud.detailsLabelText = @"请稍后...";
+    self.hud.detailsLabelText = @"请稍候...";
 }
 //12-03
 - (void)refresh
@@ -148,13 +148,7 @@
     [self.navigationController pushViewController:postingVC animated:YES];
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-    
-    [super viewDidDisappear:animated];
-    creatView = YES;
-    
-}
-static BOOL creatView = NO;
+
 
 //12-02
 - (void)getGroupDetail
@@ -184,7 +178,6 @@ static BOOL creatView = NO;
             
             articleModel.intro = [get_jsonDic valueForKey:@"intro"];//简介
             
-            
             NSArray *temp_array = get_jsonDic[@"tag"];
             [self.tagArray removeAllObjects];
             for (NSDictionary *dic in temp_array) {
@@ -201,14 +194,11 @@ static BOOL creatView = NO;
             [_groupHeaderArray addObject:articleModel];
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (creatView == NO) {
-                    
+                
+                
                     [self creatView];
                     self.mainTableView.tableHeaderView = self.headerView;
-                    creatView = YES;
                     
-                }
-
                 [self.hud hide:YES];
                 
             });
@@ -227,6 +217,7 @@ static BOOL creatView = NO;
         
     });
 }
+
 
 //12-04
 static int tiezicount = 0,rijicount =0;
@@ -340,194 +331,185 @@ static int Page = 2;
     [self.view addSubview:self.mainTableView];
     self.mainTableView.backgroundColor = [UIColor backgroundColor];
     self.mainTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
-
+    UIView *backView = [[UIView alloc]initWithFrame:CGRectMake(0, kScreenHeight - 110, self.view.frame.size.width,50)];
+    
+    backView.backgroundColor  = [[UIColor blackColor] colorWithAlphaComponent:0.5f];
+    
+    [self.view addSubview:backView];
+    
+    UILabel *postingLabel = [UILabel new];
+    [backView addSubview:postingLabel];
+    [postingLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        
+        make.centerY.equalTo(backView.mas_centerY);
+        make.left.equalTo(backView.mas_centerX);
+        
+    }];
+    postingLabel.font = [UIFont systemFontOfSize:17.0f weight:1.0f];
+    postingLabel.text = @"发帖";
+    postingLabel.textColor = [UIColor whiteColor];
+    
+    UIImageView *temp_img = [UIImageView new];
+    [backView addSubview:temp_img];
+    [temp_img mas_makeConstraints:^(MASConstraintMaker *make) {
+        
+        make.right.equalTo(postingLabel.mas_left).offset(-5);
+        make.centerY.equalTo(postingLabel.mas_centerY);
+        make.width.and.height.offset(17);
+        
+    }];
+    
+    temp_img.image = [UIImage imageNamed:@"indicator_arrow"];
+    temp_img.userInteractionEnabled = YES;
+    postingLabel.userInteractionEnabled = YES;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(postingButtonClicked)];
+    [backView addGestureRecognizer:tap];
+    
     [self refresh];
 }
 
 - (void)creatView
 {
-    if (_groupHeaderArray.count == 0) {
-        UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"请求失败" message:@"网络繁忙..." delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-        [alertView show];
-        [self.hud hide:YES];
-}
-    else{
-        DDQGroupArticleModel *model =[_groupHeaderArray objectAtIndex:0];
+    DDQGroupArticleModel *model =[_groupHeaderArray objectAtIndex:0];
+    
+    
+    UIView *headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, kScreenHeight*0.25)];
+    headerView.backgroundColor = [UIColor whiteColor];
+    
+    //imageView
+    UIImageView *imageView = [[UIImageView alloc] init];
+    [headerView addSubview:imageView];
+    [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
         
+        make.centerY.equalTo(headerView.mas_centerY);
+        make.left.equalTo(headerView.mas_left).offset(10);
+        make.width.equalTo(headerView.mas_width).multipliedBy(0.2);
+        make.height.equalTo(imageView.mas_width);
         
-        UIView *headerView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, kScreenHeight*0.25)];
-        _headerView = headerView;
-        _headerView.backgroundColor = [UIColor whiteColor];
+    }];
+    NSURL *url = [NSURL URLWithString:_header_single.iconUrl];
+    [imageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"default_pic"]];
+    [imageView.layer setCornerRadius:5];
+    
+    //title
+    UILabel *titleLabel = [[UILabel alloc] init];
+    [headerView addSubview:titleLabel];
+    [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.equalTo(@70);
+        make.height.equalTo(@30);
+        make.top.equalTo(imageView.mas_top);
+        make.left.equalTo(imageView.mas_right).with.offset(10);
+    }];
+    [titleLabel setText:_header_single.name];
+    [titleLabel setFont:[UIFont systemFontOfSize:18.0 weight:5.0]];
+    
+    //描述
+    CGRect rect = [model.intro boundingRectWithSize:CGSizeMake(kScreenWidth - kScreenWidth*0.2 - 70 - 65, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16.0f]} context:nil];
+    UILabel *description = [[UILabel alloc] init];
+    [headerView addSubview:description];
+    [description mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(imageView.mas_right).with.offset(10);
+        make.top.equalTo(titleLabel.mas_bottom);
+        make.width.offset(rect.size.width);
+        make.height.offset(rect.size.height);
+    }];
+    [description setNumberOfLines:0];
+    description.font = [UIFont systemFontOfSize:15.0];
+    description.text = model.intro;
+    //10-21
+    description.textColor = [UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5];
+    
+    //一个小button
+    UIButton *joinButton = [[UIButton alloc] init];
+    [headerView addSubview:joinButton];
+    [joinButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.equalTo(headerView.mas_centerY);
+        make.right.equalTo(headerView.mas_right).with.offset(-10);
+        make.width.mas_equalTo(65.0f);
+        make.height.offset(35.0f);
+    }];
+    
+    //10-30
+    if ([model.isin intValue]==0) {
+        [joinButton setTitle:@"加入" forState:UIControlStateNormal];
+        joinButton.tag = 1;
+        _isjoinGroup = NO;
+        [joinButton setTitleColor:[UIColor meiHongSe] forState:UIControlStateNormal];
+        [joinButton.layer setBorderColor:[UIColor meiHongSe].CGColor];
         
-        //imageView
-        UIImageView *imageView = [[UIImageView alloc] init];
-        [_headerView addSubview:imageView];
-        [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            
-            make.centerY.equalTo(_headerView.mas_centerY);
-            make.left.equalTo(_headerView.mas_left).offset(10);
-            make.width.equalTo(_headerView.mas_width).multipliedBy(0.2);
-            make.height.equalTo(imageView.mas_width);
-            
-        }];
-        NSURL *url = [NSURL URLWithString:_header_single.iconUrl];
-        [imageView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"default_pic"]];
-        [imageView.layer setCornerRadius:5];
-        
-        //title
-        UILabel *titleLabel = [[UILabel alloc] init];
-        [_headerView addSubview:titleLabel];
-        [titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.width.equalTo(@70);
-            make.height.equalTo(@30);
-            make.top.equalTo(imageView.mas_top);
-            make.left.equalTo(imageView.mas_right).with.offset(10);
-        }];
-        [titleLabel setText:_header_single.name];
-        [titleLabel setFont:[UIFont systemFontOfSize:18.0 weight:5.0]];
-        
-        //描述
-        CGRect rect = [model.intro boundingRectWithSize:CGSizeMake(kScreenWidth - kScreenWidth*0.2 - 70 - 65, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16.0f]} context:nil];
-        UILabel *description = [[UILabel alloc] init];
-        [_headerView addSubview:description];
-        [description mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(imageView.mas_right).with.offset(10);
-            make.top.equalTo(titleLabel.mas_bottom);
-            make.width.offset(rect.size.width);
-            make.height.offset(rect.size.height);
-        }];
-        [description setNumberOfLines:0];
-        description.font = [UIFont systemFontOfSize:15.0];
-        description.text = model.intro;
-        //10-21
-        description.textColor = [UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5];
-        
-        //一个小button
-        UIButton *joinButton = [[UIButton alloc] init];
-        [_headerView addSubview:joinButton];
-        [joinButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.centerY.equalTo(headerView.mas_centerY);
-            make.right.equalTo(_headerView.mas_right).with.offset(-10);
-            make.width.mas_equalTo(65.0f);
-            make.height.offset(35.0f);
-        }];
-        
-        //10-30
-        if ([model.isin intValue]==0) {
-            [joinButton setTitle:@"加入" forState:UIControlStateNormal];
-            joinButton.tag = 1;
-            _isjoinGroup = NO;
-            [joinButton setTitleColor:[UIColor meiHongSe] forState:UIControlStateNormal];
-            [joinButton.layer setBorderColor:[UIColor meiHongSe].CGColor];
-            
-        }
-        else
-            if ([model.isin intValue]== 1) {
-                [joinButton setTitle:@"退出" forState:UIControlStateNormal];
-                joinButton.tag = 2;
-                _isjoinGroup = YES;
-                
-                [joinButton setTitleColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5] forState:(UIControlStateNormal)];
-                
-                [joinButton.layer setBorderColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5].CGColor];
-            }
-        
-        [joinButton.layer setCornerRadius:15];
-        [joinButton.layer setBorderWidth:1];
-        
-        [joinButton addTarget:self action:@selector(isjoinButtonClicked:) forControlEvents:(UIControlEventTouchUpInside)];
-        //10-30
-        
-        
-        //一个小图标
-        UIImageView *oneImage = [[UIImageView alloc] init];
-        [_headerView addSubview:oneImage];
-        [oneImage mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.width.equalTo(@20);
-            make.height.equalTo(@20);
-            make.left.equalTo(_headerView.mas_left).with.offset(10);
-            make.bottom.equalTo(_headerView.mas_bottom).with.offset(-5);
-        }];
-        oneImage.image = [UIImage imageNamed:@"people"];
-        
-        //人数label
-        UILabel *populationLabel = [[UILabel alloc] init];
-        [_headerView addSubview:populationLabel];
-        [populationLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.height.equalTo(oneImage.mas_height);
-            make.centerY.equalTo(oneImage.mas_centerY);
-            make.left.equalTo(oneImage.mas_right).with.offset(5);
-            make.width.equalTo(oneImage.mas_width).with.multipliedBy(5);
-        }];
-        [populationLabel setText:model.amount];
-        //10-21
-        populationLabel.textColor = [UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5];
-        
-        
-        //10-21
-        //标签
-        UIButton *tagButton = [UIButton buttonWithType:(UIButtonTypeSystem)];
-        [_headerView addSubview:tagButton];
-        [tagButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.width.equalTo(@35);
-            make.right.equalTo(joinButton.mas_right);
-            make.centerY.equalTo(oneImage.mas_centerY);
-            make.height.equalTo(populationLabel.mas_height);
-        }];
-        [tagButton setTitle:@"标签" forState:(UIControlStateNormal)];
-        [tagButton addTarget:self action:@selector(tagButtonClicked) forControlEvents:(UIControlEventTouchUpInside)];
-        [tagButton setTitleColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5] forState:(UIControlStateNormal)];
-        
-        //三个小图标
-        UIImageView *threeImageView =[[UIImageView alloc] init];
-        [_headerView addSubview:threeImageView];
-        [threeImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.right.equalTo(tagButton.mas_left);
-            make.width.equalTo(oneImage.mas_width);
-            make.height.equalTo(oneImage.mas_height);
-            make.centerY.equalTo(oneImage.mas_centerY);
-        }];
-        threeImageView.image = [UIImage imageNamed:@"title"];
-        
-        headerView.frame = CGRectMake(0, 0, kScreenWidth, kScreenWidth * 0.2 + 60);
-        _headerView = headerView;
-        _headerView.backgroundColor = [UIColor whiteColor];
-        
-        UIView *backView = [[UIView alloc]initWithFrame:CGRectMake(0, kScreenHeight - 110, self.view.frame.size.width,50)];
-        
-        backView.backgroundColor  = [[UIColor blackColor] colorWithAlphaComponent:0.5f];
-        
-        [self.view addSubview:backView];
-        
-        UILabel *postingLabel = [UILabel new];
-        [backView addSubview:postingLabel];
-        [postingLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-            
-            make.centerY.equalTo(backView.mas_centerY);
-            make.left.equalTo(backView.mas_centerX);
-            
-        }];
-        postingLabel.font = [UIFont systemFontOfSize:17.0f weight:1.0f];
-        postingLabel.text = @"发帖";
-        postingLabel.textColor = [UIColor whiteColor];
-        
-        UIImageView *temp_img = [UIImageView new];
-        [backView addSubview:temp_img];
-        [temp_img mas_makeConstraints:^(MASConstraintMaker *make) {
-            
-            make.right.equalTo(postingLabel.mas_left).offset(-5);
-            make.centerY.equalTo(postingLabel.mas_centerY);
-            make.width.and.height.offset(17);
-            
-        }];
-        
-        temp_img.image = [UIImage imageNamed:@"indicator_arrow"];
-        temp_img.userInteractionEnabled = YES;
-        postingLabel.userInteractionEnabled = YES;
-        
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(postingButtonClicked)];
-        [backView addGestureRecognizer:tap];
     }
+    else
+        if ([model.isin intValue]== 1) {
+            [joinButton setTitle:@"退出" forState:UIControlStateNormal];
+            joinButton.tag = 2;
+            _isjoinGroup = YES;
+            
+            [joinButton setTitleColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5] forState:(UIControlStateNormal)];
+            
+            [joinButton.layer setBorderColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5].CGColor];
+        }
+    
+    [joinButton.layer setCornerRadius:15];
+    [joinButton.layer setBorderWidth:1];
+    
+    [joinButton addTarget:self action:@selector(isjoinButtonClicked:) forControlEvents:(UIControlEventTouchUpInside)];
+    //10-30
+    
+    
+    //一个小图标
+    UIImageView *oneImage = [[UIImageView alloc] init];
+    [headerView addSubview:oneImage];
+    [oneImage mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.equalTo(@20);
+        make.height.equalTo(@20);
+        make.left.equalTo(headerView.mas_left).with.offset(10);
+        make.bottom.equalTo(headerView.mas_bottom).with.offset(-5);
+    }];
+    oneImage.image = [UIImage imageNamed:@"people"];
+    
+    //人数label
+    UILabel *populationLabel = [[UILabel alloc] init];
+    [headerView addSubview:populationLabel];
+    [populationLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.height.equalTo(oneImage.mas_height);
+        make.centerY.equalTo(oneImage.mas_centerY);
+        make.left.equalTo(oneImage.mas_right).with.offset(5);
+        make.width.equalTo(oneImage.mas_width).with.multipliedBy(5);
+    }];
+    [populationLabel setText:model.amount];
+    //10-21
+    populationLabel.textColor = [UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5];
+    
+    
+    //10-21
+    //标签
+    UIButton *tagButton = [UIButton buttonWithType:(UIButtonTypeSystem)];
+    [headerView addSubview:tagButton];
+    [tagButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.width.equalTo(@35);
+        make.right.equalTo(joinButton.mas_right);
+        make.centerY.equalTo(oneImage.mas_centerY);
+        make.height.equalTo(populationLabel.mas_height);
+    }];
+    [tagButton setTitle:@"标签" forState:(UIControlStateNormal)];
+    [tagButton addTarget:self action:@selector(tagButtonClicked) forControlEvents:(UIControlEventTouchUpInside)];
+    [tagButton setTitleColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5] forState:(UIControlStateNormal)];
+    
+    //三个小图标
+    UIImageView *threeImageView =[[UIImageView alloc] init];
+    [headerView addSubview:threeImageView];
+    [threeImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(tagButton.mas_left);
+        make.width.equalTo(oneImage.mas_width);
+        make.height.equalTo(oneImage.mas_height);
+        make.centerY.equalTo(oneImage.mas_centerY);
+    }];
+    threeImageView.image = [UIImage imageNamed:@"title"];
+    
+    headerView.frame = CGRectMake(0, 0, kScreenWidth, kScreenWidth * 0.2 + 60);
+    _headerView = headerView;
+    
 }
 
 //10-30
@@ -555,7 +537,7 @@ static int Page = 2;
         self.collectionView.delegate = self;
         self.collectionView.dataSource = self;
 
-        self.collectionView.backgroundColor = [UIColor backgroundColor];
+        self.collectionView.backgroundColor = [UIColor whiteColor];
 
         self.collectionView.minimumZoomScale = 1;
         self.collectionView.maximumZoomScale = 1;
@@ -766,8 +748,8 @@ static int Page = 2;
     cell.title.text = str;
     //10-29
     cell.layer.cornerRadius = 18.0f;
-    cell.layer.borderWidth =1;
-    cell.layer.borderColor = [UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:1].CGColor;
+    cell.layer.borderWidth = 0.5;
+    cell.layer.borderColor = [UIColor colorWithRed:227.0f/255.0f green:226.0f/255.0f blue:226.0f/255.0f alpha:1.0f].CGColor;
     
     if (model.isChange == YES) {
         cell.layer.borderColor = [UIColor meiHongSe].CGColor;
@@ -874,7 +856,7 @@ static NSString *identifier = @"cell";
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
 
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 10)];
-    view.backgroundColor = [UIColor lightTextColor];
+    view.backgroundColor = [UIColor backgroundColor];
     return view;
 }
 
@@ -911,16 +893,24 @@ static NSString *identifier = @"cell";
         if (self.rowHeight !=0) {
             
             if (self.rowHeight != 50) {
+                
                 return self.rowHeight +kScreenHeight *0.25-h;
+                
             } else {
             
                 return 50;
             }
+            
+        } else {
+        
+            return kScreenHeight *0.5-h;
+
         }
 
-        return kScreenHeight *0.5-h;
     }else{
+        
         return kScreenHeight *0.3;
+        
     }
     
 }

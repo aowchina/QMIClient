@@ -564,9 +564,6 @@
             }];
             self.titleLabel.text = articleModel.articleTitle;
             self.titleLabel.font = [UIFont systemFontOfSize:17.0f weight:5.0f];
-            NSLog(@"title = %@",articleModel.articleTitle);
-            NSLog(@"name = %@",articleModel.userName);
-
             
             //文章来源
             NSString *source_string = @"来自小组";

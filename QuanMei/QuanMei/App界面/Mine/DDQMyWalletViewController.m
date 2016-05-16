@@ -127,7 +127,7 @@ static int page = 2;
                     make.height.offset(60);
                 }];
                 jifen.textColor = [UIColor meiHongSe];
-                jifen.text = result_dic[@"point"];
+                jifen.text = [NSString stringWithFormat:@"%@",result_dic[@"point"]];
                 jifen.font = [UIFont systemFontOfSize:25.0f];
                 self.mainTableView.tableHeaderView = view;
                 

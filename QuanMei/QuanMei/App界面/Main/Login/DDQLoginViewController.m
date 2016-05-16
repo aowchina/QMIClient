@@ -7,19 +7,17 @@
 //
 
 #import "DDQLoginViewController.h"
-#import "DDQMainViewController.h"
 #import "DDQFirstRegisterViewController.h"
 #import "AppDelegate.h"
-#import "DDQGroupViewController.h"
-#import "DDQMineViewController.h"
-#import "DDQPreferenceViewController.h"
 #import "DDQBackPasswordViewController.h"
 #import "DDQResetViewController.h"
+#import "DDQBaseTabBarController.h"
 
 #import "DDQLoginSingleModel.h"
 #import <TencentOpenAPI/TencentOAuth.h>
 #import <TencentOpenAPI/TencentApiInterface.h>
-
+#import "DDQQiandaoView.h"
+#import "DDQMyWalletViewController.h"
 #import "WXApi.h"
 #import "AppDelegate.h"
 #import "WeiboSDK.h"
@@ -31,7 +29,7 @@
 
 typedef void(^popToMainViewController)();
 
-@interface DDQLoginViewController ()<TencentSessionDelegate,TencentLoginDelegate,ResetVCDelegate>
+@interface DDQLoginViewController ()<TencentSessionDelegate,TencentLoginDelegate,ResetVCDelegate,QiandaoDelegate>
 /**
  *  我要作为载体View
  */
@@ -82,14 +80,10 @@ typedef void(^popToMainViewController)();
 
 @property (strong,nonatomic) popToMainViewController pop;
 
-@property (strong,nonatomic) UITabBarController *tabBarController;
-@property (strong,nonatomic) UINavigationController *mainNavigation;
-@property (strong,nonatomic) UINavigationController *groupNavigation;
-@property (strong,nonatomic) UINavigationController *preferenceNavigation;
-@property (strong,nonatomic) UINavigationController *mineNavigation;
-
 @property (strong,nonatomic) NSDictionary *error_dic;
 @property (strong,nonatomic) MBProgressHUD *hud;
+
+@property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
 @end
 
 @implementation DDQLoginViewController
@@ -101,46 +95,10 @@ typedef void(^popToMainViewController)();
     [self layoutControllerView];
     
     self.spellString = [SpellParameters getBasePostString];//八段字符串
-    DDQMainViewController *mainController = [[DDQMainViewController alloc] init];
-    self.mainNavigation = [[UINavigationController alloc] initWithRootViewController:mainController];
-    
-    DDQGroupViewController *groupController = [[DDQGroupViewController alloc] init];
-    self.groupNavigation = [[UINavigationController alloc] initWithRootViewController:groupController];
-    
-    DDQPreferenceViewController *preferenceController = [[DDQPreferenceViewController alloc] init];
-    self.preferenceNavigation = [[UINavigationController alloc] initWithRootViewController:preferenceController];
-    
-    DDQMineViewController *mineController = [[DDQMineViewController alloc] init];
-    self.mineNavigation = [[UINavigationController alloc] initWithRootViewController:mineController];
-    
-    self.tabBarController = [[UITabBarController alloc] init];
-    _tabBarController.viewControllers = @[_mainNavigation,_groupNavigation,_preferenceNavigation,_mineNavigation];
-    
-    UITabBar *tabBar = _tabBarController.tabBar;
-    [tabBar setTintColor:[UIColor meiHongSe]];
-    [tabBar setBackgroundColor:[UIColor whiteColor]];
-    UITabBarItem *item0 = [tabBar.items objectAtIndex:0];
-    UITabBarItem *item1 = [tabBar.items objectAtIndex:1];
-    UITabBarItem *item2 = [tabBar.items objectAtIndex:2];
-    UITabBarItem *item3 = [tabBar.items objectAtIndex:3];
-    item0.selectedImage = [[UIImage imageNamed:@"首页"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item0.image = [[UIImage imageNamed:@"全美_首页"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item0.title = @"首页";
-    
-    item1.selectedImage = [[UIImage imageNamed:@"美人圈"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item1.image = [[UIImage imageNamed:@"首页－美人圈"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item1.title = @"美人圈";
-    
-    item2.selectedImage = [[UIImage imageNamed:@"特惠"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item2.image = [[UIImage imageNamed:@"首页_特惠"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item2.title = @"特惠";
-    
-    item3.selectedImage = [[UIImage imageNamed:@"6"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];;
-    item3.image = [[UIImage imageNamed:@"wode-0"] imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
-    item3.title = @"我的";
-
     DDQResetViewController *resetVC = [DDQResetViewController new];
     resetVC.delegate = self;
+    self.baseTabBarC = [DDQBaseTabBarController sharedController];
+    
 }
 
 -(void)resetVCNotificationMethod {
@@ -471,7 +429,8 @@ typedef void(^popToMainViewController)();
                        [[NSUserDefaults standardUserDefaults] setValue:[dic valueForKey:@"userid"] forKey:@"userId"];
                        infoModel.isLogin           = YES;
                        //                   [self.navigationController popViewControllerAnimated:YES];
-                       [UIApplication sharedApplication].keyWindow.rootViewController = self.tabBarController;
+                       [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
+                       [self outQianDao];
                        
                    } else if (num == 10) {
                        
@@ -512,6 +471,65 @@ typedef void(^popToMainViewController)();
 
     }
 }
+
+- (void)outQianDao {
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        //请求特惠列表
+        NSString *spellString = [SpellParameters getBasePostString];
+        NSString *poststr = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
+        //加密
+        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+        NSString *post_String = [postEncryption stringWithPost:poststr];
+        
+        //接受字典
+        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kQD_Url];
+        
+        NSString *str = get_postDic[@"errorcode"];
+        int num = [str intValue];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (num == 0) {
+                
+                NSString *jifen = [postEncryption stringWithDic:get_postDic];
+                
+                DDQQiandaoView *qiandao_view = [[DDQQiandaoView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+                qiandao_view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6f];
+                qiandao_view.delegate = self;
+                qiandao_view.huodefenshu.text = [NSString stringWithFormat:@"恭喜获得积分:+%@",jifen];
+                [[UIApplication sharedApplication].keyWindow addSubview:qiandao_view];
+                
+            } else if (num == 13) {
+            } else if (num == 15) {
+            } else if (num == 11 || num == 12) {
+                
+                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
+                [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
+                
+            } else {
+            }
+        });
+        
+    });
+
+}
+
+- (void)qiandao_view:(DDQQiandaoView *)view {
+    
+    [view removeFromSuperview];
+    
+}
+
+- (void)qiandao_viewSelected:(DDQQiandaoView *)view {
+    
+    [view removeFromSuperview];
+    DDQMyWalletViewController *myWallet = [[DDQMyWalletViewController alloc] init];
+    myWallet.hidesBottomBarWhenPushed = YES;
+    
+    [self.navigationController pushViewController:myWallet animated:YES];
+        
+    
+}
+
 /**
  *  为单例类传值做准备
  *
@@ -673,8 +691,8 @@ typedef void(^popToMainViewController)();
             [self.hud removeFromSuperViewOnHide];
             [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
             
-            [UIApplication sharedApplication].keyWindow.rootViewController = self.tabBarController;
-            
+            [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
+            [self outQianDao];
 //            [self.navigationController popViewControllerAnimated:YES];
         });
     });

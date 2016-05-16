@@ -19,6 +19,11 @@
         hud.mode = MBProgressHUDModeCustomView;
         hud.customView = customView;
         [hud show:YES];
+    } else {
+    
+        hud.mode = MBProgressHUDModeText;
+        [hud show:YES];
+
     }
     if (isDelay == YES) {
         [hud hide:YES afterDelay:2];

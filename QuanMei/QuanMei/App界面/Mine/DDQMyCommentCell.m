@@ -188,8 +188,6 @@
             [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
-                make.width.equalTo(self.user_headerImg.mas_width);
-                make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
             }];
             self.deleteLabel.text = @"删除";
             self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];
@@ -370,8 +368,7 @@
             [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
-                make.width.equalTo(self.user_headerImg.mas_width);
-                make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
+                make.height.equalTo(self.deleteImage.mas_height);
             }];
             self.deleteLabel.text = @"删除";
             self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];
@@ -565,8 +562,7 @@
             [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
-                make.width.equalTo(self.user_headerImg.mas_width);
-                make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
+                make.height.equalTo(self.deleteImage.mas_height);
             }];
             self.deleteLabel.text = @"删除";
             self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];
@@ -730,8 +726,7 @@
             [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
-                make.width.equalTo(self.user_headerImg.mas_width);
-                make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
+                make.height.equalTo(self.deleteImage.mas_height);
             }];
             self.deleteLabel.text = @"删除";
             self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];

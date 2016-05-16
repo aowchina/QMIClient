@@ -34,4 +34,9 @@
     return [UIColor colorWithRed:250.0/255 green:66.0/255 blue:135.0/255 alpha:1.0f];
 
 }
+
++ (instancetype)payColor {
+
+    return [UIColor colorWithRed:255.0/255.0 green:118.0/255.0 blue:140.0/255.0 alpha:1.0f];
+}
 @end

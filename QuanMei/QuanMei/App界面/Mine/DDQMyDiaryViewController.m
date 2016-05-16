@@ -95,7 +95,7 @@
     [self.view addSubview:self.second_Button];
     self.second_Button.tag             = 2;
     self.second_Button.frame           = CGRectMake(kScreenWidth * 0.5, 0, kScreenWidth * 0.5, 50);
-    self.second_Button.backgroundColor = [UIColor grayColor];
+    self.second_Button.backgroundColor = kLeftColor;
     self.second_Button.titleLabel.font = [UIFont systemFontOfSize:15.0f weight:2.0f];
     [self.second_Button setTitle:@"我回复的" forState:UIControlStateNormal];
     [self.second_Button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -110,7 +110,7 @@
     btn.backgroundColor = [UIColor whiteColor];
     [btn setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     
-    self.temp_button.backgroundColor = [UIColor grayColor];
+    self.temp_button.backgroundColor = kLeftColor;
     [self.temp_button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     self.temp_button = btn;
     
