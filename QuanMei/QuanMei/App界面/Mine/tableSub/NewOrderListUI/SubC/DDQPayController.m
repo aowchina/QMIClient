@@ -13,7 +13,7 @@
 #import "DDQNewOrderDetailController.h"
 #import "DDQPayModel.h"
 
-@interface DDQPayController ()<UITableViewDataSource,UITableViewDelegate,PayCellDelegate>
+@interface DDQPayController ()<UITableViewDataSource,UITableViewDelegate,PayCellDelegate,MBProgressHUDDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *pay_table;
 @property ( assign, nonatomic) CGFloat cell_h;
@@ -52,7 +52,7 @@
         
     }];
     
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"fresh" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:kFreshControllerNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         
         [self.payC_source removeAllObjects];
         [self pay_controllerNetWithPage:1];
@@ -60,6 +60,14 @@
     }];
     
 }
+
+- (void)viewDidDisappear:(BOOL)animated {
+
+    [super viewDidDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:kFreshControllerNotification object:nil];
+    
+}
+
 /**
  *  网络请求
  *
@@ -79,7 +87,7 @@ static int page_num = 2;
                 [self.payC_source addObject:pay_model];
                 
             }
-            
+    
             [self.pay_table reloadData];
             [self.wait_hud hide:YES];
             
@@ -124,6 +132,7 @@ static int page_num = 2;
         cell = [[DDQPayCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"pay"];
         
     }
+    
     DDQPayModel *pay_model = nil;
     if (self.payC_source.count > 0) {
         
@@ -146,7 +155,7 @@ static int page_num = 2;
         
     } else {
         
-        return 1;
+        return 1.0;
         
     }
     
@@ -155,11 +164,9 @@ static int page_num = 2;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
 
     DDQPayModel *pay_model = self.payC_source[indexPath.row];
-//    DDQNewOrderDetailController *new_order_detailC = [[DDQNewOrderDetailController alloc] init];
-//    new_order_detailC.orderid = pay_model.orderid;
-//    [self.navigationController pushViewController:new_order_detailC animated:YES];
     DDQNewPayController *new_payC = [[DDQNewPayController alloc] init];
     new_payC.orderid = pay_model.orderid;
+    new_payC.c_type = kPayController;
     [self.navigationController pushViewController:new_payC animated:YES];
     
 }
@@ -169,6 +176,74 @@ static int page_num = 2;
     DDQNewPayController *new_payC = [[DDQNewPayController alloc] init];
     new_payC.orderid = model.orderid;
     [self.navigationController pushViewController:new_payC animated:YES];
+    
+}
+
+- (void)cancelbutton_selectedMethod:(DDQPayCell *)pay_cell Model:(DDQPayModel *)model {
+
+    [self.wait_hud show:YES];
+    MBProgressHUD *hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:hud];
+    hud.mode = MBProgressHUDModeText;
+    [self.net_work asy_netWithUrlString:kOrder_DelUrl ParamArray:@[self.userid,model.orderid] Success:^(id source, NSError *analysis_error) {
+        
+        [self.wait_hud hide:YES];
+        if (analysis_error) {
+            
+            NSInteger code = analysis_error.code;
+        
+            if (code == 13 || code == 15) {
+                
+                switch (code) {
+                        
+                    case 13:
+                        [[UIApplication sharedApplication].keyWindow setRootViewController:[[UINavigationController alloc] initWithRootViewController:[[DDQLoginViewController alloc] init]]];
+                        break;
+                        
+                    case 15:
+                        hud.detailsLabelText = @"订单删除失败";
+                        [hud show:YES];
+                        [hud hide:YES afterDelay:1.0];
+                        break;
+                        
+                    default:
+                        break;
+                        
+                }
+                
+            } else {
+                
+                hud.detailsLabelText = kServerDes;
+                [hud show:YES];
+                [hud hide:YES afterDelay:1.0];
+                
+            }
+            
+        } else {
+            
+            hud.delegate = self;
+            hud.detailsLabelText = @"订单删除成功";
+            [hud show:YES];
+            [hud hide:YES afterDelay:1.0];
+            
+        }
+
+    } Failure:^(NSError *net_error) {
+        
+        [self.wait_hud hide:YES];
+        hud.detailsLabelText = kErrorDes;
+        [hud show:YES];
+        [hud hide:YES afterDelay:1.0];
+        
+    }];
+    
+}
+
+- (void)hudWasHidden:(MBProgressHUD *)hud {
+
+    [self.payC_source removeAllObjects];
+    [self pay_controllerNetWithPage:1];
+
     
 }
 

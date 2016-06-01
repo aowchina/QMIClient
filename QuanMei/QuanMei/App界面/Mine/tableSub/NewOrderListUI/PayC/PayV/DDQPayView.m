@@ -52,12 +52,12 @@
 //下部的确认按钮
 @property ( strong, nonatomic) UIButton *surePay_btn;
 
-@property ( strong, nonatomic) NSDictionary *temp_dic;
-
 @property ( assign, nonatomic) float total_price;
+/**
+ *  记录倒计时的
+ */
+@property ( strong, nonatomic) UILabel *timer_label;
 
-@property ( assign, nonatomic) PayType temp_type;
-@property ( assign, nonatomic) PayWay temp_way;
 
 @end
 
@@ -103,6 +103,8 @@
         [self.surePay_btn setTitle:@"确认支付" forState:UIControlStateNormal];
         [self.surePay_btn addTarget:self action:@selector(surePay:) forControlEvents:UIControlEventTouchUpInside];
         
+        
+        
         /**
          *  我需要观察一切和钱有关的东西，以便算总价
          */
@@ -112,11 +114,32 @@
             float duihuan = jifen / 100.0f;
             self.tip_label_three.text = [NSString stringWithFormat:@"积分，可抵消%.2f元",duihuan];
             
-            float price = [self.temp_dic[@"price"] floatValue];
+            float price = 0.0;
+            if (self.pay_type == DingJin) {
+                
+                price = [self.param_dic[@"dj"] floatValue];
+                
+            } else if (self.pay_type == QuanKuan){
+            
+                price = [self.param_dic[@"newval"] floatValue];
+
+            } else {
+                
+                price = [self.param_dic[@"wk_money"] floatValue];
+//                price = [self.param_dic[@"newval"] floatValue] - [self.param_dic[@"dj"] floatValue];
+                
+            }
             self.total_price = price - duihuan;
             self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",self.total_price];
             
         }];
+        
+        /**
+         *  枚举默认值
+         */
+        self.pay_way = ZhifuBao;
+        self.pay_type = DingJin;
+        self.what_pay = notPay;
         
     }
     
@@ -272,6 +295,15 @@
     self.tip_label_three.textColor = kLeftColor;
     self.tip_label_three.text = @"积分，可抵消0元";
 
+    /**
+     *  记录时间
+     */
+    self.timer_label = [UILabel new];
+    [self.scrollView addSubview:self.timer_label];
+    self.timer_label.font = [UIFont systemFontOfSize:18.0];
+    self.timer_label.textColor = [UIColor meiHongSe];
+    self.timer_label.text = @"订单有效期:30分钟";
+    
 }
 /**
  *  定金
@@ -289,19 +321,65 @@
 
 - (void)setPay_type:(PayType)pay_type {
 
-    self.temp_type = pay_type;
-    if (pay_type == DingJin) {
-        
-        [self.type_text_button setTitle:@"定金>" forState:UIControlStateNormal];
-        self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",[self.temp_dic[@"dj"] floatValue]];
-        self.total_price = [self.temp_dic[@"dj"] floatValue];
-        
-    } else {
-    
-        [self.type_text_button setTitle:@"全款>" forState:UIControlStateNormal];
-        self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",[self.temp_dic[@"price"] floatValue]];
-        self.total_price = [self.temp_dic[@"price"] floatValue];
+    _pay_type = pay_type;
+    switch (pay_type) {
+            
+        case DingJin:
+            
+            [self.type_text_button setTitle:@"定金>" forState:UIControlStateNormal];
+            
+            if (![self.input_field.text isEqualToString:@""]) {
+                
+                float jifen = [self.input_field.text floatValue];
+                float duihuan = jifen / 100.0f;
+                
+                float price = [self.param_dic[@"dj"] floatValue];
+                
+                self.total_price = price - duihuan;
+                self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",self.total_price];
 
+            } else {
+            
+                self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",[self.param_dic[@"dj"] floatValue]];
+                self.total_price = [self.param_dic[@"dj"] floatValue];
+
+            }
+            
+            break;
+            
+        case QuanKuan:
+            
+            [self.type_text_button setTitle:@"全款>" forState:UIControlStateNormal];
+            
+            if (![self.input_field.text isEqualToString:@""]) {
+                
+                float jifen = [self.input_field.text floatValue];
+                float duihuan = jifen / 100.0f;
+                
+                float price = [self.param_dic[@"newval"] floatValue];
+                
+                self.total_price = price - duihuan;
+                self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",self.total_price];
+                
+            } else {
+                
+                self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",[self.param_dic[@"newval"] floatValue]];
+                self.total_price = [self.param_dic[@"newval"] floatValue];
+                
+            }
+            
+            break;
+            
+        case WeiKuan:
+            [self.type_text_button setTitle:@"追加尾款>" forState:UIControlStateNormal];
+            self.total_label.text = [NSString stringWithFormat:@"总计:￥%.2f元",[self.param_dic[@"wk_money"] floatValue]];
+            self.total_price = [self.param_dic[@"wk_money"] floatValue];
+            [self.type_text_button setEnabled:NO];
+            self.bespeak_text.text = [NSString stringWithFormat:@"%@元(定金:%@元)",self.param_dic[@"newval"],self.param_dic[@"dj"]];
+            break;
+            
+        default:
+            break;
     }
     
 }
@@ -322,7 +400,7 @@
 
 - (void)setPay_way:(PayWay)pay_way {
     
-    self.temp_way = pay_way;
+    _pay_way = pay_way;
     if (pay_way == ZhifuBao) {
         
         [self.way_text_btn setTitle:@"支付宝>" forState:UIControlStateNormal];
@@ -330,6 +408,22 @@
     } else {
         
         [self.way_text_btn setTitle:@"微信>" forState:UIControlStateNormal];
+        
+    }
+    
+}
+
+- (void)setWhat_pay:(WhatPay)what_pay {
+
+    _what_pay = what_pay;
+    
+    if (what_pay == isPay) {
+        
+        [self.timer_label setHidden:YES];
+        
+    } else {
+    
+        [self.timer_label setHidden:NO];
         
     }
     
@@ -344,7 +438,7 @@
     if (self.delegate && [self.delegate respondsToSelector:@selector(pay_viewSurePay:Jifen:Type:Way:Error:)]) {
         
         NSError *error = nil;
-        if ([self.input_field.text intValue] > [self.temp_dic[@"point"] intValue]) {
+        if ([self.input_field.text intValue] > [self.param_dic[@"point"] intValue]) {
             
             error = [NSError errorWithDomain:@"错误处理" code:2 userInfo:@{@"des":@"填入积分大于现有积分"}];
             
@@ -356,7 +450,7 @@
             
         }
         
-        [self.delegate pay_viewSurePay:[NSString stringWithFormat:@"%.2f",self.total_price] Jifen:self.input_field.text Type:self.temp_type Way:self.temp_way Error:error];
+        [self.delegate pay_viewSurePay:[NSString stringWithFormat:@"%.2f",self.total_price] Jifen:self.input_field.text Type:self.pay_type Way:self.pay_way Error:error];
         
     }
     
@@ -462,9 +556,22 @@
 
 - (void)setParam_dic:(NSDictionary *)param_dic {
 
-    self.temp_dic = param_dic;
+    _param_dic = param_dic;
     //底部总计
-    NSString *total_string = [NSString stringWithFormat:@"总计:￥%@元",param_dic[@"dj"]];
+    NSString *total_string;
+    if (self.pay_type == DingJin) {
+        
+       total_string = [NSString stringWithFormat:@"总计:￥%@元",param_dic[@"dj"]];
+
+    } else if(self.pay_type == QuanKuan){
+    
+        total_string = [NSString stringWithFormat:@"总计:￥%@元",param_dic[@"newval"]];
+
+    } else {
+    
+        total_string = [NSString stringWithFormat:@"总计:￥%@元",param_dic[@"wk_money"]];
+
+    }
 
     [self.total_label mas_makeConstraints:^(MASConstraintMaker *make) {
         
@@ -521,8 +628,8 @@
     self.time_text.text = @"30分钟内有效";
     
     //第五行
-    NSString *bespeak_string = [NSString stringWithFormat:@"%@元",param_dic[@"price"]];
-    self.total_price = [param_dic[@"price"] floatValue];
+    NSString *bespeak_string = [NSString stringWithFormat:@"%@元",param_dic[@"newval"]];
+    self.total_price = [param_dic[@"newval"] floatValue];
     [self.bespeak_text mas_makeConstraints:^(MASConstraintMaker *make) {
         
         make.right.equalTo(self.id_text.mas_right);
@@ -574,6 +681,51 @@
         make.centerY.equalTo(self.tip_label_three.mas_centerY);
         
     }];
+    
+    [self.timer_label mas_makeConstraints:^(MASConstraintMaker *make) {
+        
+        make.top.equalTo(self.input_field.mas_bottom).offset(25);
+        make.centerX.equalTo(self.scrollView.mas_centerX);
+        
+    }];
+    
+    if ([param_dic[@"chatime"] intValue] > 0) {
+        
+        __block int timeout = [param_dic[@"chatime"] intValue]; //倒计时时间
+        dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_source_t _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+        dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+        dispatch_source_set_event_handler(_timer, ^{
+            if(timeout<=0){ //倒计时结束，关闭
+                dispatch_source_cancel(_timer);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    self.timer_label.text = @"订单已失效";
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"order_invalid" object:nil];
+                    
+                });
+                
+            }else{
+                timeout = timeout - 1;
+                
+                NSString *strTime = [NSString stringWithFormat:@"订单有效期:%d分%d秒",timeout/60,timeout%60];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    [UIView beginAnimations:nil context:nil];
+                    [UIView setAnimationDuration:1];
+                    [self.timer_label setText:strTime];
+                    [UIView commitAnimations];
+                    
+                });
+            }
+        });
+        dispatch_resume(_timer);
+        
+    } else {
+    
+        self.timer_label.text = @"订单已失效";
+
+    }
     
     [self.line_seven mas_makeConstraints:^(MASConstraintMaker *make) {
         
@@ -638,7 +790,7 @@
         
     }];
     
-    self.scrollView.contentSize = CGSizeMake(kScreenWidth, 34 + id_rect.size.height + 90 + 30 + goods_rect.size.height + 30 + 90*4 + 8);
+    self.scrollView.contentSize = CGSizeMake(kScreenWidth, 34 + id_rect.size.height + 90 + 30 + goods_rect.size.height + 30 + 90*4);
     self.scrollView.bounces = NO;
     
 }

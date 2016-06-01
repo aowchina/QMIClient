@@ -25,7 +25,9 @@
 #import "DDQLoginViewController.h"
 
 #import "SGImagePickerController.h"
-
+#import "QRCode.h"
+#import "DDQSexSeletView.h"
+#import "ProjectNetWork.h"
 
 @interface DDQPersonalDataViewController ()<UITableViewDataSource,UITableViewDelegate,UIAlertViewDelegate,ZHPickViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 {
@@ -127,7 +129,7 @@ typedef NS_ENUM(NSUInteger, kButtonIndexType) {
                 self.mineInfoModel = model;
                 [self.mainTableView reloadData];
             }else {
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             }
             
             
@@ -156,7 +158,7 @@ typedef NS_ENUM(NSUInteger, kButtonIndexType) {
     if (section == 0) {
         return 1;
     }else {
-        return 4;
+        return 6;
     }
 }
 
@@ -178,10 +180,27 @@ typedef NS_ENUM(NSUInteger, kButtonIndexType) {
         }else if (indexPath.row == 2) {
             cell.leftLabel.text = @"地区";
             cell.rightLabel.text = self.mineInfoModel.city;
-        }else {
+        }else if (indexPath.row == 3){
             cell.leftLabel.text = @"我的等级";
             cell.rightLabel.text = [NSString stringWithFormat:@"LV%@",self.mineInfoModel.level];
+        } else {
+            cell.leftLabel.text = @"性别";
+            cell.rightLabel.text = [NSString stringWithFormat:@"%@",self.mineInfoModel.sex];
         }
+    
+        if (indexPath.row == 5) {
+            UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"temp"];
+            if (!cell) {
+                
+                cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:nil];
+            }
+            cell.textLabel.text = @"我的二维码";
+            cell.textLabel.font = [UIFont systemFontOfSize:15.0];
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            return cell;
+        }
+        
         return cell;
     }
 }
@@ -229,11 +248,130 @@ typedef NS_ENUM(NSUInteger, kButtonIndexType) {
             self.mineInfoModel.city = [SLValue_Singleton shareInstance].pickCityStr;
             [self.mainTableView reloadData];
         }];
-    }else {
+    } else if (indexPath.section == 1 && indexPath.row == 3){
         DDQLevelViewController *levelVC = [[DDQLevelViewController alloc] init];
         levelVC.model = self.mineInfoModel;
         [self.navigationController pushViewController:levelVC animated:YES];
+    } else if (indexPath.section == 1 && indexPath.row == 4) {
+    
+//        UINib *nib = [UINib nibWithNibName:@"SexSelectView" bundle:nil];
+//        NSArray *array = [nib instantiateWithOwner:self options:nil];
+//        DDQSexSeletView *sex_view = array[0];
+//        sex_view.frame = self.view.frame;
+//        [self.view.window addSubview:sex_view];
+//        [sex_view sex_manSelected:^(DDQSexSeletView *view) {
+//            
+//            [view removeFromSuperview];
+//            DDQuserInfoCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+//            cell.rightLabel.text = @"男";
+//            
+//        }];
+//        
+//        [sex_view sex_womanSelected:^(DDQSexSeletView *view) {
+//            
+//            [view removeFromSuperview];
+//            DDQuserInfoCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+//            cell.rightLabel.text = @"女";
+//            
+//        }];
+        UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"性别选择" message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
+        DDQuserInfoCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+        ProjectNetWork *net = [ProjectNetWork sharedWork];
+        
+        UIAlertAction *actionO = [UIAlertAction actionWithTitle:@"男" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            
+            [net asy_netWithUrlString:kEdit_sexUrl ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"1"] Success:^(id source, NSError *analysis_error) {
+                
+                if (analysis_error) {
+                    
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:[NSString stringWithFormat:@"errorcode为%ld",analysis_error.code] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
+                } else {
+                
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"修改成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    cell.rightLabel.text = @"男";
+
+                }
+                
+            } Failure:^(NSError *net_error) {
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }];
+
+        }];
+        
+        UIAlertAction *actionT = [UIAlertAction actionWithTitle:@"女" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            
+            [net asy_netWithUrlString:kEdit_sexUrl ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2"] Success:^(id source, NSError *analysis_error) {
+                
+                if (analysis_error) {
+                    
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:[NSString stringWithFormat:@"errorcode为%ld",analysis_error.code] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
+                } else {
+                    
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"修改成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    cell.rightLabel.text = @"女";
+                    
+                }
+                
+            } Failure:^(NSError *net_error) {
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }];
+
+        }];
+        
+        [alertC addAction:actionO];
+        [alertC addAction:actionT];
+        
+        [self presentViewController:alertC animated:YES completion:nil];
+        
+    } else {
+       
+          QRCode *code = [[QRCode alloc] initWithQRCodeString:[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] width:kScreenWidth*0.6];
+          UIImage *QRCode = code.QRCodeImage;
+          
+          UIView *QRView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+          [self.view.window addSubview:QRView];
+          QRView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
+          
+          UIImageView *QRImg = [[UIImageView alloc] init];
+          [QRView addSubview:QRImg];
+          [QRImg mas_makeConstraints:^(MASConstraintMaker *make) {
+              
+              make.centerX.mas_equalTo(QRView.mas_centerX);
+              make.centerY.mas_equalTo(QRView.mas_centerY);
+              make.width.and.height.offset(kScreenWidth * 0.6);
+              
+          }];
+          QRImg.userInteractionEnabled = YES;
+          QRImg.image = QRCode;
+          
+          UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(removeView:)];
+          [QRView addGestureRecognizer:tap1];
+          
+          UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(removeView:)];
+          [QRView addGestureRecognizer:tap2];
+            
     }
+    
+}
+
+- (void)removeView:(UITapGestureRecognizer *)tap {
+    
+    if ([[tap view] isKindOfClass:[UIImageView class]]) {
+        
+        [[[tap view] superview] removeFromSuperview];
+        
+    } else {
+        
+        [[tap view] removeFromSuperview];
+        
+    }
+    
 }
 
 #pragma mark - action
@@ -386,7 +524,7 @@ NSString *errorcode = [NSString stringWithFormat:@"%@",post_Dic[@"errorcode"]];
         }else if ([errorcode isEqualToString:@"14"]) {
             [self buildAlertView];
         }else {
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
 }
 //字符串转换格式（需要转换时）

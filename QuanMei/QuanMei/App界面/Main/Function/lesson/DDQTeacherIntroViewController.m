@@ -67,7 +67,7 @@
             
         } else {
             [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
     
@@ -122,7 +122,7 @@
                   
                 } else {
                 
-                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 }
 
             });
@@ -199,7 +199,7 @@
                     
                 } else {
                     
-                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 }
             });
             
@@ -241,7 +241,7 @@
             } else if (num == 15||num==16||num==17) {
                 [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"获取微信订单信息异常" andShowDim:NO andSetDelay:YES andCustomView:nil];
             } else {
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             }
         });
     });
@@ -376,7 +376,7 @@
             [self.hud hide:YES];
             [self.hud removeFromSuperViewOnHide];
             
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:YES andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:YES andSetDelay:YES andCustomView:nil];
         }
     });
 }

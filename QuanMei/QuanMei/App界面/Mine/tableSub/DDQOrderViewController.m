@@ -55,7 +55,7 @@
         } else {
             
             [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
     
@@ -87,7 +87,7 @@
                 
             } else {
                 
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 [tableView.header endRefreshing];
             }
         }];
@@ -143,6 +143,7 @@ static NSString * idenfitier = @"cell";
                     } else if([errorcode_string intValue] == 15){
                     
                         [self alertController:@"您只能删除待支付订单"];
+                        
                     } else {
                     
                         [self alertController:@"系统繁忙"];

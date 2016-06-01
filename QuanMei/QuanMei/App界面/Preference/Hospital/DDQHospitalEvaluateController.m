@@ -56,7 +56,7 @@
             [self asyHospitalPjNetWorkWithType:@"1"];
         } else {
             
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
 }
@@ -85,28 +85,31 @@
                 //12-21
                 NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
                 
-                NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
-                for (NSDictionary *dataDic in get_jsonDic) {
+                for (NSDictionary *dataDic in get_Dic) {
+                    
+                    NSDictionary *get_jsonDic = [DDQPublic nullDic:dataDic];
                     DDQHospitalEvaluteModel *model = [[DDQHospitalEvaluteModel alloc] init];
-                    model.fw = dataDic[@"fw"];
-                    model.hid = dataDic[@"hid"];
-                    model.hua = dataDic[@"hua"];
-                    model.iD = dataDic[@"id"];
-                    model.orderid = dataDic[@"orderid"];
-                    model.pubtime = dataDic[@"pubtime"];
-                    model.sm = dataDic[@"sm"];
-                    model.stars = dataDic[@"stars"];
-                    model.text = dataDic[@"text"];
-                    model.userid = dataDic[@"userid"];
-                    model.username = dataDic[@"username"];
-                    model.simg = dataDic[@"simg"];
-                    model.userimg = dataDic[@"userimg"];
+                    model.fw = get_jsonDic[@"fw"];
+                    model.hid = get_jsonDic[@"hid"];
+                    model.hua = get_jsonDic[@"hua"];
+                    model.iD = get_jsonDic[@"id"];
+                    model.orderid = get_jsonDic[@"orderid"];
+                    model.pubtime = get_jsonDic[@"pubtime"];
+                    model.sm = get_jsonDic[@"sm"];
+                    model.stars = get_jsonDic[@"stars"];
+                    model.text = get_jsonDic[@"text"];
+                    model.userid = get_jsonDic[@"userid"];
+                    model.username = get_jsonDic[@"username"];
+                    model.simg = get_jsonDic[@"simg"];
+                    model.userimg = get_jsonDic[@"userimg"];
                     [self.he_dataArray addObject:model];
                 }
                 [self.mainTableView reloadData];
             } else {
                 
 //                [self alertController:@"系统繁忙"];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
             }
             
         });
@@ -139,7 +142,7 @@
     NSString *string = [self.hp substringToIndex:self.hp.length - 1];
     CGFloat arcW ;
     
-    arcW = 10.0f;
+    arcW = 8.0f;
     
     DDQCircleView *circleView = [[DDQCircleView alloc] initWithFrame:CGRectMake(10, 0, topView.frame.size.height, topView.frame.size.height) arcWidth:arcW current:[string floatValue] total:100.0f];
     circleView.backgroundColor = [UIColor whiteColor];
@@ -287,7 +290,7 @@
         make.right.equalTo(firstView.mas_right);
         make.width.offset(1);
         make.centerY.equalTo(firstView.mas_centerY);
-        make.height.equalTo(firstView.mas_height).multipliedBy(1).offset(-40);
+        make.height.equalTo(firstView.mas_height).multipliedBy(1).offset(-10);
     }];
     first_line.backgroundColor = kLeftColor;
     
@@ -302,6 +305,7 @@
     [first_button setTitle:@"全部评价" forState:UIControlStateNormal];
     first_button.tag = 1;
     [first_button setTitleColor:[UIColor meiHongSe] forState:UIControlStateNormal];
+    first_button.titleLabel.font = [UIFont systemFontOfSize:15.0];
     [first_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
     
     //分区2
@@ -315,7 +319,7 @@
         make.right.equalTo(secondView.mas_right);
         make.width.offset(1);
         make.centerY.equalTo(secondView.mas_centerY);
-        make.height.equalTo(secondView.mas_height).multipliedBy(1).offset(-40);
+        make.height.equalTo(secondView.mas_height).multipliedBy(1).offset(-10);
     }];
     second_line.backgroundColor = kLeftColor;
 
@@ -329,6 +333,7 @@
     }];
     [second_button setTitle:@"好评" forState:UIControlStateNormal];
     second_button.tag = 2;
+    second_button.titleLabel.font = [UIFont systemFontOfSize:15.0];
     [second_button setTitleColor:kLeftColor forState:UIControlStateNormal];
     [second_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
     
@@ -344,7 +349,7 @@
         make.right.equalTo(thirdView.mas_right);
         make.width.offset(1);
         make.centerY.equalTo(thirdView.mas_centerY);
-        make.height.equalTo(thirdView.mas_height).multipliedBy(1).offset(-40);
+        make.height.equalTo(thirdView.mas_height).multipliedBy(1).offset(-10);
     }];
     third_line.backgroundColor = kLeftColor;
 
@@ -359,6 +364,7 @@
     }];
     [third_button setTitle:@"中评" forState:UIControlStateNormal];
     third_button.tag = 3;
+    third_button.titleLabel.font = [UIFont systemFontOfSize:15.0];
     [third_button setTitleColor:kLeftColor forState:UIControlStateNormal];
     [third_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
 
@@ -380,6 +386,7 @@
     }];
     [fourth_button setTitle:@"差评" forState:UIControlStateNormal];
     fourth_button.tag = 4;
+    fourth_button.titleLabel.font = [UIFont systemFontOfSize:15.0];
     [fourth_button setTitleColor:kLeftColor forState:UIControlStateNormal];
     [fourth_button addTarget:self action:@selector(typeButtonClickMethod:) forControlEvents:UIControlEventTouchUpInside];
 
@@ -445,7 +452,7 @@
                             andUserComment:nil
                             andProjectInto:model.text
                              andProjectImg:model.simg];
-        self.rowHeight              = evaluateCell.newRect.size.height;
+        self.rowHeight              = evaluateCell.height;
         evaluateCell.selectionStyle = UITableViewCellSelectionStyleNone;
     }
     return evaluateCell;
@@ -454,16 +461,16 @@
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     if (kScreenHeight == 480) {
-        return 40 + self.rowHeight + 100;
+        return self.rowHeight + 100;
         
     } else if (kScreenHeight == 568) {
-        return 50 + self.rowHeight + 110;
+        return self.rowHeight + 110;
         
     } else if (kScreenHeight == 667) {
-        return 60 + self.rowHeight + 120;
+        return self.rowHeight + 120;
         
     } else {
-        return 70 + self.rowHeight + 130;
+        return self.rowHeight + 130;
         
     }
 

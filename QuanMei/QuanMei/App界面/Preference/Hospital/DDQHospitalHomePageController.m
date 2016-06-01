@@ -86,11 +86,12 @@ typedef void(^ItemHeightBlock)(CGFloat height,BOOL isFinished);
                 
                 int num = tehui_page++;
                 [self asyTeHuiNetWorkWithPage:num];
+                
             }];
             
         } else {
             
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
     
@@ -115,7 +116,7 @@ typedef void(^ItemHeightBlock)(CGFloat height,BOOL isFinished);
             
         } else {
             
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
 }
@@ -203,9 +204,8 @@ static int tehui_page = 2;
                     zhuti_Model.simg        = [dataDic valueForKey:@"simg"];
                     [self.collectionView_source addObject:zhuti_Model];
                 }
-                self.foot_collectionView.frame = CGRectMake(0, 0, kScreenWidth, (250)*self.collectionView_source.count/2+self.collectionView_source.count/2*10);
+                self.foot_collectionView.frame = CGRectMake(0, 0, kScreenWidth, (250)*self.collectionView_source.count/2+(250)*self.collectionView_source.count%2 + self.collectionView_source.count * 10 + 100);
                 self.mainTableView.tableFooterView = self.foot_collectionView;
-                
                 [self.foot_collectionView reloadData];
                 
                 [self.mainTableView.footer endRefreshing];
@@ -255,19 +255,17 @@ static int tehui_page = 2;
     if (section == 0) {
         return 1+1;
     } else if (section == 1) {
-        if (self.homePageModel.pl.count != 0) {
-            if ( self.homePageModel.pl.count<=3) {
-                return self.homePageModel.pl.count;
-
-            } else {
+        
+        if (self.homePageModel.pl.count > 3) {
             
-                return self.homePageModel.pl.count+1;
-            }
+            return 4;
+            
         } else {
         
-            return 1;
+            return self.homePageModel.pl.count+1;
+            
         }
-        
+      
     } else {
        
         if (self.homePageModel.doctor.count > 0 && self.homePageModel.doctor != nil) {
@@ -311,9 +309,9 @@ static int tehui_page = 2;
         
     } else if (indexPath.section == 1) {
         
-        if ([self.homePageModel.plamount intValue] >= 3) {
-            
-            if (indexPath.row == 3) {
+        
+            if (indexPath.row == self.homePageModel.pl.count) {
+                
                 UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"moreCell"];
                 cell.backgroundColor = [UIColor backgroundColor];
                 
@@ -367,33 +365,37 @@ static int tehui_page = 2;
                 return userCell;
                 
             }
+            
 
-        } else {
         
-            UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"moreCell"];
-            cell.backgroundColor = [UIColor backgroundColor];
-            
-            cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            
-            UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 35)];
-            tempView.backgroundColor = [UIColor whiteColor];
-            [cell.contentView addSubview:tempView];
-            
-            UILabel *label = [[UILabel alloc] init];
-            [cell.contentView addSubview:label];
-            [label mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.centerX.equalTo(tempView.mas_centerX);
-                make.centerY.equalTo(tempView.mas_centerY);
-                make.width.equalTo(cell.mas_width).multipliedBy(0.5);
-                make.height.equalTo(tempView.mas_height).offset(20);
-            }];
-            label.textAlignment = NSTextAlignmentCenter;
-            label.text = [NSString stringWithFormat:@"共%@条评论>>",self.homePageModel.plamount];
-            label.font = [UIFont systemFontOfSize:15.0f];
-            return cell;
-
-        }
-        
+//        if (self.homePageModel.pl.count > 0) {
+//            
+//                   } else {
+//        
+//            UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"moreCell"];
+//            cell.backgroundColor = [UIColor backgroundColor];
+//            
+//            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+//            
+//            UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 35)];
+//            tempView.backgroundColor = [UIColor whiteColor];
+//            [cell.contentView addSubview:tempView];
+//            
+//            UILabel *label = [[UILabel alloc] init];
+//            [cell.contentView addSubview:label];
+//            [label mas_makeConstraints:^(MASConstraintMaker *make) {
+//                make.centerX.equalTo(tempView.mas_centerX);
+//                make.centerY.equalTo(tempView.mas_centerY);
+//                make.width.equalTo(cell.mas_width).multipliedBy(0.5);
+//                make.height.equalTo(tempView.mas_height).offset(20);
+//            }];
+//            label.textAlignment = NSTextAlignmentCenter;
+//            label.text = [NSString stringWithFormat:@"共%@条评论>>",self.homePageModel.plamount];
+//            label.font = [UIFont systemFontOfSize:15.0f];
+//            return cell;
+//
+//        }
+//        
         
     } else  {
         

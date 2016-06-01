@@ -12,11 +12,16 @@
 #import "DDQServerCell.h"
 #import "DDQEvaluateViewController.h"
 #import "DDQPayModel.h"
+#import "DDQNewPayController.h"
 
+#import "DDQEvaluateCell.h"
+#import "DDQOrderCell.h"
 
 @interface DDQServerController ()<UITableViewDataSource,UITableViewDelegate,ServerCellDelegate>
 
+
 @property (weak, nonatomic) IBOutlet UITableView *server_table;
+
 @property ( assign, nonatomic) CGFloat cell_h;
 
 @property ( strong, nonatomic) NSMutableArray *serverC_source;
@@ -50,6 +55,13 @@
         [self serverC_netServerWithPage:page];
         [self.server_table.footer endRefreshing];
 
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kFreshControllerNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        
+        [self.serverC_source removeAllObjects];
+        [self serverC_netServerWithPage:1];
+        
     }];
     
 }
@@ -121,6 +133,7 @@ static int page_num = 2;
     }
 
     self.cell_h = [cell heightForCellWithModel:pay_model];
+
     return cell;
     
 }
@@ -145,6 +158,17 @@ static int page_num = 2;
     DDQNewOrderDetailController *new_orderDetailC = [[DDQNewOrderDetailController alloc] init];
     new_orderDetailC.orderid = model.orderid;
     [self.navigationController pushViewController:new_orderDetailC animated:YES];
+    
+}
+
+- (void)serverCell_addManeyButtonSelectedMethod:(DDQServerCell *)cell Model:(DDQPayModel *)model {
+
+    DDQNewPayController *new_payC = [[DDQNewPayController alloc] init];
+    new_payC.orderid = model.orderid;
+    new_payC.pay_type = WeiKuan;
+    new_payC.what_pay = isPay;
+    new_payC.c_type = kServerController;
+    [self.navigationController pushViewController:new_payC animated:YES];
     
 }
 
@@ -197,6 +221,8 @@ static int page_num = 2;
             [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"操作成功，请等待退款" andShowDim:NO andSetDelay:YES andCustomView:nil];
             [self.serverC_source removeAllObjects];
             [self serverC_netServerWithPage:1];
+            
+            [[NSNotificationCenter defaultCenter] postNotificationName:kFreshCancelCNotification object:nil];
             
         }
         

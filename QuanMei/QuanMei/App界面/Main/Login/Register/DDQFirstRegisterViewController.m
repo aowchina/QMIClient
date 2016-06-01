@@ -27,7 +27,7 @@
  *  输入电话号码，密码的field
  */
 @property (strong,nonatomic) UITextField *inputNameField;
-@property (strong,nonatomic) UITextField *inputAgeField;
+@property (strong,nonatomic) UILabel *inputAgeLabel;
 /**
  *  我要做一条华丽丽的分割线
  */
@@ -78,6 +78,8 @@
 //取消键盘
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     [self.view endEditing:YES];
+    UITouch *touch = [touches anyObject];
+    NSLog(@"%@",touch.view);
 }
 
 #pragma mark - layout navigationBar pickView controls
@@ -211,18 +213,21 @@
     [self.inputNameField setPlaceholder:@"请输入昵称"];
     
     //输入密码
-    self.inputAgeField = [[UITextField alloc] init];
-    [self.backgroundView addSubview:self.inputAgeField];
+    self.inputAgeLabel = [[UILabel alloc] init];
+    [self.backgroundView addSubview:self.inputAgeLabel];
     
-    [self.inputAgeField mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.inputAgeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.userImageView.mas_right).with.offset(self.view.bounds.size.width*0.02);//x
-        make.top.equalTo(self.cuttingLineView.mas_bottom);//y
-        make.right.equalTo(self.backgroundView.mas_right);//w
-        make.height.equalTo(self.inputNameField.mas_height);//h
+        make.centerY.equalTo(self.dateImageView.mas_centerY);//y
+//        make.right.equalTo(self.backgroundView.mas_right);//w
+//        make.height.equalTo(self.inputNameField.mas_height);//h
     }];
     
-    [self.inputAgeField setPlaceholder:@"请输入年龄"];
-    self.inputAgeField.delegate = self;
+    [self.inputAgeLabel setText:@"请输入年龄"];
+    self.inputAgeLabel.textColor = [[UIColor grayColor] colorWithAlphaComponent:0.7];
+    self.inputAgeLabel.userInteractionEnabled = YES;
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showPickView)];
+    [self.inputAgeLabel addGestureRecognizer:tap];
     
     //布局pickerView
     self.pickerView = [[UIPickerView alloc] init];
@@ -251,11 +256,12 @@
     self.rightItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStyleDone target:self action:@selector(cancelItemTouchEvent)];
     
     self.pickerToolBar.items = @[self.leftItem,middleItem,self.rightItem];
+    self.pickerToolBar.tintColor = [UIColor meiHongSe];
     
 }
 #pragma mark - toolBar item target action
 -(void)sureItemTouchEvent{
-    self.inputAgeField.text = [NSString stringWithFormat:@"%@-%@-%@",[self.yearArray objectAtIndex:[self.pickerView selectedRowInComponent:0]],[self.monthArray objectAtIndex:[self.pickerView selectedRowInComponent:1]],[self.DaysArray objectAtIndex:[self.pickerView selectedRowInComponent:2]]];
+    self.inputAgeLabel.text = [NSString stringWithFormat:@"%@-%@-%@",[self.yearArray objectAtIndex:[self.pickerView selectedRowInComponent:0]],[self.monthArray objectAtIndex:[self.pickerView selectedRowInComponent:1]],[self.DaysArray objectAtIndex:[self.pickerView selectedRowInComponent:2]]];
     
     [UIView animateWithDuration:0.5
                           delay:0.1
@@ -303,7 +309,7 @@
         [self alertController:@"昵称不符合要求"];
         return NO;
         
-    } else if ([_inputAgeField.text isEqualToString:@""] || _inputAgeField == nil) {
+    } else if ([self.inputAgeLabel.text isEqualToString:@"请输入年龄"] || [self.inputAgeLabel.text isEqualToString:@""]) {
         
         [self alertController:@"请输入年龄"];
         return NO;
@@ -323,12 +329,12 @@
     if (yesOrNo == YES) {
         NSDateFormatter *date_formatter = [[NSDateFormatter alloc] init];
         [date_formatter setDateFormat:@"yyyy-MM-dd"];
-        NSDate *date = [date_formatter dateFromString:self.inputAgeField.text];
+        NSDate *date = [date_formatter dateFromString:self.inputAgeLabel.text];
         NSComparisonResult result = [date compare:[NSDate date]];
         if (result == -1) {
             DDQLoginSingleModel *model = [DDQLoginSingleModel singleModelByValue];
             model.nameString = self.inputNameField.text;
-            model.userBorn = self.inputAgeField.text;
+            model.userBorn = self.inputAgeLabel.text;
             [self.navigationController pushViewController:secondRVC animated:NO];
         } else {
         
@@ -342,7 +348,8 @@
 
 -(void)goBackLoginViewController {
     self.inputNameField.text = nil;
-    self.inputAgeField.text = nil;
+    self.inputAgeLabel.text = nil;
+    [self.view endEditing:YES];
     [self.navigationController popViewControllerAnimated:NO];
 }
 
@@ -436,40 +443,16 @@
     }
 }
 #pragma mark - textField delegate
-- (void)textFieldDidBeginEditing:(UITextField *)textField{
-    
-    if (textField == self.inputAgeField) {
-        [self.view endEditing:YES];
-    }
-}
+- (void)showPickView {
 
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
-    if (textField == self.inputAgeField) {
-        [UIView animateWithDuration:0.5
-                              delay:0.1
-                            options: UIViewAnimationOptionCurveEaseIn
-                         animations:^{
-                             self.pickerToolBar.hidden = NO;
-                             self.pickerView.hidden = NO;
-                             self.inputAgeField.text = @"";
-                         }
-                         completion:^(BOOL finished){
-                             
-                         }];
-        self.pickerView.hidden = NO;
+    [UIView animateWithDuration:1.0 animations:^{
+        
         self.pickerToolBar.hidden = NO;
-        self.inputAgeField.text = @"";
-        [self.view endEditing:YES];
-        return YES;
-    } else {
-        return YES;
-    }
-}
+        self.pickerView.hidden = NO;
+        self.inputAgeLabel.text = @"";
+        
+    }];
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField{
-    textField.returnKeyType = UIReturnKeyDone;
-    [textField resignFirstResponder];
-    return  YES;
 }
 
 @end

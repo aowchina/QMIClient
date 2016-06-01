@@ -8,7 +8,7 @@
 
 #import "DDQEvaluateViewController.h"
 #import "StarsView.h"
-
+#import "DDQBaseViewController.h"
 
 @interface DDQEvaluateViewController ()<UITextViewDelegate,StarsDelegate>
 {
@@ -36,10 +36,14 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     
-    self.navigationItem.title = @"评价";
+    self.navigationItem.title = @"医院评价";
 
     [self creatViewForEvaluate];
     
+    self.star_str1 = @"5";
+    self.star_str2 = @"5";
+    self.star_str3 = @"5";
+
 }
 
 - (void)creatViewForEvaluate
@@ -188,13 +192,17 @@
     shenmeiLabel.font = [UIFont systemFontOfSize:15];
     
     [fenshuView addSubview:shenmeiLabel];
-    self.effectStarsView1 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
-    
-    self.effectStarsView1.frame = CGRectMake(shenmeiLabel.frame.origin.x +shenmeiLabel.frame.size.width,
-                                            shenmeiLabel.frame.origin.y,
-                                            kScreenWidth/3*2,
-                                            shenmeiLabel.frame.size.height);
-    
+//    self.effectStarsView1 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+    self.effectStarsView1 = [[StarsView alloc] initWithFrame:CGRectMake(shenmeiLabel.frame.origin.x +shenmeiLabel.frame.size.width,
+                                                                        shenmeiLabel.frame.origin.y,
+                                                                        kScreenWidth/3*2,
+                                                                        shenmeiLabel.frame.size.height)];
+    [self.effectStarsView1 setStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+//    self.effectStarsView1.frame = CGRectMake(shenmeiLabel.frame.origin.x +shenmeiLabel.frame.size.width,
+//                                            shenmeiLabel.frame.origin.y,
+//                                            kScreenWidth/3*2,
+//                                            shenmeiLabel.frame.size.height);
+//    
     [fenshuView addSubview:self.effectStarsView1];
 
     //环境
@@ -207,13 +215,20 @@
     huanjingTitleLabel.font = [UIFont systemFontOfSize:15];
     
     [fenshuView addSubview:huanjingTitleLabel];
-    self.effectStarsView2 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
     
-    self.effectStarsView2.frame = CGRectMake(huanjingTitleLabel.frame.origin.x +huanjingTitleLabel.frame.size.width,
-                                            huanjingTitleLabel.frame.origin.y,
-                                            kScreenWidth/3*2,
-                                            huanjingTitleLabel.frame.size.height);
+    self.effectStarsView2 = [[StarsView alloc] initWithFrame:CGRectMake(huanjingTitleLabel.frame.origin.x +huanjingTitleLabel.frame.size.width,
+                                                                        huanjingTitleLabel.frame.origin.y,
+                                                                        kScreenWidth/3*2,
+                                                                        huanjingTitleLabel.frame.size.height)];
+    [self.effectStarsView2 setStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
     
+//    self.effectStarsView2 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+//    
+//    self.effectStarsView2.frame = CGRectMake(huanjingTitleLabel.frame.origin.x +huanjingTitleLabel.frame.size.width,
+//                                            huanjingTitleLabel.frame.origin.y,
+//                                            kScreenWidth/3*2,
+//                                            huanjingTitleLabel.frame.size.height);
+//
     [fenshuView addSubview:self.effectStarsView2];
 
     //服务
@@ -226,13 +241,27 @@
     fuwuTitleLabel.font = [UIFont systemFontOfSize:15];
     
     [fenshuView addSubview:fuwuTitleLabel];
-    self.effectStarsView3 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
-    
-    self.effectStarsView3.frame = CGRectMake(fuwuTitleLabel.frame.origin.x +fuwuTitleLabel.frame.size.width,
-                                            fuwuTitleLabel.frame.origin.y,
-                                            kScreenWidth/3*2,
-                                            fuwuTitleLabel.frame.size.height);
+//    self.effectStarsView3 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+//    
+//    self.effectStarsView3.frame = CGRectMake(fuwuTitleLabel.frame.origin.x +fuwuTitleLabel.frame.size.width,
+//                                            fuwuTitleLabel.frame.origin.y,
+//                                            kScreenWidth/3*2,
+//                                            fuwuTitleLabel.frame.size.height);
+    self.effectStarsView3 = [[StarsView alloc] initWithFrame:CGRectMake(fuwuTitleLabel.frame.origin.x +fuwuTitleLabel.frame.size.width,
+                                                                        fuwuTitleLabel.frame.origin.y,
+                                                                        kScreenWidth/3*2,
+                                                                        fuwuTitleLabel.frame.size.height)];
+    [self.effectStarsView3 setStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
+
     [fenshuView addSubview:self.effectStarsView3];
+//    [self.effectStarsView3 mas_makeConstraints:^(MASConstraintMaker *make) {
+//        
+//        make.centerY.equalTo(fuwuTitleLabel.mas_centerY);
+//        make.left.equalTo(fuwuTitleLabel.mas_right);
+//        make.height.equalTo(fuwuTitleLabel.mas_height);
+//        make.right.equalTo(fenshuView.mas_right).offset(-10);
+//        
+//    }];
 
     //星星
     
@@ -248,7 +277,7 @@
     //提交
     UIButton *button = [UIButton buttonWithType:(UIButtonTypeSystem)];
 
-    button.frame= CGRectMake(kScreenWidth/3*2-20, lineView3.frame.origin.y +10, kScreenWidth/3, 30);
+    button.frame= CGRectMake(kScreenWidth/3*2-20, lineView3.frame.origin.y + 15, kScreenWidth/3, 30);
     
     [button setTitle:@"发表评价" forState:(UIControlStateNormal)];
     
@@ -256,7 +285,10 @@
     
     [button setTitleColor:[UIColor whiteColor] forState:(UIControlStateNormal)];
     
-    button.backgroundColor = [UIColor redColor];
+    button.backgroundColor = [UIColor meiHongSe];
+    
+    button.layer.cornerRadius = 3.0;
+    button.layer.masksToBounds = YES;
     
     [footView addSubview:button];
     self.effectStarsView1.delegate = self;
@@ -298,7 +330,7 @@
                         break;
                 }
                 
-                huaString = @"1";
+                huaString = @"3";
                 img.image= [UIImage imageNamed:@"已选中好评"];
                 tempImageView = img;
                 
@@ -358,7 +390,7 @@
                     default:
                         break;
                 }
-                huaString = @"3";
+                huaString = @"1";
                 img.image= [UIImage imageNamed:@"已选中差评"];
                 tempImageView = img;
                 break;
@@ -383,8 +415,7 @@
                 [titleString appendFormat:@"%d#",byteArray2[i]];
             }
             
-            if (huaString != nil)
-            {
+            if (huaString != nil) {
                 
                 //八段
                 NSString *spellString = [SpellParameters getBasePostString];
@@ -402,10 +433,13 @@
                     
                     dispatch_async(dispatch_get_main_queue(), ^{
                         
-                        [self.navigationController popViewControllerAnimated:YES];
                         
                         UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"上传成功" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
                         [alertView show];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:kFreshOrderCNotification object:nil];
+                        
+                        [self.navigationController popViewControllerAnimated:YES];
+
                         
                     });
                 }

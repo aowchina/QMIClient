@@ -66,7 +66,7 @@ static int num = 2;
                         
                     } else {
                         
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                         [self.mainTableView.footer endRefreshing];
                     }
                 }];
@@ -78,7 +78,7 @@ static int num = 2;
             //第三个参数:背景阴影
             //第四个参数:设置是否消失
             //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
     self.chileModelArray = [NSMutableArray array];
@@ -250,7 +250,7 @@ static NSString *identifier = @"cell1";
 
                 
             }else {
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             }
             
             

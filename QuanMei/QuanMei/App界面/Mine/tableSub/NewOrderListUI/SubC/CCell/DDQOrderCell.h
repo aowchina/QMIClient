@@ -9,7 +9,10 @@
 #import <UIKit/UIKit.h>
 
 @interface OrderModel : NSObject
-
+/**
+ *  这个model本来是为了配合做单选和全选的
+ *  不过现在不需要了，但是为了以防万一，先留着吧
+ */
 @property ( strong, nonatomic) NSString *create_time;
 @property ( strong, nonatomic) NSString *dj;
 @property ( strong, nonatomic) NSString *fname;
@@ -32,21 +35,8 @@
 
 @interface DDQOrderCell : UITableViewCell
 
-@property (strong, nonatomic) UILabel *time_label;
-@property (strong, nonatomic) UILabel *orderid_label;
-@property (strong, nonatomic) UIImageView *goods_img;
-@property (strong, nonatomic) UILabel *description_label;
-@property (strong, nonatomic) UILabel *hospital_label;
-@property (strong, nonatomic) UILabel *total_label;
-@property (strong, nonatomic) UILabel *content_label;
-@property (strong, nonatomic) UIButton *evaluate_button;
-
-@property ( strong, nonatomic) UIButton *circle_button;
-
 @property ( assign, nonatomic) CGFloat cell_h;
-
 @property ( strong, nonatomic) DDQPayModel *model;
-
 
 @end
 

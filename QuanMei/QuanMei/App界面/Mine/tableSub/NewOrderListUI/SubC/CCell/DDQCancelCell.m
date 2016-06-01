@@ -12,9 +12,18 @@
 
 @property ( strong, nonatomic) UIView *background_view;
 
+@property (strong, nonatomic) UILabel *time_label;
+@property (strong, nonatomic) UILabel *orderid_label;
+@property (strong, nonatomic) UIImageView *goods_img;
+@property (strong, nonatomic) UILabel *description_label;
+@property (strong, nonatomic) UILabel *hospital_label;
+@property (strong, nonatomic) UILabel *total_label;
+//@property (strong, nonatomic) UILabel *content_label;
+@property (strong, nonatomic) UILabel *state_label;
+
 @property ( strong, nonatomic) UIView *lineOne;
 @property ( strong, nonatomic) UIView *lineTwo;
-@property ( strong, nonatomic) UIView *lineThree;
+//@property ( strong, nonatomic) UIView *lineThree;
 
 @end
 
@@ -51,7 +60,7 @@
         self.description_label = [UILabel new];
         [self.background_view addSubview:self.description_label];
         self.description_label.textColor = [UIColor colorWithRed:51.0/255.0 green:51.0/255.0 blue:51.0/255.0f alpha:1.0];
-        self.description_label.font = [UIFont systemFontOfSize:15.0f];
+        self.description_label.font = [UIFont systemFontOfSize:15.0 weight:1.0];
         self.description_label.numberOfLines = 0;
         
         self.hospital_label = [UILabel new];
@@ -65,23 +74,22 @@
         self.total_label.textColor = kTextColor;
         self.total_label.font = [UIFont systemFontOfSize:12.0f];
         
-        self.content_label = [UILabel new];
-        [self.background_view addSubview:self.content_label];
-        self.content_label.textColor = kTextColor;
-        self.content_label.font = [UIFont systemFontOfSize:14.0f];
-        self.content_label.numberOfLines = 0;
+//        self.content_label = [UILabel new];
+//        [self.background_view addSubview:self.content_label];
+//        self.content_label.textColor = kTextColor;
+//        self.content_label.font = [UIFont systemFontOfSize:14.0f];
+//        self.content_label.numberOfLines = 0;
         
-        self.cancel_button = [UIButton buttonWithType:0];
-        [self.background_view addSubview:self.cancel_button];
-        [self.cancel_button addTarget:self action:@selector(cancelMethod) forControlEvents:UIControlEventTouchUpInside];
-        [self.cancel_button setTitle:@" 取消完成 " forState:UIControlStateNormal];
-        [self.cancel_button setTitleColor:[UIColor payColor] forState:UIControlStateNormal];
-        [self.cancel_button setHighlighted:YES];
-        self.cancel_button.titleLabel.font = [UIFont systemFontOfSize:15.0f];
+        self.state_label = [UILabel new];
+        [self.background_view addSubview:self.state_label];
+        [self.state_label setText:@" 取消完成 "];
+        self.state_label.textColor = [UIColor meiHongSe];
+        self.state_label.font = [UIFont systemFontOfSize:15.0f];
+        self.state_label.textAlignment = NSTextAlignmentCenter;
         
-        self.lineThree = [[UIView alloc] init];
-        [self.background_view addSubview:self.lineThree];
-        self.lineThree.backgroundColor = [UIColor backgroundColor];
+//        self.lineThree = [[UIView alloc] init];
+//        [self.background_view addSubview:self.lineThree];
+//        self.lineThree.backgroundColor = [UIColor backgroundColor];
         
         self.lineOne = [[UIView alloc] init];
         [self.background_view addSubview:self.lineOne];
@@ -98,11 +106,6 @@
     
     return self;
 
-}
-
-- (void)cancelMethod {
-
-    
 }
 
 - (void)layoutSubviews {
@@ -126,7 +129,7 @@
     CGFloat height = 0.0;
     
     CGRect time_rect = [pay_model.create_time boundStringRect_size:CGSizeMake(kScreenWidth * 0.5, 1000) Attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.5f]}];
-    [self.time_label mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.time_label mas_remakeConstraints:^(MASConstraintMaker *make) {
         
         make.left.equalTo(self.background_view.mas_left).offset(10);
         make.top.equalTo(self.background_view.mas_top).offset(10);
@@ -138,7 +141,7 @@
     
     NSString *order_str = [NSString stringWithFormat:@"订单号:%@",pay_model.orderid];
     //    CGRect order_rect = [order_str boundStringRect_size:CGSizeMake(kScreenWidth * 0.5 - 30, 1000) Attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.5f]}];
-    [self.orderid_label mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.orderid_label mas_remakeConstraints:^(MASConstraintMaker *make) {
         
         make.left.equalTo(self.time_label.mas_right).offset(10);
         make.centerY.equalTo(self.time_label.mas_centerY);
@@ -169,8 +172,8 @@
     [self.goods_img sd_setImageWithURL:[NSURL URLWithString:pay_model.simg]];
     
     NSString *name_str = [NSString stringWithFormat:@"【%@】%@",pay_model.name,pay_model.fname];
-    CGRect name_rect = [name_str boundStringRect_size:CGSizeMake(kScreenWidth - (kScreenWidth * 0.25 + 30), 1000) Attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.0f weight:1.0f]}];
-    [self.description_label mas_makeConstraints:^(MASConstraintMaker *make) {
+    CGRect name_rect = [name_str boundStringRect_size:CGSizeMake(kScreenWidth - (kScreenWidth * 0.25 + 30), 1000) Attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.5f weight:1.5f]}];
+    [self.description_label mas_remakeConstraints:^(MASConstraintMaker *make) {
         
         make.top.equalTo(self.goods_img.mas_top).offset(3);
         make.left.equalTo(self.goods_img.mas_right).offset(10);
@@ -181,7 +184,7 @@
     self.description_label.text = name_str;
     
     CGRect hospital_rect = [pay_model.hname boundStringRect_size:CGSizeMake(kScreenWidth - (kScreenWidth * 0.25 + 30), 1000) Attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.5f]}];
-    [self.hospital_label mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.hospital_label mas_remakeConstraints:^(MASConstraintMaker *make) {
         
         make.top.equalTo(self.description_label.mas_bottom).offset(15);
         make.left.equalTo(self.description_label.mas_left);
@@ -217,47 +220,50 @@
         
     }];
     
-    [self.content_label mas_makeConstraints:^(MASConstraintMaker *make) {
-        
-        make.right.equalTo(self.background_view.mas_right).offset(-10);
-        make.top.equalTo(self.lineTwo.mas_bottom).offset(5);
-        
-    }];
-    self.content_label.text = [NSString stringWithFormat:@"总计￥:%@元",pay_model.newval];
-    
-    [self.lineThree mas_makeConstraints:^(MASConstraintMaker *make) {
-        
-        make.top.equalTo(self.content_label.mas_bottom).offset(5);
-        make.height.offset(1);
-        make.left.equalTo(self.background_view.mas_left);
-        make.right.equalTo(self.background_view.mas_right);
-        
-    }];
+//    [self.content_label mas_makeConstraints:^(MASConstraintMaker *make) {
+//        
+//        make.right.equalTo(self.background_view.mas_right).offset(-10);
+//        make.top.equalTo(self.lineTwo.mas_bottom).offset(5);
+//        
+//    }];
+//    self.content_label.text = [NSString stringWithFormat:@"总计￥:%@元",pay_model.newval];
+//    
+//    [self.lineThree mas_makeConstraints:^(MASConstraintMaker *make) {
+//        
+//        make.top.equalTo(self.content_label.mas_bottom).offset(5);
+//        make.height.offset(1);
+//        make.left.equalTo(self.background_view.mas_left);
+//        make.right.equalTo(self.background_view.mas_right);
+//        
+//    }];
 
-    [self.cancel_button mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.state_label mas_makeConstraints:^(MASConstraintMaker *make) {
         
-        make.right.equalTo(self.content_label.mas_right);
-        make.top.equalTo(self.lineThree.mas_bottom).offset(5);
+        make.right.equalTo(self.total_label.mas_right);
+        make.top.equalTo(self.lineTwo.mas_bottom).offset(7);
+        make.width.offset(80);
+        make.height.offset(30);
         
     }];
+    
     int status = [pay_model.status intValue];
-    if (status == 7 || status == 9) {
+    if (status == 7 || status == 8) {
         
-        [self.cancel_button setTitle:@"退款中" forState:UIControlStateNormal];
+        self.state_label.text = @"退款中";
         
-    } else if (status == 8) {
+    } else if (status == 9) {
         
-        [self.cancel_button setTitle:@"已退款" forState:UIControlStateNormal];
+        self.state_label.text = @"已退款";
 
     }
     
     if (temp_h > kScreenWidth * 0.25) {
         
-        height = 10 + 20 + 10 + 10 + temp_h + 15 + 20 + 5 + 45;
+        height = 10 + 20 + 10 + 10 + temp_h + 15 + 20 + 5 + 20;
         
     } else {
         
-        height = 10 + 20 + 10 + 10 + kScreenWidth * 0.25 + 15 + 20 + 5 + 45;
+        height = 10 + 20 + 10 + 10 + kScreenWidth * 0.25 + 15 + 20 + 5 + 20;
         
     }
     

@@ -22,15 +22,45 @@
         _starViewArr = [NSMutableArray array];
         self.frame = CGRectMake(0, 0, size.width * number + (number - 1)*space, size.height);
         for (int i = 0; i < number; i ++) {
-            StarView *starView = [[StarView alloc] initWithFrame:CGRectMake((space + size.width) * i, 0, size.width, size.height)];
+            StarView *starView = [[StarView alloc] initWithFrame:CGRectMake((space + size.width) * i, self.frame.size.height*0.5 - size.height*0.5, size.width, size.height)];
             starView.percent = 1.0;
             starView.backgroundColor = [UIColor clearColor];
             [self addSubview:starView];
             [_starViewArr addObject:starView];
+            
         }
     }
     return self;
 }
+
+- (instancetype)initWithFrame:(CGRect)frame {
+
+    self = [super initWithFrame:frame];
+    
+    if (self) {
+        
+        _selectable = YES;
+        _starViewArr = [NSMutableArray array];
+        
+    }
+    
+    return self;
+    
+}
+
+- (void)setStarSize:(CGSize)size space:(CGFloat)space numberOfStar:(NSInteger)number {
+
+    for (int i = 0; i < number; i ++) {
+        
+        StarView *starView = [[StarView alloc] initWithFrame:CGRectMake((space + size.width) * i, self.frame.size.height*0.5 - size.height*0.5, size.width, size.height)];
+        starView.percent = 1.0;
+        starView.backgroundColor = [UIColor clearColor];
+        [self addSubview:starView];
+        [_starViewArr addObject:starView];
+        
+    }
+}
+
 
 - (void)setScore:(CGFloat)score{
     _score = score;

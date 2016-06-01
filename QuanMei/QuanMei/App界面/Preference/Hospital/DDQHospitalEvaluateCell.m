@@ -8,12 +8,44 @@
 
 #import "DDQHospitalEvaluateCell.h"
 
+@interface DDQHospitalEvaluateCell ()
+
+@property ( strong, nonatomic) UIView *background_view;
+
+@end
+
 @implementation DDQHospitalEvaluateCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    
+    if (self) {
+        
+        self.background_view = [[UIView alloc] init];
+        [self.contentView addSubview:self.background_view];
+        [self.background_view mas_makeConstraints:^(MASConstraintMaker *make) {
+            
+            make.top.equalTo(self.contentView.mas_top).offset(5);
+            make.bottom.equalTo(self.contentView.mas_bottom).offset(-5);
+            make.left.equalTo(self.contentView.mas_left);
+            make.right.equalTo(self.contentView.mas_right);
+            
+        }];
+        
+        self.contentView.backgroundColor = [UIColor backgroundColor];
+        self.background_view.backgroundColor = [UIColor whiteColor];
+        
+    }
+    
+    return self;
+    
+}
 
 -(void)cellWithUserImageUrl:(NSString *)userImage andUserName:(NSString *)userName andDate:(NSString *)date andStarCount:(int)count andUserComment:(NSString *)userComment andProjectInto:(NSString *)projectIntro andProjectImg:(NSString *)img{
     
     UIImageView *userImageView = [[UIImageView alloc] init];
-    [self.contentView addSubview:userImageView];
+    [self.background_view addSubview:userImageView];
     [userImageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.contentView.mas_left).offset(10);
         make.top.equalTo(self.contentView.mas_top).offset(10);
@@ -21,50 +53,47 @@
             make.width.offset(20);
             make.height.offset(20);
         } else if (kScreenHeight == 568) {
+            make.width.offset(25);
+            make.height.offset(25);
+        } else if (kScreenHeight == 667) {
             make.width.offset(30);
             make.height.offset(30);
-        } else if (kScreenHeight == 667) {
-            make.width.offset(40);
-            make.height.offset(40);
         } else {
-            make.width.offset(40);
-            make.height.offset(40);
+            make.width.offset(30);
+            make.height.offset(30);
         }
     }];
-    [userImageView sd_setImageWithURL:[NSURL URLWithString:userImage]];
+    [userImageView sd_setImageWithURL:[NSURL URLWithString:userImage] placeholderImage:[UIImage imageNamed:@"default_pic"]];
     if (kScreenHeight == 480) {
         userImageView.layer.cornerRadius = 10.0f;
     } else if (kScreenHeight == 568) {
-        userImageView.layer.cornerRadius = 15.0f;
+        userImageView.layer.cornerRadius = 12.5f;
 
     } else if (kScreenHeight == 667) {
-        userImageView.layer.cornerRadius = 20.0f;
+        userImageView.layer.cornerRadius = 15.0f;
 
     } else {
-        userImageView.layer.cornerRadius = 20.0f;
+        userImageView.layer.cornerRadius = 15.0f;
     }
-    
+    userImageView.layer.masksToBounds = YES;
+        
     UILabel *user_nickName = [[UILabel alloc] init];
-    [self.contentView addSubview:user_nickName];
+    [self.background_view addSubview:user_nickName];
 //    CGRect nickNameRect;
     [user_nickName mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(userImageView.mas_top);
         make.left.equalTo(userImageView.mas_right).offset(10);
-        make.height.equalTo(userImageView.mas_height).multipliedBy(0.5).offset(-5);
-        make.width.offset(kScreenWidth*0.5);
     }];
     user_nickName.font = [UIFont systemFontOfSize:12.0f];
     user_nickName.text = userName;
     user_nickName.textAlignment = NSTextAlignmentLeft;
     
     UILabel *user_date     = [[UILabel alloc] init];
-    [self.contentView addSubview:user_date];
+    [self.background_view addSubview:user_date];
 //    CGRect dateRect;
     [user_date mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(user_nickName.mas_bottom).offset(5);
         make.left.equalTo(userImageView.mas_right).offset(10);
-        make.height.equalTo(userImageView.mas_height).multipliedBy(0.5).offset(-5);
-        make.width.offset(kScreenWidth*0.5);
     }];
     user_date.font = [UIFont systemFontOfSize:12.0f];
     user_date.text = date;
@@ -179,7 +208,7 @@
     }
     
     UIView *temp_view         = [[UIView alloc] init];
-    [self.contentView addSubview:temp_view];
+    [self.background_view addSubview:temp_view];
     [temp_view mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(user_date.mas_left);
         make.top.equalTo(user_date.mas_bottom).offset(10);
@@ -219,7 +248,7 @@
         };
     }];
 //    projectImage.backgroundColor = [UIColor purpleColor];
-    [projectImage sd_setImageWithURL:[NSURL URLWithString:img]];
+    [projectImage sd_setImageWithURL:[NSURL URLWithString:img] placeholderImage:[UIImage imageNamed:@"default_pic"]];
     
     UILabel *projectLabel = [[UILabel alloc] init];
     [temp_view addSubview:projectLabel];
@@ -231,6 +260,8 @@
     }];
     projectLabel.text = projectIntro;
     projectLabel.font = [UIFont systemFontOfSize:12.0f];
+
+//    self.height = 40 + 50;
 //    CGRect projectRec = [projectIntro boundingRectWithSize:CGSizeMake(kScreenWidth, 30) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.0f]} context:nil];
 //    if (kScreenHeight == 480) {
 //        projectLabel.frame = CGRectMake(35, 5, projectRec.size.width, projectRec.size.height);

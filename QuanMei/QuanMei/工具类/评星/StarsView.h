@@ -22,4 +22,6 @@
 //size是你的图片的size   space是Star间的间距  
 - (instancetype)initWithStarSize:(CGSize)size space:(CGFloat)space numberOfStar:(NSInteger)number;
 
+- (void)setStarSize:(CGSize)size space:(CGFloat)space numberOfStar:(NSInteger)number;
+
 @end

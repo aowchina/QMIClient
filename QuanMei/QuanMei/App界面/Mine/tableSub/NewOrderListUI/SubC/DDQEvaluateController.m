@@ -10,7 +10,7 @@
 #import "DDQNewOrderDetailController.h"
 #import "DDQEvaluateCell.h"
 #import "DDQEvaluateViewController.h"
-@interface DDQEvaluateController ()<UITableViewDataSource,UITableViewDelegate>
+@interface DDQEvaluateController ()<UITableViewDataSource,UITableViewDelegate,EvaluateCellDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *evaluate_table;
 
@@ -45,6 +45,13 @@
         int page = page_num + 1;
         [self evaluateC_netServerWithPage:page];
         [self.evaluate_table.footer endRefreshing];
+        
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kFreshOrderCNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        
+        [self.evaluateC_source removeAllObjects];
+        [self evaluateC_netServerWithPage:1];
         
     }];
     
@@ -114,6 +121,8 @@ static int page_num = 2;
         pay_model = self.evaluateC_source[indexPath.row];
         
     }
+    cell.delegate = self;
+    
     self.cell_h = [cell heightForCellWithModel:pay_model];
     
     return cell;
@@ -137,9 +146,18 @@ static int page_num = 2;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     DDQPayModel *model = self.evaluateC_source[indexPath.row];
-//    DDQNewOrderDetailController *new_orderDetailC = [[DDQNewOrderDetailController alloc] init];
-//    new_orderDetailC.orderid = model.orderid;
-//    [self.navigationController pushViewController:new_orderDetailC animated:YES];
+    DDQNewOrderDetailController *new_orderDetailC = [[DDQNewOrderDetailController alloc] init];
+    new_orderDetailC.orderid = model.orderid;
+    [self.navigationController pushViewController:new_orderDetailC animated:YES];
+//    DDQEvaluateViewController *vc = [[DDQEvaluateViewController alloc] init];
+//    vc.orderid = model.orderid;
+//    vc.hid = model.hid;
+//    [self.navigationController pushViewController:vc animated:YES];
+    
+}
+
+- (void)evaluate_cellSelectedButtonMethod:(DDQPayModel *)model {
+
     DDQEvaluateViewController *vc = [[DDQEvaluateViewController alloc] init];
     vc.orderid = model.orderid;
     vc.hid = model.hid;

@@ -51,9 +51,16 @@
     
     self.cancel_table.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         
-        int page = page_num + 1;
-        [self cancelC_netServerWithPage:page];
+        page_num = page_num + 1;
+        [self cancelC_netServerWithPage:page_num];
         [self.cancel_table.footer endRefreshing];
+        
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kFreshCancelCNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+    
+        [self.cancelC_source removeAllObjects];
+        [self cancelC_netServerWithPage:1];
         
     }];
     

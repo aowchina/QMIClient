@@ -10,7 +10,7 @@
 
 @interface DDQHospitalEvaluateCell : UITableViewCell
 
-@property (assign,nonatomic) CGRect newRect;
+@property (assign,nonatomic) CGFloat height;
 
 -(void)cellWithUserImageUrl:(NSString *)userImage andUserName:(NSString *)userName andDate:(NSString *)date andStarCount:(int)count andUserComment:(NSString *)userComment andProjectInto:(NSString *)projectIntro andProjectImg:(NSString *)img;
 

@@ -35,18 +35,32 @@
     
     self.orderC_source = [NSMutableArray array];
     [self orderC_netServerWithPage:1];
-//    for (int i = 0; i < 5; i++) {
-//        
-//        OrderModel *model = [[OrderModel alloc] init];
-//        model.time = @"2016-05-06";
-//        model.order = @"订单号:40008-820-8-820 THC你值得拥有";
-//        model.intro = @"医院（Hospital）一词是来自于拉丁文原意为“客人”，因为一开始设立时，是供人避难，还备有休息间，使来者舒适，有招待意图";
-//        model.content =  @"共10000000件商品，总计0.01元";
-//        model.hosipital = @"北京武警医院要有意义有意义有";
-//        model.price = @"￥10000000";
-//        model.showSelected = NO;
-//        [self.temp_array addObject:model];
-//    }
+    
+    /**
+     *  重载上下拉
+     */
+    self.order_table.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        [self.orderC_source removeAllObjects];
+        [self orderC_netServerWithPage:1];
+        [self.order_table.header endRefreshing];
+        
+    }];
+    
+    self.order_table.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        page_num = page_num + 1;
+        [self orderC_netServerWithPage:page_num];
+        [self.order_table.footer endRefreshing];
+        
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kFreshOrderCNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        
+        [self.orderC_source removeAllObjects];
+        [self orderC_netServerWithPage:1];
+        
+    }];
 
 }
 
@@ -54,7 +68,7 @@ static int page_num = 2;
 - (void)orderC_netServerWithPage:(int)page {
     
     [self.wait_hud show:YES];
-    [self.net_work asy_netWithUrlString:kUserOrderUrl ParamArray:@[self.userid,@"4",[NSString stringWithFormat:@"%d",page]] Success:^(id source, NSError *analysis_error) {
+    [self.net_work asy_netWithUrlString:kUserOrderUrl ParamArray:@[self.userid,@"5",[NSString stringWithFormat:@"%d",page]] Success:^(id source, NSError *analysis_error) {
         
         if (!analysis_error) {
             
@@ -164,9 +178,6 @@ static int page_num = 2;
 
 }
 
-- (IBAction)pay_buttonSelectedMethod:(UIButton *)sender {
-    
-}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     

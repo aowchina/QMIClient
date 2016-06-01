@@ -55,7 +55,7 @@
     self.inButton = [UIButton buttonWithType:UIButtonTypeCustom];
     self.inButton.frame = CGRectMake(5, 40 + 70, SLGetScreenWidth() - 10.f, 30);
     
-    self.inButton.backgroundColor = [UIColor redColor];
+    self.inButton.backgroundColor = [UIColor meiHongSe];
     
     self.inButton.layer.cornerRadius =5;
     
@@ -79,7 +79,7 @@
     //医院名,图片
     self.hospitalNameLbel.text = activity.hname;
     [self.icon sd_setImageWithURL:[NSURL URLWithString:activity.himg] placeholderImage:[UIImage imageNamed:@"default_pic"]];
-    [self.inButton setTitle:@"进入医院主页" forState:(UIControlStateNormal)];
+    [self.inButton setTitle:@"进入医院主页>>>" forState:(UIControlStateNormal)];
 }
 
 + (CGFloat)heightWithActivityModel:(SLActivityModel *)activity {

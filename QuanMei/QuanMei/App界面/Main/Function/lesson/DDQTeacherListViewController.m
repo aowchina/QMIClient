@@ -75,7 +75,7 @@
             
             [self.hud hide:YES];
             [self.hud removeFromSuperViewOnHide];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:YES andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:YES andSetDelay:YES andCustomView:nil];
         }
         
     });
@@ -144,7 +144,7 @@
         } else {
             [self.hud hide:YES];
             [self.hud removeFromSuperViewOnHide];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
 }

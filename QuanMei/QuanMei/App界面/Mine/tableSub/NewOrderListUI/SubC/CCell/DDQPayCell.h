@@ -15,19 +15,11 @@
 
 @optional
 - (void)paybutton_selectedMethod:(DDQPayCell *)pay_cell Model:(DDQPayModel *)model;
+- (void)cancelbutton_selectedMethod:(DDQPayCell *)pay_cell Model:(DDQPayModel *)model;
 
 @end
 
 @interface DDQPayCell : UITableViewCell
-
-@property (strong, nonatomic) UILabel *time_label;
-@property (strong, nonatomic) UILabel *orderid_label;
-@property (strong, nonatomic) UIImageView *goods_img;
-@property (strong, nonatomic) UILabel *description_label;
-@property (strong, nonatomic) UILabel *hospital_label;
-@property (strong, nonatomic) UILabel *total_label;
-@property (strong, nonatomic) UILabel *content_label;
-@property (strong, nonatomic) UIButton *pay_button;
 
 @property ( strong, nonatomic) DDQPayModel *pay_model;
 

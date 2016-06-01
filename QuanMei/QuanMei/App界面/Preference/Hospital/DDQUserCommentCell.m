@@ -11,6 +11,7 @@
 @implementation DDQUserCommentCell
 
 -(void)layOutViewWithNickName:(NSString *)nickName date:(NSString *)date intro:(NSString *)intro andStars:(int)count {
+    
     UIView *tempView = [[UIView alloc] init];
     [self.contentView addSubview:tempView];
     [tempView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -71,14 +72,15 @@
     nickNameLabel.text = nickName;
     nickNameLabel.font = [UIFont systemFontOfSize:12.0f];
     
-    _newRect = [intro boundingRectWithSize:CGSizeMake(self.contentView.frame.size.width-20, 10000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
+    _newRect = [intro boundingRectWithSize:CGSizeMake(self.contentView.frame.size.width-20, 10000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13.5f]} context:nil];
     
-    UILabel *introLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 20, _newRect.size.width, _newRect.size.height)];
+    UILabel *introLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 22, _newRect.size.width, _newRect.size.height)];
     [self.contentView addSubview:introLabel];
     
     introLabel.numberOfLines = 0;
     introLabel.text = intro;
     introLabel.font = [UIFont systemFontOfSize:13.0f];
+    
 }
 
 @end

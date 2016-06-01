@@ -15,3 +15,5 @@
 
 @end
 
+UIKIT_EXTERN NSString *const kWXNotification;
+

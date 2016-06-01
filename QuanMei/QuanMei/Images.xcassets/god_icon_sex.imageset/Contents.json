@@ -2,8 +2,8 @@
   "images" : [
     {
       "idiom" : "universal",
-      "scale" : "1x",
-      "filename" : "god_icon_sex.png"
+      "filename" : "god_icon_sex.png",
+      "scale" : "1x"
     },
     {
       "idiom" : "universal",

@@ -38,9 +38,10 @@
 #import "DDQMainSearchViewController.h"
 #import "DDQBaoXianViewController.h"
 #import "DDQLunBoModel.h"
+#import "ProjectNetWork.h"
 #import "DDQThirdRegisterViewController.h"
-
-@interface DDQMainViewController ()<UITableViewDelegate,UITableViewDataSource,MBProgressHUDDelegate,UISearchBarDelegate,UIScrollViewDelegate,DDQLoopViewDelegate,SearchDelegate>
+#import "DDQQiandaoView.h"
+@interface DDQMainViewController ()<UITableViewDelegate,UITableViewDataSource,MBProgressHUDDelegate,UISearchBarDelegate,UIScrollViewDelegate,DDQLoopViewDelegate,SearchDelegate,QiandaoDelegate>
 /**
  *  headerView
  */
@@ -144,8 +145,30 @@
     [self.hud show:YES];
     self.hud.labelText = @"加载中...";
 
-    [self qiandao];
-    [self asyProductList];
+    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        
+        if (!errorDic) {
+            
+            [self qiandao];
+            [self asyProductList];
+            
+        }
+        
+    }];
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"changeNet" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        
+        Reachability *reach = note.object;
+        if ([reach isReachable] == YES) {
+            
+            [self qiandao];
+            
+        } else {
+        
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        }
+        
+    }];
 
     self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
@@ -162,13 +185,14 @@
                 [self.mainTableView.header endRefreshing];
             } else {
                 
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 [self.mainTableView.header endRefreshing];
             }
         }];
     }];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeReplyImage:) name:@"image" object:nil];
+    
 }
 
 
@@ -176,30 +200,59 @@
 
 - (void)qiandao {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSString *poststr = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:poststr];
+    ProjectNetWork *net = [ProjectNetWork sharedWork];
+    /**
+     *  先判断签没签到
+     */
+    [net asy_netWithUrlString:kCheck_QDUrl ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] Success:^(id source, NSError *analysis_error) {
         
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kCheck_QDUrl];
-        
-        NSString *str = get_postDic[@"errorcode"];
-        int num = [str intValue];
-        if (num == 0) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.qiandao_button setBackgroundImage:[UIImage imageNamed:@"未签到"] forState:UIControlStateNormal];
-            });
-        } else {
+        if (!analysis_error) {
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.qiandao_button setBackgroundImage:[UIImage imageNamed:@"已签到"] forState:UIControlStateNormal];
-            });
+            /**
+             *  再去签到
+             *
+             */
+            [net asy_netWithUrlString:kQD_Url ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] Success:^(id source, NSError *analysis_error) {
+                
+                if (!analysis_error) {
+                    
+                    DDQQiandaoView *qiandao_view = [[DDQQiandaoView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
+                    qiandao_view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6f];
+                    qiandao_view.delegate = self;
+                    qiandao_view.huodefenshu.text = [NSString stringWithFormat:@"恭喜获得积分:+%@",source];
+                    [self.view.window addSubview:qiandao_view];
+                    
+                }
+                
+            } Failure:^(NSError *net_error) {
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }];
+            
         }
-    });
+        
+    } Failure:^(NSError *net_error) {
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+}
+
+- (void)qiandao_view:(DDQQiandaoView *)view  {
+    
+    [view removeFromSuperview];
+    
+}
+
+- (void)qiandao_viewSelected:(DDQQiandaoView *)view {
+    
+    [view removeFromSuperview];
+    DDQMyWalletViewController *myWallet = [[DDQMyWalletViewController alloc] init];
+    myWallet.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:myWallet animated:YES];
+    
+    
 }
 
 static BOOL isHidden = NO;
@@ -434,7 +487,7 @@ static BOOL isHidden = NO;
         
         if (errorDic != nil) {
             [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
         
     }];

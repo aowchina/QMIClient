@@ -8,7 +8,6 @@
 
 #import "DDQNewPayController.h"
 
-#import "DDQPayView.h"
 #import "DDQAlipay.h"
 #import "DDQWXPay.h"
 
@@ -41,6 +40,12 @@
     self.pay_view.pay_way = ZhifuBao;
     [self newPayC_netWork];
     
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"order_invalid" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        
+        [self.navigationController popViewControllerAnimated:YES];
+        
+    }];
+    
 }
 /**
  *  网络请求
@@ -58,16 +63,25 @@
         } else {
 
             [self.wait_hud hide:YES];
-            self.param_dic = @{@"orderid":source[@"orderid"],
-                               @"tel":source[@"tel"],
-                               @"name":source[@"name"],
-                               @"price":source[@"newval"],
-                               @"dj":source[@"dj"],
-                               @"point":source[@"point"],
-                               @"point_to_one":source[@"point_to_one"]};
+            NSDictionary *dic = [DDQPublic nullDic:source];
+            self.param_dic = @{@"orderid":dic[@"orderid"],
+                               @"tel":dic[@"tel"],
+                               @"name":dic[@"name"],
+                               @"newval":dic[@"newval"],
+                               @"dj":dic[@"dj"],
+                               @"point":dic[@"point"],
+                               @"point_to_one":dic[@"point_to_one"],
+                               @"wk_money":dic[@"wk_money"],
+                               @"chatime":dic[@"chatime"]};
             self.temp_dic = source;
             self.pay_view.param_dic = self.param_dic;
+            if (self.pay_type) {
+                
+                self.pay_view.pay_type = self.pay_type;
 
+            }
+            self.pay_view.what_pay = self.what_pay;
+            
         }
         
     } Failure:^(NSError *net_error) {
@@ -83,7 +97,7 @@
     
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:@"支付类型" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     
-    UIAlertAction *action_one = [UIAlertAction actionWithTitle:@"订金" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *action_one = [UIAlertAction actionWithTitle:@"定金" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
         self.pay_view.pay_type = DingJin;
         
@@ -137,6 +151,7 @@
  *  @param jifen 使用积分
  *  @param type  支付类型
  *  @param way   支付方式
+ *  @param error 错误描述
  */
 - (void)pay_viewSurePay:(NSString *)total Jifen:(NSString *)jifen Type:(PayType)type Way:(PayWay)way Error:(NSError *)error {
 
@@ -167,10 +182,16 @@
                     [self.wait_hud hide:YES];
                     [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"积分填写有误" andShowDim:NO andSetDelay:YES andCustomView:nil];
                     
+                } else if (analysis_error.code == 21){
+                
+                    [self.wait_hud hide:YES];
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"积分不足" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                  
                 } else {
                 
                     [self.wait_hud hide:YES];
                     [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
                 }
                 
             } else {
@@ -178,22 +199,16 @@
                 [self.wait_hud hide:YES];
                 
                 float money = [source[@"money"] floatValue];
+                /**
+                 *  交钱
+                 */
                 if (money > 0.0f) {
                     
                     if (way == ZhifuBao) {
                         
-                        NSString *price = @"";
-                        if (type == DingJin) {
-                            
-                            price = self.param_dic[@"dj"];
-                            
-                        } else {
+                        NSString *price = [NSString stringWithFormat:@"%.2f",[source[@"money"] floatValue]];
                         
-                            price = self.param_dic[@"price"];
-                            
-                        }
-                        
-                        [DDQAlipay alipay_creatSignWithParam:@{@"orderid":self.param_dic[@"orderid"],@"name":self.param_dic[@"name"],@"price":price} PaySuccess:^{
+                        [DDQAlipay alipay_creatSignWithParam:@{@"orderid":source[@"orderid"],@"name":self.param_dic[@"name"],@"price":price} PaySuccess:^{
                             
                             temp_hud.detailsLabelText = @"支付成功";
                             temp_hud.delegate = self;
@@ -202,7 +217,6 @@
                             
                         } PayFailure:^(NSDictionary *reslut_dic) {
                             
-                            //                    NSLog(@"%@",reslut_dic);
                             
                         }];
                         
@@ -210,14 +224,34 @@
                         
                        [DDQWXPay weixinPay_param:@{@"timestamp":source[@"timestamp"],@"pid":source[@"pid"],@"nonce_str":source[@"nonce_str"]}];
                   
-                        
+                        /**
+                         *  微信回调一定走onReq,在哪里发个通知
+                         *
+                         *  @param note 回调的微信的参数
+                         *
+                         */
+                        [[NSNotificationCenter defaultCenter] addObserverForName:@"notifify" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+                            
+                            NSDictionary *dic = note.userInfo;
+                            if ([[dic valueForKey:@"errorcode"] intValue] == 0) {
+                                
+                                temp_hud.detailsLabelText = @"支付成功";
+                                temp_hud.delegate = self;
+                                [temp_hud show:YES];
+                                [temp_hud hide:YES afterDelay:1.0f];
+                                
+                            }
+                            
+                        }];
+
                     }
                     
                 } else {
                 
-                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"积分支付成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"fresh" object:nil];
-                    [self.navigationController popViewControllerAnimated:YES];
+                    temp_hud.detailsLabelText = @"积分支付成功";
+                    temp_hud.delegate = self;
+                    [temp_hud show:YES];
+                    [temp_hud hide:YES afterDelay:1.0f];
                     
                 }
                 
@@ -237,7 +271,22 @@
 - (void)hudWasHidden:(MBProgressHUD *)hud {
 
     [hud removeFromSuperViewOnHide];
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"fresh" object:nil];
+    
+    /**
+     *  这是为了刷新我的订单下的订单列表
+     */
+//    if (self.c_type == kServerController) {
+//        
+//        [[NSNotificationCenter defaultCenter] postNotificationName:@"freshServer" object:nil];
+//
+//    } else {
+//    
+//        [[NSNotificationCenter defaultCenter] postNotificationName:@"fresh" object:nil];
+//
+//    }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kFreshControllerNotification object:nil];
+    
     [self.navigationController popViewControllerAnimated:YES];
     
 }

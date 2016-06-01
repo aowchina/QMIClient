@@ -11,12 +11,21 @@
 typedef enum : NSUInteger {
     DingJin = 1,
     QuanKuan = 2,
+    WeiKuan
 } PayType;
 
 typedef enum : NSUInteger {
     ZhifuBao = 1,
     Weixin = 2,
 } PayWay;
+
+/**
+ 区分是否已经支付完成，判断是否显示倒计时
+ */
+typedef enum : NSUInteger {
+    notPay = 1,
+    isPay
+} WhatPay;
 
 @protocol PayViewDelegate <NSObject>
 
@@ -33,6 +42,8 @@ typedef enum : NSUInteger {
 @property ( weak, nonatomic) id <PayViewDelegate> delegate;
 @property ( assign, nonatomic) PayType pay_type;
 @property ( assign, nonatomic) PayWay pay_way;
-
+@property ( assign, nonatomic) WhatPay what_pay;
 
 @end
+
+//UIKIT_EXTERN NSString *const OrderInvalidNotification;//订单失效的通知

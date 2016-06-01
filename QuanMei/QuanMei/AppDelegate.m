@@ -23,9 +23,9 @@
 #import "Reachability.h"
 #import "DDQBaseTabBarController.h"
 #import "IQKeyboardManager.h"
-#import "DDQQiandaoView.h"
 #import "DDQMyWalletViewController.h"
-@interface AppDelegate ()<WXApiDelegate,QiandaoDelegate>
+#include "ProjectNetWork.h"
+@interface AppDelegate ()<WXApiDelegate>
 
 @property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
 
@@ -90,6 +90,13 @@
     keyboard_manager.shouldResignOnTouchOutside = YES;
     keyboard_manager.shouldToolbarUsesTextFieldTintColor = YES;
     keyboard_manager.enableAutoToolbar = NO;
+    
+    [[NSNotificationCenter defaultCenter] addObserverForName:kReachabilityChangedNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"changeNet" object:nil userInfo:note.userInfo];
+
+    }];
+    [[Reachability reachabilityForInternetConnection] startNotifier];
     
     return YES;
 }
@@ -216,23 +223,18 @@
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    
-    //
-    NSString *spellString = [SpellParameters getBasePostString];
 
-    NSString *baseString = [NSString stringWithFormat:@"%@*%@",spellString,[APService registrationID]];
+    [APService registerDeviceToken:deviceToken];
+    ProjectNetWork *net = [ProjectNetWork sharedWork];
+    [net asy_netWithUrlString:kJPush_url ParamArray:@[[APService registrationID]] Success:^(id source, NSError *analysis_error) {
     
-    DDQPOSTEncryption *post_encryption = [[DDQPOSTEncryption alloc] init];
-
-    NSString *postString = [post_encryption stringWithPost:baseString];
-
-    NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kJPush_url];
-    
-    if ([postDic[@"errorcode"] intValue] == 0) {
         
-        [APService registerDeviceToken:deviceToken];
+    } Failure:^(NSError *net_error) {
+        
+        [MBProgressHUD myCustomHudWithView:self.window andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+    }];
     
-    }
+    
 }
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
@@ -278,8 +280,9 @@
 - (void)onResp:(BaseResp*)resp {
     
     if ([resp isKindOfClass:[PayResp class]]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"notifify" object:nil];
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"lesson" object:nil];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"notifify" object:nil userInfo:@{@"errorcode":[NSNumber numberWithInt:resp.errCode]}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"lesson" object:nil userInfo:@{@"errorcode":[NSNumber numberWithInt:resp.errCode]}];
 
     } else {
         [self getWeiXinCodeFinishedWithResp:resp];
@@ -351,7 +354,7 @@
         
         infoModel.userimg = post_userimage;
         infoModel.userName = nickName;
-        infoModel.isLogin = 1;
+        infoModel.isLogin = YES;
         
         NSString *string = [SpellParameters getBasePostString];//八段字符串
         //转换过后的昵称
@@ -379,9 +382,8 @@
             infoModel.userid    = [jsonDic valueForKey:@"userid"];
             infoModel.isLogin   = 1;
             [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
+            self.baseTabBarC.selectedIndex = 0;
             self.window.rootViewController = self.baseTabBarC;
-            //                    [UIApplication sharedApplication].keyWindow.rootViewController = self.tabBarController;
-            [self outQiandao];
 
         } else {
             
@@ -394,8 +396,7 @@
             
         }
     }
-    //        });
-    //    });
+
 }
 
 - (void)getAccessTokenWithRefreshToken:(NSString *)refreshToken {
@@ -477,7 +478,7 @@
             DDQPOSTEncryption *post_encryption = [[DDQPOSTEncryption alloc] init];
             NSString *postString = [post_encryption stringWithPost:baseString];
             NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kInitUrl];
-           // dispatch_async(dispatch_get_main_queue(), ^{
+//            dispatch_async(dispatch_get_main_queue(), ^{
         
         if (postDic != nil) {
             
@@ -495,10 +496,6 @@
                 infoModel.isLogin        = YES;
                 infoModel.userimg        = [jsonDic valueForKey:@"userimg"];
                 infoModel.userid         = [jsonDic valueForKey:@"userid"];
-                /**
-                 *  自动签到
-                 */
-                [self outQiandao];
 
             } else if([errorcodeString intValue] == 12) { //请求失败
                 
@@ -522,68 +519,6 @@
     
         self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
     }
-}
-
-- (void)outQiandao {
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSString *poststr = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:poststr];
-        
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kQD_Url];
-        
-        NSString *str = get_postDic[@"errorcode"];
-        int num = [str intValue];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (num == 0) {
-                
-                NSString *jifen = [postEncryption stringWithDic:get_postDic];
-                
-                DDQQiandaoView *qiandao_view = [[DDQQiandaoView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
-                qiandao_view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6f];
-                qiandao_view.delegate = self;
-                qiandao_view.huodefenshu.text = [NSString stringWithFormat:@"恭喜获得积分:+%@",jifen];
-                [[UIApplication sharedApplication].keyWindow addSubview:qiandao_view];
-                
-            } else if (num == 13) {
-            } else if (num == 15) {
-            } else if (num == 11 || num == 12) {
-                
-                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-                self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
-                
-            } else {
-            }
-        });
-        
-    });
-    
-    
-}
-
-- (void)qiandao_view:(DDQQiandaoView *)view {
-    
-    [view removeFromSuperview];
-    
-}
-
-- (void)qiandao_viewSelected:(DDQQiandaoView *)view {
-    
-    [view removeFromSuperview];
-    DDQMyWalletViewController *myWallet = [[DDQMyWalletViewController alloc] init];
-    myWallet.hidesBottomBarWhenPushed = YES;
-    if ([self.window.rootViewController isKindOfClass:[DDQBaseTabBarController class]]) {
-        
-        UIViewController *vc = self.baseTabBarC.selectedViewController;
-        [vc.navigationController pushViewController:myWallet animated:YES];
-        
-    }
-
 }
 
 @end

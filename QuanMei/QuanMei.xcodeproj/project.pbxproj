@@ -410,6 +410,8 @@
 		B9C78CF41CE714EC001028D5 /* DDQNewOrderDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CF21CE714EC001028D5 /* DDQNewOrderDetailController.m */; };
 		B9C78CF81CE72B2B001028D5 /* DDQNewOrderDetailView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9C78CF71CE72B2B001028D5 /* DDQNewOrderDetailView.m */; };
 		B9CD92BC1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B9CD92BB1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m */; };
+		B9DB58271CF2AE5000EA5990 /* SexSelectView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9DB58261CF2AE5000EA5990 /* SexSelectView.xib */; };
+		B9DB582A1CF2AE7400EA5990 /* DDQSexSeletView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9DB58291CF2AE7400EA5990 /* DDQSexSeletView.m */; };
 		B9F30AF91CAB6E9B007F0737 /* DDQLoopView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F30AF61CAB6E9B007F0737 /* DDQLoopView.m */; };
 		B9F30AFA1CAB6E9B007F0737 /* LoopCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B9F30AF81CAB6E9B007F0737 /* LoopCollectionViewCell.m */; };
 		B9FD44751CE07FB7003B195C /* DDQPayView.m in Sources */ = {isa = PBXBuildFile; fileRef = B9FD44741CE07FB7003B195C /* DDQPayView.m */; };
@@ -1271,6 +1273,9 @@
 		B9C78CF71CE72B2B001028D5 /* DDQNewOrderDetailView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQNewOrderDetailView.m; sourceTree = "<group>"; };
 		B9CD92BA1CE8BEAB0049C05C /* DDQNewOrderDetailModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQNewOrderDetailModel.h; sourceTree = "<group>"; };
 		B9CD92BB1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQNewOrderDetailModel.m; sourceTree = "<group>"; };
+		B9DB58261CF2AE5000EA5990 /* SexSelectView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SexSelectView.xib; sourceTree = "<group>"; };
+		B9DB58281CF2AE7400EA5990 /* DDQSexSeletView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQSexSeletView.h; sourceTree = "<group>"; };
+		B9DB58291CF2AE7400EA5990 /* DDQSexSeletView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQSexSeletView.m; sourceTree = "<group>"; };
 		B9F30AF51CAB6E9B007F0737 /* DDQLoopView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQLoopView.h; sourceTree = "<group>"; };
 		B9F30AF61CAB6E9B007F0737 /* DDQLoopView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQLoopView.m; sourceTree = "<group>"; };
 		B9F30AF71CAB6E9B007F0737 /* LoopCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoopCollectionViewCell.h; sourceTree = "<group>"; };
@@ -1374,6 +1379,7 @@
 				5406EAB61C0EF87D0035FFA4 /* DDQDataController.m */,
 				5406EAB71C0EF87D0035FFA4 /* DDQLevelViewController.h */,
 				5406EAB81C0EF87D0035FFA4 /* DDQLevelViewController.m */,
+				B9DB58251CF2AE3600EA5990 /* NewView */,
 			);
 			path = controllers;
 			sourceTree = "<group>";
@@ -3193,6 +3199,16 @@
 			path = MJExtension;
 			sourceTree = "<group>";
 		};
+		B9DB58251CF2AE3600EA5990 /* NewView */ = {
+			isa = PBXGroup;
+			children = (
+				B9DB58281CF2AE7400EA5990 /* DDQSexSeletView.h */,
+				B9DB58291CF2AE7400EA5990 /* DDQSexSeletView.m */,
+				B9DB58261CF2AE5000EA5990 /* SexSelectView.xib */,
+			);
+			path = NewView;
+			sourceTree = "<group>";
+		};
 		B9F30AF41CAB6E8E007F0737 /* 轮播 */ = {
 			isa = PBXGroup;
 			children = (
@@ -3328,6 +3344,7 @@
 				54632F351C8591D300377FAE /* 全美@3x.png in Resources */,
 				54EB703C1C1A6762005BD9D3 /* DDQMessageCell.xib in Resources */,
 				54037AC81C54C13900899228 /* DDQMyLessonViewController.xib in Resources */,
+				B9DB58271CF2AE5000EA5990 /* SexSelectView.xib in Resources */,
 				B909BFF91CCF0C0500C389BA /* DDQServerController.xib in Resources */,
 				5406EADB1C0EF87E0035FFA4 /* city.plist in Resources */,
 				546FF9881BCBE6E70038DB5A /* c.txt in Resources */,
@@ -3618,6 +3635,7 @@
 				543C09E51BF1B27300B93A6B /* DDQMyCommentViewController.m in Sources */,
 				5495DC9F1BC648F500DCD0A4 /* UIView+WebCacheOperation.m in Sources */,
 				541ABD4A1BD8A4ED0036286C /* DDQTableViewCell.m in Sources */,
+				B9DB582A1CF2AE7400EA5990 /* DDQSexSeletView.m in Sources */,
 				54A6187F1BC360C800131719 /* DDQMainViewController.m in Sources */,
 				54EB707E1C1AE990005BD9D3 /* DDQOrderDetailViewController.m in Sources */,
 				B92240171CE45E7A00CB1981 /* IQTextView.m in Sources */,

@@ -33,7 +33,32 @@
     
     self.userid = [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"];
     
+    self.manager = [OrderManager defaultManager];
+    
+}
+
+@end
+
+@implementation OrderManager
+
+
++ (instancetype)defaultManager {
+
+    static OrderManager *manager = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        
+        manager = [[OrderManager alloc] init];
+        
+    });
+    
+    return manager;
+    
 }
 
 
 @end
+
+NSString *const kFreshControllerNotification = @"fresh_controller";
+NSString *const kFreshCancelCNotification = @"cancel_fresh";
+NSString *const kFreshOrderCNotification = @"order_fresh";

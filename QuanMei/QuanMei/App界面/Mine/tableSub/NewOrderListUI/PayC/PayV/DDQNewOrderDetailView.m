@@ -385,7 +385,7 @@
         make.centerY.equalTo(self.fukuanLeiXing.mas_centerY);
         
     }];
-    self.yingFuKuanJinE.text = [NSString stringWithFormat:@"￥:%@元",detail_model.have_pay];
+    self.yingFuKuanJinE.text = [NSString stringWithFormat:@"￥:%@元",detail_model.true_pay];
         
 #pragma mark - 第三行
     NSString *fanxian_str = [NSString stringWithFormat:@"返积分%@点",detail_model.get_point];

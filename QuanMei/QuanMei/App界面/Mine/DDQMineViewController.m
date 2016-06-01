@@ -75,14 +75,13 @@
     [self.hud show:YES];
     [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
         
-        [self.hud hide:YES];
         if (errorDic == nil) {
             
             [self requestDataOne];
             
         } else {
             
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
 }
@@ -119,7 +118,7 @@
                     } else {
                         
                         [self.hud hide:YES];
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                         [self.mainTabelView.header endRefreshing];
                     }
                 }];
@@ -132,7 +131,7 @@
             //第四个参数:设置是否消失
             //第五个参数:设置自定义的view
             [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
     self.navigationController.navigationBar.translucent = NO;
@@ -150,63 +149,37 @@
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor meiHongSe]};
     self.navigationController.navigationBar.tintColor           = [UIColor meiHongSe];
     self.navigationItem.rightBarButtonItem                      = rightItem;
-    [self layOutNavigationBar];
     
 }
 
 -(void)layOutNavigationBar {
-    //拿到单例model
-    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];//这是登陆过后的data值
     
-    if (infoModel.isLogin == YES) {
-        
-        if (![infoModel.userimg isEqualToString:@""]&&infoModel.userimg != nil) {//判断用户是否有头像
-            
-            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
-            
-            [imageView sd_setImageWithURL:[NSURL URLWithString:infoModel.userimg]];
-            imageView.layer.cornerRadius     = 15.0f;
-            imageView.contentMode            = UIViewContentModeScaleAspectFit;
-            imageView.layer.masksToBounds    = YES;
-            //打开用户交互
-            imageView.userInteractionEnabled = YES;
-            
-//            添加手势
-            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userIconHandle)];
-            [imageView addGestureRecognizer:tap];
-            
-            UIBarButtonItem *leftItem             = [[UIBarButtonItem alloc] initWithCustomView:imageView];
-            self.navigationItem.leftBarButtonItem = leftItem;
-            
-            
-        } else {
-            
-            UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
-            
-            [imageView setImage:[UIImage imageNamed:@"default_pic"]];
-            imageView.layer.cornerRadius     = 15.0f;
-            imageView.contentMode            = UIViewContentModeScaleAspectFit;
-            imageView.layer.masksToBounds    = YES;
-            //打开用户交互
-            imageView.userInteractionEnabled = YES;
-            
-            //添加手势
-            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToMineViewController)];
-            [imageView addGestureRecognizer:tap];
-            
-            UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithCustomView:imageView];
-            self.navigationItem.leftBarButtonItem = leftItem;
-        }
-        
-    } else {
-        
-        UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"登录" style:UIBarButtonItemStyleDone target:self action:@selector(pushToLoginViewController)];
-        //10-19
-        //11-06
-        leftItem.tintColor        = [UIColor meiHongSe];
-        
-        self.navigationItem.leftBarButtonItem = leftItem;
-    }
+    NSString *str_userLevel = [NSString stringWithFormat:@"LV%@",self.mineInfoModel.level];
+    CGSize level_size = [str_userLevel sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.5]}];
+    UIImageView *levelImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, level_size.width, level_size.height)];
+    
+    levelImageView.image = [UIImage imageNamed:@"levelImg"];
+    self.userLV = [[UILabel alloc] initWithFrame:levelImageView.frame];
+    self.userLV.backgroundColor = [UIColor clearColor];
+    [levelImageView addSubview:self.userLV];
+    [self.userLV setText:str_userLevel];
+    self.userLV.textColor = [UIColor whiteColor];
+    _userLV.font = [UIFont systemFontOfSize:15.0f];
+    _userLV.textAlignment = NSTextAlignmentCenter;
+    
+    UIBarButtonItem *item1 = [[UIBarButtonItem alloc] initWithCustomView:levelImageView];
+    
+    NSString *str = @"啊啊啊啊啊啊啊";
+    CGSize size = [str sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:15.5]}];
+    self.userName = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height)];
+    [self.backgroundImageView addSubview:self.userName];
+    self.userName.textColor = [UIColor meiHongSe];
+    [self.userName setText:self.mineInfoModel.username];
+    _userName.font = [UIFont systemFontOfSize:15.0f];
+    [self.userName setTextAlignment:NSTextAlignmentLeft];
+    UIBarButtonItem *item2 = [[UIBarButtonItem alloc] initWithCustomView:self.userName];
+
+    self.navigationItem.leftBarButtonItems = @[item1,item2];
     
 }
 #pragma mark - navigationBar item target aciton
@@ -251,7 +224,7 @@
             //第四个参数:设置是否消失
             //第五个参数:设置自定义的view
             [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
     
@@ -429,21 +402,66 @@
         self.backgroundImageView.image = [UIImage imageNamed:@"ad_doctor_3"];
     }
     
-//布局    
+//布局
+    CGSize city_size;
+    if (self.mineInfoModel.city) {
+        
+        city_size = [self.mineInfoModel.city sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.5]}];
+        
+    }else {
+        self.mineInfoModel.city = @"暂未设置";
+        city_size = [self.mineInfoModel.city sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.5]}];
+
+    }
+    CGSize sex_size;
+    if (self.mineInfoModel.sex) {
+        
+        sex_size = [self.mineInfoModel.sex sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.5]}];
+        
+    }else {
+        
+        self.mineInfoModel.sex = @"暂未设置";
+        city_size = [self.mineInfoModel.city sizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:12.5]}];
+        
+    }
+    CGFloat temp_w = city_size.width + sex_size.width + 35;
+    if (temp_w > kScreenWidth * 0.6) {
+        
+        temp_w = kScreenWidth * 0.6;
+        
+    }
+    CGFloat temp_h = 0.0;
+    if (sex_size.height > 15 || city_size.height > 15) {
+        
+        if (sex_size.height > city_size.height) {
+            
+            temp_h = sex_size.height + 15;
+            
+        } else {
+            
+            temp_h = city_size.height + 15;
+        }
+        
+    } else {
+        
+        temp_h = 30;
+        
+    }
     self.userMessage = [[UIView alloc] init];
     [self.backgroundImageView addSubview:self.userMessage];
     [self.userMessage mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(self.backgroundImageView.mas_centerX);
-        make.bottom.equalTo(self.backgroundImageView.mas_bottom).with.offset(-10);
-        make.width.offset(kScreenWidth * 0.5);
-        make.height.offset(kScreenHeight * 0.2 * 0.18);
+        make.left.equalTo(self.backgroundImageView.mas_left).offset(5);
+        make.top.equalTo(self.backgroundImageView.mas_top).offset(10);
+        
+        make.width.offset(temp_w);
+        make.height.offset(temp_h);
+        
     }];
-    [self.userMessage.layer setCornerRadius:kScreenHeight * 0.2 * 0.2/2];
-    [self.userMessage.layer setShadowRadius:2.0f];
+    [self.userMessage.layer setCornerRadius:temp_h/2];
     [self.userMessage.layer setMasksToBounds:YES];
     [self.userMessage setBackgroundColor:[UIColor whiteColor]];
-//    [self.userMessage.layer setBorderWidth:5.0f];
     [self.userMessage.layer setShadowRadius:15.0f];
+    [self.userMessage.layer setShadowColor:[[UIColor lightGrayColor] colorWithAlphaComponent:0.5f].CGColor];
     [self.userMessage.layer setBorderColor:[[UIColor lightGrayColor] colorWithAlphaComponent:0.5f].CGColor];
     
     UIImageView *imageView_1 = [[UIImageView alloc] init];
@@ -463,10 +481,19 @@
     
         make.centerY.equalTo(self.userMessage.mas_centerY);
         make.left.equalTo(self.userMessage.mas_left).offset(5);
-        make.width.and.height.offset(10);
+        make.width.offset(8);
+        make.height.offset(10);
         
     }];
-    imageView_1.image = [UIImage imageNamed:@"god_icon_sex"];
+    if ([self.mineInfoModel.sex isEqualToString:@"男"]) {
+        
+        imageView_1.image = [UIImage imageNamed:@"boy"];
+        
+    } else {
+    
+        imageView_1.image = [UIImage imageNamed:@"god_icon_sex"];
+        
+    }
 
     [label_1 mas_makeConstraints:^(MASConstraintMaker *make) {
     
@@ -474,18 +501,15 @@
         make.centerY.equalTo(imageView_1.mas_centerY);
         
     }];
-    if (self.mineInfoModel.sex) {
-        [label_1 setText:self.mineInfoModel.sex];
-    }else {
-        label_1.text = @"暂未设置";
-    }
+    label_1.text = self.mineInfoModel.sex;
     
     [imageView_2 mas_makeConstraints:^(MASConstraintMaker *make) {
         
-        make.left.equalTo(self.userMessage.mas_centerX).offset(5);
+        make.left.equalTo(label_1.mas_right).offset(5);
         make.centerY.equalTo(imageView_1.mas_centerY);
-        make.width.and.height.offset(10);
-
+        make.width.offset(8);
+        make.height.offset(10);
+        
     }];
     imageView_2.image = [UIImage imageNamed:@"god_icon_location"];
     
@@ -493,60 +517,12 @@
         
         make.left.equalTo(imageView_2.mas_right);
         make.centerY.equalTo(imageView_2.mas_centerY);
+        make.right.equalTo(self.userMessage.mas_right).offset(-4);
         make.height.equalTo(label_1.mas_height);
-        make.right.equalTo(self.userMessage.mas_right);
         
     }];
-    if (self.mineInfoModel.city) {
-        [label_2 setText:self.mineInfoModel.city];
-    }else {
-        label_2.text = @"暂未设置";
-    }
-    
-    self.userName = [[UILabel alloc] init];
-    [self.userName setBackgroundColor:[UIColor clearColor]];
-    [self.backgroundImageView addSubview:self.userName];
-    [self.userName mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.userMessage.mas_left);
-        make.height.offset(20);
-        make.bottom.equalTo(self.userMessage.mas_top).offset(-5);
-        make.width.equalTo(self.userMessage.mas_width).multipliedBy(0.7);
-    }];
-    if (self.mineInfoModel.bgimg != nil && ![self.mineInfoModel.bgimg isEqualToString:@""]) {
-        self.userName.textColor = [UIColor whiteColor];
+    label_2.text = self.mineInfoModel.city;
 
-    } else {
-        self.userName.textColor = [UIColor whiteColor];
-
-    }
-    [self.userName setText:self.mineInfoModel.username];
-    _userName.font = [UIFont systemFontOfSize:13.0f];
-    [self.userName setTextAlignment:NSTextAlignmentLeft];
-    
-    UIImageView *levelImageView = [[UIImageView alloc] init];
-    [self.backgroundImageView addSubview:levelImageView];
-    [levelImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.userMessage.mas_right);
-        make.bottom.equalTo(self.userName.mas_bottom);
-        make.height.equalTo(self.userName.mas_height);
-        make.width.equalTo(self.userMessage.mas_width).with.multipliedBy(0.3);
-    }];
-    [levelImageView setImage:[UIImage imageNamed:@"levelImg"]];
-    
-    self.userLV = [[UILabel alloc] init];
-    self.userLV.backgroundColor = [UIColor clearColor];
-    [self.backgroundImageView addSubview:self.userLV];
-    [self.userLV mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.userName.mas_right);
-        make.bottom.equalTo(self.userName.mas_bottom);
-        make.height.equalTo(self.userName.mas_height);
-        make.width.equalTo(levelImageView.mas_width);
-    }];
-    NSString *str_userLevel = [NSString stringWithFormat:@"LV%@",self.mineInfoModel.level];
-    [self.userLV setText:str_userLevel];
-    self.userLV.textColor = [UIColor whiteColor];
-    _userLV.font = [UIFont systemFontOfSize:13.0f];
-    _userLV.textAlignment = NSTextAlignmentCenter;
     
     
 //    UIImageView *iconBgImageView = [[UIImageView alloc] init];
@@ -584,6 +560,9 @@
     UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(userImgButtonClicked)];
     [_backgroundImageView setUserInteractionEnabled:YES];
     [_backgroundImageView addGestureRecognizer:gesture];
+    
+    [self layOutNavigationBar];
+
     return self.backgroundImageView;
     
 }
@@ -872,6 +851,7 @@ static NSString *uuidKey = @"ModelCenter uuid key";
             //判断errorcode
             NSString *errorcode = post_dic[@"errorcode"];
             int num = [errorcode intValue];
+            [self.hud hide:YES];
             if (num == 0) {
                 
                 NSDictionary *data = [DDQPOSTEncryption judgePOSTDic:post_dic];

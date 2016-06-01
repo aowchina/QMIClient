@@ -9,8 +9,8 @@
 #ifndef QuanMei_Header_h
 #define QuanMei_Header_h
 
-//#define kBaseUrl @"http://139.196.172.208/qm/api/"
-#define kBaseUrl @"http://service.min-fo.com/quanmei/api/one/"
+//#define kBaseUrl @"http://service.min-fo.com/quanmei/api/"
+#define kBaseUrl @"http://139.196.172.208/qm/api/"
 
 //新URL：12.1
 //1.init
@@ -74,153 +74,156 @@
 #define kWenzhangDetailUrl [kBaseUrl stringByAppendingString:@"wenzhang/Detail.php"]
 
 //21.加入小组
-#define kGroup_join @"http://service.min-fo.com/quanmei/api/one/group/In.php"
+#define kGroup_join @"http://139.196.172.208/qm/api/group/In.php"
 
 //22.退出小组
-#define kGroup_exit @"http://service.min-fo.com/quanmei/api/one/group/Out.php"
+#define kGroup_exit @"http://139.196.172.208/qm/api/group/Out.php"
 
 //23.文章评论点赞
-#define kAddZan @"http://service.min-fo.com/quanmei/api/one/wenzhang/AddZan.php"
+#define kAddZan @"http://139.196.172.208/qm/api/wenzhang/AddZan.php"
 
 //24.文章/评论 评论
-#define kPl_add @"http://service.min-fo.com/quanmei/api/one/wenzhang/AddPl.php"
+#define kPl_add @"http://139.196.172.208/qm/api/wenzhang/AddPl.php"
 
 //25.个人中心首页
-#define kMyCenterMain @"http://service.min-fo.com/quanmei/api/one/user/Main.php"
+#define kMyCenterMain @"http://139.196.172.208/qm/api/user/Main.php"
 
 //26.修改昵称
-#define kEditNickName @"http://service.min-fo.com/quanmei/api/one/user/EditName.php"
+#define kEditNickName @"http://139.196.172.208/qm/api/user/EditName.php"
 
 //27.修改生日
-#define kEditBrithday @"http://service.min-fo.com/quanmei/api/one/user/EditAge.php"
+#define kEditBrithday @"http://139.196.172.208/qm/api/user/EditAge.php"
 
 //28.修改头像
-#define kEditIcon @"http://service.min-fo.com/quanmei/api/one/user/EditImg.php"
+#define kEditIcon @"http://139.196.172.208/qm/api/user/EditImg.php"
 
 //29.取消赞
-#define kDelZan @"http://service.min-fo.com/quanmei/api/one/wenzhang/DelZan.php"
+#define kDelZan @"http://139.196.172.208/qm/api/wenzhang/DelZan.php"
 
 //30.文章评论列表
-#define KPLListUrl @"http://service.min-fo.com/quanmei/api/one/wenzhang/PlList.php"
+#define KPLListUrl @"http://139.196.172.208/qm/api/wenzhang/PlList.php"
 
 //31.修改地区
-#define kEditCity @"http://service.min-fo.com/quanmei/api/one/user/EditDq.php"
+#define kEditCity @"http://139.196.172.208/qm/api/user/EditDq.php"
 
 //32.医院主页
-#define kHospital_MainUrl @"http://service.min-fo.com/quanmei/api/one/hospital/Main.php"
+#define kHospital_MainUrl @"http://139.196.172.208/qm/api/hospital/Main.php"
 
 //33.医院详情
-#define kHospital_DetailUrl @"http://service.min-fo.com/quanmei/api/one/hospital/Detail.php"
+#define kHospital_DetailUrl @"http://139.196.172.208/qm/api/hospital/Detail.php"
 
 //34.医院医生
-#define kHospital_DoctorUrl @"http://service.min-fo.com/quanmei/api/one/hospital/Doctor.php"
+#define kHospital_DoctorUrl @"http://139.196.172.208/qm/api/hospital/Doctor.php"
 
 //35.特惠预定
-#define kOrder_addUrl @"http://service.min-fo.com/quanmei/api/one/order/AddOrder.php"
+#define kOrder_addUrl @"http://139.196.172.208/qm/api/order/AddOrder.php"
 //支付宝
-#define kOrder_zfbUrl @"http://service.min-fo.com/quanmei/api/one/zfb/notify_url.php"
+#define kOrder_zfbUrl @"http://139.196.172.208/qm/api/zfb/notify_url.php"
 //支付详情页
-#define kWaiDetailUrl @"http://service.min-fo.com/quanmei/api/one/order/WaitDetail.php"
+#define kWaiDetailUrl @"http://139.196.172.208/qm/api/order/WaitDetail.php"
 //支付方式
-#define kBeforePayUrl @"http://service.min-fo.com/quanmei/api/one/order/Before_pay.php"
+#define kBeforePayUrl @"http://139.196.172.208/qm/api/order/Before_pay.php"
 
 //36.评论的回复列表
-#define kMorePLList @"http://service.min-fo.com/quanmei/api/one/wenzhang/MorePlList.php"
+#define kMorePLList @"http://139.196.172.208/qm/api/wenzhang/MorePlList.php"
 
 //37.我的日记/帖子列表
-#define kMyDiaryUrl @"http://service.min-fo.com/quanmei/api/one/user/WzList.php"
+#define kMyDiaryUrl @"http://139.196.172.208/qm/api/user/WzList.php"
 
 //38.我的回复列表
-#define kMyreply @"http://service.min-fo.com/quanmei/api/one/user/HfList.php"
+#define kMyreply @"http://139.196.172.208/qm/api/user/HfList.php"
 
 //39.搜索
-#define kSearchUrl @"http://service.min-fo.com/quanmei/api/one/public/Choice.php"
+#define kSearchUrl @"http://139.196.172.208/qm/api/public/Choice.php"
 
 //40.搜索特惠
-#define  kSearchTehuiUrl @"http://service.min-fo.com/quanmei/api/one/tehui/ChoiceTh.php"
+#define  kSearchTehuiUrl @"http://139.196.172.208/qm/api/tehui/ChoiceTh.php"
 
 //41.搜素文章
-#define  kSearchWenzhangUrl @"http://service.min-fo.com/quanmei/api/one/wenzhang/ChoiceWz.php"
+#define  kSearchWenzhangUrl @"http://139.196.172.208/qm/api/wenzhang/ChoiceWz.php"
 
 //42.退出登录
-#define kGetOut_Url @"http://service.min-fo.com/quanmei/api/one/public/GetOut.php"
+#define kGetOut_Url @"http://139.196.172.208/qm/api/public/GetOut.php"
 
 //43.文章删除
-#define kDel_wenzhangUrl @"http://service.min-fo.com/quanmei/api/one/user/DelWz.php"
+#define kDel_wenzhangUrl @"http://139.196.172.208/qm/api/user/DelWz.php"
 
 //44.回复删除
-#define kDel_hfUrl @"http://service.min-fo.com/quanmei/api/one/user/DelHf.php"
+#define kDel_hfUrl @"http://139.196.172.208/qm/api/user/DelHf.php"
 
 //45.密码重设
-#define kPassword_csUrl @"http://service.min-fo.com/quanmei/api/one/user/EditPsw.php"
+#define kPassword_csUrl @"http://139.196.172.208/qm/api/user/EditPsw.php"
 
 //46.个人主页（带加入小组)
-#define kUser_moreUrl @"http://service.min-fo.com/quanmei/api/one/user/MainMore.php"
+#define kUser_moreUrl @"http://139.196.172.208/qm/api/user/MainMore.php"
 
 //47.我的被回复列表
-#define kUser_bhfUrl @"http://service.min-fo.com/quanmei/api/one/user/BhfList.php"
+#define kUser_bhfUrl @"http://139.196.172.208/qm/api/user/BhfList.php"
 
 //48.我的被赞列表
-#define kUser_bzanUrl @"http://service.min-fo.com/quanmei/api/one/user/BzanList.php"
+#define kUser_bzanUrl @"http://139.196.172.208/qm/api/user/BzanList.php"
 
 //49.订单列表
-#define kUserOrderUrl @"http://service.min-fo.com/quanmei/api/one/order/UserOrder.php"
-#define kUserOrderDetailUrl @"http://service.min-fo.com/quanmei/api/one/order/OrderDetail.php"
-#define kBack_moneyUrl @"http://service.min-fo.com/quanmei/api/one/order/BackOrder.php"
+#define kUserOrderUrl @"http://139.196.172.208/qm/api/order/UserOrder.php"
+#define kUserOrderDetailUrl @"http://139.196.172.208/qm/api/order/OrderDetail.php"
+#define kBack_moneyUrl @"http://139.196.172.208/qm/api/order/BackOrder.php"
 
 //50.评价
-#define kOrderPjUrl @"http://service.min-fo.com/quanmei/api/one/order/AddPj.php"
+#define kOrderPjUrl @"http://139.196.172.208/qm/api/order/AddPj.php"
 
 //51.绑定手机号
-#define kBand_telUrl @"http://service.min-fo.com/quanmei/api/one/user/BandTel.php"
+#define kBand_telUrl @"http://139.196.172.208/qm/api/user/BandTel.php"
 
 //52.医院评价列表
-#define kHospital_pjUrl @"http://service.min-fo.com/quanmei/api/one/hospital/PjList.php"
+#define kHospital_pjUrl @"http://139.196.172.208/qm/api/hospital/PjList.php"
 
 //53.删除待支付订单
-#define kOrder_DelUrl @"http://service.min-fo.com/quanmei/api/one/order/DelOrder.php"
+#define kOrder_DelUrl @"http://139.196.172.208/qm/api/order/DelOrder.php"
 
 //54.添加收藏
-#define kSc_addUrl @"http://service.min-fo.com/quanmei/api/one/user/AddSc.php"
+#define kSc_addUrl @"http://139.196.172.208/qm/api/user/AddSc.php"
 
 //55.收藏列表
-#define kSc_listUrl @"http://service.min-fo.com/quanmei/api/one/user/ScList.php"
+#define kSc_listUrl @"http://139.196.172.208/qm/api/user/ScList.php"
 
 //56.修改背景
-#define kEditBgImgUrl @"http://service.min-fo.com/quanmei/api/one/user/EditBgImg.php"
+#define kEditBgImgUrl @"http://139.196.172.208/qm/api/user/EditBgImg.php"
 
 //57.教师列表
-#define kteacher_listUrl @"http://service.min-fo.com/quanmei/api/one/course/TeacherList.php"
+#define kteacher_listUrl @"http://139.196.172.208/qm/api/course/TeacherList.php"
 
 //58.教师详情
-#define kteacher_introUrl @"http://service.min-fo.com/quanmei/api/one/course/CourseDetail.php"
+#define kteacher_introUrl @"http://139.196.172.208/qm/api/course/CourseDetail.php"
 
 //59.课程订单
-#define kteacher_orderUrl @"http://service.min-fo.com/quanmei/api/one/course/AddOrder.php"
+#define kteacher_orderUrl @"http://139.196.172.208/qm/api/course/AddOrder.php"
 
 //60.课程订单
-#define kMy_lessonUrl @"http://service.min-fo.com/quanmei/api/one/user/CourseList.php"
+#define kMy_lessonUrl @"http://139.196.172.208/qm/api/user/CourseList.php"
 
 //61.特惠预订获取微信订单信息
-#define kWX_payReqUrl @"http://service.min-fo.com/quanmei/api/one/weixin/PayReq.php"
+#define kWX_payReqUrl @"http://139.196.172.208/qm/api/weixin/PayReq.php"
 
 //62.特惠预订订单结果查询
-#define kWX_payNotifyUrl @"http://service.min-fo.com/quanmei/api/one/weixin/PayNotify.php"
+#define kWX_payNotifyUrl @"http://139.196.172.208/qm/api/weixin/PayNotify.php"
 
 //63.课程预订获取微信订单信息
-#define kWX_payUrl @"http://service.min-fo.com/quanmei/api/one/course/PayReq.php"
+#define kWX_payUrl @"http://139.196.172.208/qm/api/course/PayReq.php"
 
 //64.保险列表
-#define kBX_listUrl @"http://service.min-fo.com/quanmei/api/one/baoxian/List.php"
+#define kBX_listUrl @"http://139.196.172.208/qm/api/baoxian/List.php"
 
 //65.检查用户能否签到
-#define kCheck_QDUrl @"http://service.min-fo.com/quanmei/api/one/user/QdStatus.php"
+#define kCheck_QDUrl @"http://139.196.172.208/qm/api/user/QdStatus.php"
 
 //66.签到
-#define kQD_Url @"http://service.min-fo.com/quanmei/api/one/user/Qd.php"
+#define kQD_Url @"http://139.196.172.208/qm/api/user/Qd.php"
 
 //67.获取积分列表
-#define kGet_jfUrl @"http://service.min-fo.com/quanmei/api/one/user/PointList.php"
+#define kGet_jfUrl @"http://139.196.172.208/qm/api/user/PointList.php"
+
+//68.修改性别
+#define kEdit_sexUrl @"http://139.196.172.208/qm/api/user/EditSex.php"
 
 #import "MBProgressHUD+EBUsHUD.h"
 

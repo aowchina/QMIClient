@@ -98,7 +98,7 @@
         } else {
             
             [MBProgressHUD myCustomHudWithView:self.hudShowView
-                                 andCustomText:errorDic[@"NSLocalizedDescription"]
+                                 andCustomText:kErrorDes
                                     andShowDim:NO
                                    andSetDelay:YES
                                  andCustomView:nil];

@@ -414,7 +414,7 @@ static int num = 2;
                         
                     } else {
                         
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                         [self.mainTableView.header endRefreshing];
                     }
                 }];
@@ -432,7 +432,7 @@ static int num = 2;
                         
                     } else {
                         
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                         [self.mainTableView.footer endRefreshing];
                     }
                 }];
@@ -443,7 +443,7 @@ static int num = 2;
             //表述图
             [self initTableView];
             [self replyButton];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             [self.mainTableView.footer endRefreshing];
         }
     }];

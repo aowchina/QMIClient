@@ -16,7 +16,6 @@
 #import "DDQLoginSingleModel.h"
 #import <TencentOpenAPI/TencentOAuth.h>
 #import <TencentOpenAPI/TencentApiInterface.h>
-#import "DDQQiandaoView.h"
 #import "DDQMyWalletViewController.h"
 #import "WXApi.h"
 #import "AppDelegate.h"
@@ -29,7 +28,7 @@
 
 typedef void(^popToMainViewController)();
 
-@interface DDQLoginViewController ()<TencentSessionDelegate,TencentLoginDelegate,ResetVCDelegate,QiandaoDelegate>
+@interface DDQLoginViewController ()<TencentSessionDelegate,TencentLoginDelegate,ResetVCDelegate>
 /**
  *  我要作为载体View
  */
@@ -109,27 +108,6 @@ typedef void(^popToMainViewController)();
 //取消响应事件
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     [self.view endEditing:YES];
-}
-
--(void)viewWillAppear:(BOOL)animated {
-
-    [super viewWillAppear:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        //网络连接无错误
-        if (errorDic == nil) {
-            
-            
-        } else {
-            self.error_dic = errorDic;
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
 }
 
 
@@ -293,18 +271,6 @@ typedef void(^popToMainViewController)();
         kSplite = 15;
 
     }
-    
-    //    self.sinaLoginButton = [[UIButton alloc] init];
-    //    [self.view addSubview:self.sinaLoginButton];
-    //    [self.sinaLoginButton mas_makeConstraints:^(MASConstraintMaker *make) {
-    //        make.left.equalTo(self.wechatLoginButton.mas_right).offset(kSplite);
-    //        make.width.offset(kButtonW);
-    //        make.height.equalTo(self.wechatLoginButton.mas_width);
-    //        make.top.equalTo(self.tipLabel.mas_bottom);
-    //    }];
-    //    [self.sinaLoginButton setImage:[UIImage imageNamed:@"login_sina_b"] forState:UIControlStateNormal];
-    //    [self.sinaLoginButton addTarget:self action:@selector(goWeiBoLogin) forControlEvents:UIControlEventTouchUpInside];
-    
     //第三方登陆
     
      if ([WXApi isWXAppInstalled]&&[WXApi isWXAppSupportApi]) {
@@ -397,65 +363,80 @@ typedef void(^popToMainViewController)();
            //网络连接无错误
            if (errorDic == nil) {
                
-               //八段
-               NSString *spellString = [SpellParameters getBasePostString];
-               
-               //参数
-               NSString *postString = [NSString stringWithFormat:@"%@*%@*%@",spellString,_inputPhoneNumField.text,_inputPasswordField.text];
-               
-               //加密解密类
-               DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-               
-               //加密
-               NSString *encryption = [postEncryption stringWithPost:postString];
-               //post一小下
-               NSMutableDictionary *get_serverDic = [[PostData alloc] postData:encryption AndUrl:kLoginUrl];
-             
-               if (get_serverDic != nil) {
+               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                    
-                   [self.hud hide:YES];
-                   NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
+                   //八段
+                   NSString *spellString = [SpellParameters getBasePostString];
+
+                   //参数
+                   NSString *postString = [NSString stringWithFormat:@"%@*%@*%@",spellString,_inputPhoneNumField.text,_inputPasswordField.text];
                    
-                   //11-06
-                   //11-30-15
-                   int num = [errorcode_string intValue];
-                   if (num == 0){
-                       //判断是否加密解密
-                       NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
-                       NSDictionary *dic = [DDQPublic nullDic:get_jsonDic];//判断是否为空
-                       //单例传值即可
-                       DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-                       infoModel.userimg         = [dic valueForKey:@"userimg"];
-                       [[NSUserDefaults standardUserDefaults] setValue:[dic valueForKey:@"userid"] forKey:@"userId"];
-                       infoModel.isLogin           = YES;
-                       //                   [self.navigationController popViewControllerAnimated:YES];
-                       [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
-                       [self outQianDao];
-                       
-                   } else if (num == 10) {
-                       
-                       [self alertController:@"手机号不符合要求"];
-                   } else if (num == 11) {
-                       
-                       [self alertController:@"密码不符合要求"];
-                   } else if (num == 13) {
-                       
-                       [self alertController:@"手机号不存在"];
-                   } else if (num == 14){
-                       
-                       [self alertController:@"密码错误"];
-                   } else {
-                       
-                       [self alertController:@"服务器繁忙"];
-                   } 
-
-               } else {
+                   //加密解密类
+                   DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
                    
-                   [self.hud hide:YES];
+                   //加密
+                   NSString *encryption = [postEncryption stringWithPost:postString];
+                   //post一小下
+                   NSMutableDictionary *get_serverDic = [[PostData alloc] postData:encryption AndUrl:kLoginUrl];
 
-                   [self alertController:@"服务器繁忙"];
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       
+                       if (get_serverDic != nil) {
+                           
+                           [self.hud hide:YES];
+                           NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
+                           
+                           //11-06
+                           //11-30-15
+                           int num = [errorcode_string intValue];
+                           if (num == 0){
+                               //判断是否加密解密
+                               NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
+                               NSDictionary *dic = [DDQPublic nullDic:get_jsonDic];//判断是否为空
+                               //单例传值即可
+                               DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+                               infoModel.userimg         = [dic valueForKey:@"userimg"];
+                               [[NSUserDefaults standardUserDefaults] setValue:[dic valueForKey:@"userid"] forKey:@"userId"];
+                               infoModel.isLogin           = YES;
+                               self.baseTabBarC.selectedIndex = 0;
+                               [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
+                               
+                           } else if (num == 10) {
+                               
+                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号不符合要求" andShowDim:NO andSetDelay:YES andCustomView:nil];
 
-               }
+                           } else if (num == 11) {
+                               
+                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"密码不符合要求" andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+                           } else if (num == 13) {
+                               
+                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+                           } else if (num == 14){
+                               
+                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"密码错误" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                               
+
+                           } else {
+                               
+                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+                           }
+                           
+                       } else {
+                           
+                           [self.hud hide:YES];
+                           
+                           [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                           
+                       }
+
+                   });
+                   
+               });
+               
+               
                
            } else {
                
@@ -465,93 +446,16 @@ typedef void(^popToMainViewController)();
                //第三个参数:背景阴影
                //第四个参数:设置是否消失
                //第五个参数:设置自定义的view
-               [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+               [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
            }
        }];
 
     }
 }
 
-- (void)outQianDao {
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSString *poststr = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:poststr];
-        
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kQD_Url];
-        
-        NSString *str = get_postDic[@"errorcode"];
-        int num = [str intValue];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (num == 0) {
-                
-                NSString *jifen = [postEncryption stringWithDic:get_postDic];
-                
-                DDQQiandaoView *qiandao_view = [[DDQQiandaoView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
-                qiandao_view.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6f];
-                qiandao_view.delegate = self;
-                qiandao_view.huodefenshu.text = [NSString stringWithFormat:@"恭喜获得积分:+%@",jifen];
-                [[UIApplication sharedApplication].keyWindow addSubview:qiandao_view];
-                
-            } else if (num == 13) {
-            } else if (num == 15) {
-            } else if (num == 11 || num == 12) {
-                
-                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-                [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
-                
-            } else {
-            }
-        });
-        
-    });
-
-}
-
-- (void)qiandao_view:(DDQQiandaoView *)view {
-    
-    [view removeFromSuperview];
-    
-}
-
-- (void)qiandao_viewSelected:(DDQQiandaoView *)view {
-    
-    [view removeFromSuperview];
-    DDQMyWalletViewController *myWallet = [[DDQMyWalletViewController alloc] init];
-    myWallet.hidesBottomBarWhenPushed = YES;
-    
-    [self.navigationController pushViewController:myWallet animated:YES];
-        
-    
-}
-
-/**
- *  为单例类传值做准备
- *
- *  @param postDic 加密过后的json字典
- */
--(void)getJsonDic:(NSMutableDictionary *)postDic {
-    
-    DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-    NSString *loginString = [postEncryption stringWithDic:postDic];
-    
-    NSMutableDictionary *loginDic = [[[SBJsonParser alloc] init] objectWithString:loginString];
-    
-    //单例传值即可
-    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-    infoModel.userimg         = [loginDic valueForKey:@"userimg"];
-    [[NSUserDefaults standardUserDefaults] setValue:[loginDic valueForKey:@"userid"] forKey:@"userId"];
-    infoModel.isLogin           = YES;
-
-}
 
 -(void)goQQSDKLogin {
-    //[self alertController:@"权限未到,敬请期待"];
+    
     _tencentOAuth = [[TencentOAuth alloc] initWithAppId:kQQAppKey andDelegate:self];
     NSArray* permissions = [NSArray arrayWithObjects:
                             kOPEN_PERMISSION_GET_USER_INFO,
@@ -605,97 +509,108 @@ typedef void(^popToMainViewController)();
 
 
 -(void)getUserInfoResponse:(APIResponse *)response {
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSDictionary *dic = response.jsonResponse;
-        NSString *nickName = [dic valueForKey:@"nickname"];
-        
-        NSString *userImage = [dic valueForKey:@"figureurl_qq_1"];
-    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-    infoModel.userimg = userImage;
-    infoModel.isLogin = 1;
 
-    
-//
-        NSString *string = [SpellParameters getBasePostString];//八段字符串
-        //转换过后的昵称
-        NSData *data = [nickName dataUsingEncoding:NSUTF8StringEncoding];
-        Byte *byteArray = (Byte *)[data bytes];
-        NSMutableString *str = [[NSMutableString alloc] init];
-        for(int i=0;i<[data length];i++) {
-            [str appendFormat:@"%d#",byteArray[i]];
-        }
-     
-        NSString *dsfType = @"3";
-        NSString *baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",string,dsfType,_openId,str,userImage];
-        NSString *changeStr = [NSString stringWithString:[baseString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    
-        changeStr = [changeStr stringByReplacingOccurrencesOfString:@" " withString:@""];
-    
-        const char * a_basePostString = [changeStr UTF8String];
-        long int str_counter;
-        if((strlen(a_basePostString) % 60) != 0){
-            str_counter = (long int)(strlen(a_basePostString) / 60) +1;
+    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        if (errorDic) {
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
         } else {
-            str_counter = (long int)(strlen(a_basePostString) / 60);
-        }
-        long int total_counter = str_counter + 3;
-        NSString *t_counter = [NSString stringWithFormat:@"%ld",total_counter];
         
-        NSString *postString = @"p0=";
-        postString = [postString stringByAppendingString:t_counter];
-        postString = [postString stringByAppendingString:@"&p1=7000000004&p2=2"];
-        for (int i = 0; i < str_counter; i++) {
-            postString = [postString stringByAppendingString:@"&p"];
-            postString = [postString stringByAppendingString:[NSString stringWithFormat:@"%d",(i + 3)]];
-            postString = [postString stringByAppendingString:@"="];
-            
-            char sub_text[100];
-            memset(sub_text, 0, sizeof(sub_text));
-            //strncpy(sub_text,a_basePostString+(i * 60), 60);
-            
-            if (i == (str_counter - 1)) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSDictionary *dic = response.jsonResponse;
+                NSString *nickName = [dic valueForKey:@"nickname"];
                 
-                strncpy(sub_text,a_basePostString+(i * 60), (strlen(a_basePostString) - (i * 60)));
-            }
-            else{
-                strncpy(sub_text,a_basePostString+(i * 60), 60);
-            }
-            
-            char ret[512];
-            memset(ret,0,sizeof(ret));
-            encryptedString(sub_text,ret);
-            
-            NSString *en_postString = [[NSString alloc] initWithCString:(const char*)ret encoding:NSUTF8StringEncoding];
-            en_postString = (NSString*)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(nil,(CFStringRef)en_postString, nil,(CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8));
-            
-            postString = [postString stringByAppendingString:en_postString];
-        }
+                NSString *userImage = [dic valueForKey:@"figureurl_qq_1"];
+                DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+                infoModel.userimg = userImage;
+                infoModel.isLogin = 1;
+                
+                
+                //
+                NSString *string = [SpellParameters getBasePostString];//八段字符串
+                //转换过后的昵称
+                NSData *data = [nickName dataUsingEncoding:NSUTF8StringEncoding];
+                Byte *byteArray = (Byte *)[data bytes];
+                NSMutableString *str = [[NSMutableString alloc] init];
+                for(int i=0;i<[data length];i++) {
+                    [str appendFormat:@"%d#",byteArray[i]];
+                }
+                
+                NSString *dsfType = @"3";
+                NSString *baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",string,dsfType,_openId,str,userImage];
+                NSString *changeStr = [NSString stringWithString:[baseString stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                
+                changeStr = [changeStr stringByReplacingOccurrencesOfString:@" " withString:@""];
+                
+                const char * a_basePostString = [changeStr UTF8String];
+                long int str_counter;
+                if((strlen(a_basePostString) % 60) != 0){
+                    str_counter = (long int)(strlen(a_basePostString) / 60) +1;
+                } else {
+                    str_counter = (long int)(strlen(a_basePostString) / 60);
+                }
+                long int total_counter = str_counter + 3;
+                NSString *t_counter = [NSString stringWithFormat:@"%ld",total_counter];
+                
+                NSString *postString = @"p0=";
+                postString = [postString stringByAppendingString:t_counter];
+                postString = [postString stringByAppendingString:@"&p1=7000000004&p2=2"];
+                for (int i = 0; i < str_counter; i++) {
+                    postString = [postString stringByAppendingString:@"&p"];
+                    postString = [postString stringByAppendingString:[NSString stringWithFormat:@"%d",(i + 3)]];
+                    postString = [postString stringByAppendingString:@"="];
+                    
+                    char sub_text[100];
+                    memset(sub_text, 0, sizeof(sub_text));
+                    //strncpy(sub_text,a_basePostString+(i * 60), 60);
+                    
+                    if (i == (str_counter - 1)) {
+                        
+                        strncpy(sub_text,a_basePostString+(i * 60), (strlen(a_basePostString) - (i * 60)));
+                    }
+                    else{
+                        strncpy(sub_text,a_basePostString+(i * 60), 60);
+                    }
+                    
+                    char ret[512];
+                    memset(ret,0,sizeof(ret));
+                    encryptedString(sub_text,ret);
+                    
+                    NSString *en_postString = [[NSString alloc] initWithCString:(const char*)ret encoding:NSUTF8StringEncoding];
+                    en_postString = (NSString*)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(nil,(CFStringRef)en_postString, nil,(CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8));
+                    
+                    postString = [postString stringByAppendingString:en_postString];
+                }
+                
+                //传给服务器
+                NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kDSFRegisterUrl];
+                //将这个字典解密
+                NSString *getString = @"";
+                for (int i=0; i<[[[postDic objectForKey:@"data"]objectForKey:@"cnt"] intValue]; i++) {
+                    NSString *data_item = [[postDic objectForKey:@"data"]objectForKey:[NSString stringWithFormat:@"%d",i]];
+                    char ret_out[512];
+                    memset(ret_out,0,sizeof(ret_out));
+                    decryptedString([data_item cStringUsingEncoding:NSUTF8StringEncoding], ret_out);
+                    
+                    getString = [getString stringByAppendingString:[[NSString alloc] initWithCString:(const char*)ret_out encoding:NSUTF8StringEncoding]];
+                }
+                //将字符串装化为字典
+                NSMutableDictionary *jsonDic = [[[SBJsonParser alloc] init] objectWithString:getString];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.hud hide:YES];
+                    [self.hud removeFromSuperViewOnHide];
+                    [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
+                    self.baseTabBarC.selectedIndex = 0;
+                    [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
+                });
+                
+            });
 
-        //传给服务器
-        NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kDSFRegisterUrl];
-        //将这个字典解密
-        NSString *getString = @"";
-        for (int i=0; i<[[[postDic objectForKey:@"data"]objectForKey:@"cnt"] intValue]; i++) {
-            NSString *data_item = [[postDic objectForKey:@"data"]objectForKey:[NSString stringWithFormat:@"%d",i]];
-            char ret_out[512];
-            memset(ret_out,0,sizeof(ret_out));
-            decryptedString([data_item cStringUsingEncoding:NSUTF8StringEncoding], ret_out);
-            
-            getString = [getString stringByAppendingString:[[NSString alloc] initWithCString:(const char*)ret_out encoding:NSUTF8StringEncoding]];
         }
-        //将字符串装化为字典
-        NSMutableDictionary *jsonDic = [[[SBJsonParser alloc] init] objectWithString:getString];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.hud hide:YES];
-            [self.hud removeFromSuperViewOnHide];
-            [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
-            
-            [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
-            [self outQianDao];
-//            [self.navigationController popViewControllerAnimated:YES];
-        });
-    });
+        
+    }];
+    
 }
 
 
@@ -708,7 +623,9 @@ typedef void(^popToMainViewController)();
 }
 
 -(void)tencentDidNotNetWork {
-    [self alertController:@"当前无网络连接"];
+    
+    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+    
 }
 
 

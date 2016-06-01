@@ -91,7 +91,7 @@
                 
             } else {
                 
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 [self.mainTableView.header endRefreshing];
             }
         }];
@@ -115,7 +115,7 @@
         } else {
             
             [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:errorDic[@"NSLocalizedDescription"] andShowDim:NO andSetDelay:YES andCustomView:nil];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
     }];
 }
@@ -258,7 +258,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.hud hide:YES];
 
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"似乎已断开与互联网的链接" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             });
         }
     });
