@@ -429,7 +429,7 @@
                 //传
                 NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kOrderPjUrl];
 
-                if ([[post_dic objectForKey:@"errorcode"] intValue]==0 && post_dic != nil) {
+                if ([[post_dic objectForKey:@"errorcode"] intValue]==0) {
                     
                     dispatch_async(dispatch_get_main_queue(), ^{
                         

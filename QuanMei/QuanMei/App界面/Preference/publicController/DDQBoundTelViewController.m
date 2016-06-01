@@ -104,68 +104,59 @@
 
                 dispatch_async(dispatch_get_main_queue(), ^{
 
-                    if (post_dic) {
-                        
-                        switch ([[post_dic objectForKey:@"errorcode"]intValue]) {
-                            case 0:
-                            {
-                                [hud hide:YES];
-                                NSString *spellString             = [SpellParameters getBasePostString];
-                                NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], _tid];
-                                DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                                NSString *post_string             = [postEncryption stringWithPost:post_baseString];
-                                NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kOrder_addUrl];
-                                
-                                
-                                if (self.type == 1) {
-                                    DDQOrderDetailViewController * detailVC = [[DDQOrderDetailViewController alloc]init];
-                                    
-                                    NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-                                    
-                                    detailVC.dj = _dj;
-                                    
-                                    detailVC.name = _name;
-                                    
-                                    detailVC.tel = get_jsonDic[@"tel"];
-                                    
-                                    detailVC.orderid = get_jsonDic[@"orderid"];
-                                    
-                                    self.navigationController.hidesBottomBarWhenPushed = YES;
-                                    
-                                    [self.navigationController pushViewController:detailVC animated:YES];
-                                } else {
-                                    
-                                    [self.navigationController popViewControllerAnimated:YES];
-                                }
-                                
-                                break;
-                            }
-                            case 14:
-                            {
-                                [hud hide:YES];
-                                
-                                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"该手机号已被占用" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                                [alertView show];
-                                break;
-                            }
-                            default:
-                            {
-                                [hud hide:YES];
-                                
-                                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                                [alertView show];
-                                
-                                break;
-                            }
-                        }
-                        
+                    switch ([[post_dic objectForKey:@"errorcode"]intValue]) {
+                        case 0:
+                        {
+                            [hud hide:YES];
+                            NSString *spellString             = [SpellParameters getBasePostString];
+                            NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], _tid];
+                            DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+                            NSString *post_string             = [postEncryption stringWithPost:post_baseString];
+                            NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kOrder_addUrl];
 
-                    } else {
-                    
-                        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:kErrorDes delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                        [alertView show];
-                        
+
+                            if (self.type == 1) {
+                                DDQOrderDetailViewController * detailVC = [[DDQOrderDetailViewController alloc]init];
+                                
+                                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+                                
+                                detailVC.dj = _dj;
+                                
+                                detailVC.name = _name;
+                                
+                                detailVC.tel = get_jsonDic[@"tel"];
+                                
+                                detailVC.orderid = get_jsonDic[@"orderid"];
+                                
+                                self.navigationController.hidesBottomBarWhenPushed = YES;
+                                
+                                [self.navigationController pushViewController:detailVC animated:YES];
+                            } else {
+                            
+                                [self.navigationController popViewControllerAnimated:YES];
+                            }
+
+                            break;
+                        }
+                        case 14:
+                        {
+                            [hud hide:YES];
+
+                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"该手机号已被占用" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                            [alertView show];
+                            break;
+                        }
+                        default:
+                        {
+                            [hud hide:YES];
+
+                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                            [alertView show];
+                            
+                            break;
+                        }
                     }
+
                 });
                 
             });

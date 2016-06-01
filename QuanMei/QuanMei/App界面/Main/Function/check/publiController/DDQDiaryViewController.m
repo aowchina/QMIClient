@@ -40,12 +40,11 @@
 
     [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
         
+        [self analysisProjectDiaryWithPage:1];
 
         //网络连接无错误
         if (errorDic == nil) {
             
-            [self analysisProjectDiaryWithPage:1];
-
             self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
                 
                 //确保网络连接无错误,防止别人手贱
@@ -95,20 +94,20 @@ static int page = 2;
 -(void)viewWillAppear:(BOOL)animated {
 
     [super viewWillAppear:YES];
-//    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-//        
-//        //网络连接无错误
-//        if (errorDic == nil) {
-//            
-//        } else {
-//            //第一个参数:添加到谁上
-//            //第二个参数:显示什么提示内容
-//            //第三个参数:背景阴影
-//            //第四个参数:设置是否消失
-//            //第五个参数:设置自定义的view
-//            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-//        }
-//    }];
+    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        
+        //网络连接无错误
+        if (errorDic == nil) {
+            
+        } else {
+            //第一个参数:添加到谁上
+            //第二个参数:显示什么提示内容
+            //第三个参数:背景阴影
+            //第四个参数:设置是否消失
+            //第五个参数:设置自定义的view
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        }
+    }];
 }
 
 -(void)viewDidDisappear:(BOOL)animated {
@@ -133,66 +132,55 @@ static int page = 2;
 
         dispatch_async(dispatch_get_main_queue(), ^{
     
-            if (post_Dic) {
+            if ([post_Dic[@"errorcode"] intValue] == 0) {
                 
-                if ([post_Dic[@"errorcode"] intValue] == 0) {
-                    
-                    NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
-                    
-                    
-                    //请求回来有东西
-                    if (get_jsonDic.count != 0) {
+                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
+                
+                
+                //请求回来有东西
+                if (get_jsonDic.count != 0) {
+                
+                    //12-21
+                    for (NSDictionary *dic1 in get_jsonDic) {
                         
-                        //12-21
-                        for (NSDictionary *dic1 in get_jsonDic) {
-                            
-                            NSDictionary *dic = [DDQPublic nullDic:dic1];
-                            DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                            //精或热
-                            articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
-                            articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
-                            articleModel.articleTitle  = [dic valueForKey:@"title"];
-                            articleModel.groupName     = [dic valueForKey:@"groupname"];
-                            articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                            articleModel.userName      = [dic valueForKey:@"username"];
-                            articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
-                            articleModel.plTime        = [dic valueForKey:@"pubtime"];
-                            articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
-                            articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
-                            articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
-                            articleModel.introString   = [dic valueForKey:@"text"];
-                            articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                            articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
-                            [_articleModelArray addObject:articleModel];
-                        }
-                        [_mainTableView reloadData];
-                        [self.hud hide:YES];
-                    } else {
-                        [self.hud hide:YES];
-                        
-                        [self alertController:@"暂无更多数据"];
+                        NSDictionary *dic = [DDQPublic nullDic:dic1];
+                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                        //精或热
+                        articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
+                        articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
+                        articleModel.articleTitle  = [dic valueForKey:@"title"];
+                        articleModel.groupName     = [dic valueForKey:@"groupname"];
+                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
+                        articleModel.userName      = [dic valueForKey:@"username"];
+                        articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
+                        articleModel.plTime        = [dic valueForKey:@"pubtime"];
+                        articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
+                        articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
+                        articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
+                        articleModel.introString   = [dic valueForKey:@"text"];
+                        articleModel.imgArray      = [dic valueForKey:@"imgs"];
+                        articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
+                        [_articleModelArray addObject:articleModel];
                     }
-                    //停止刷新
-                    [self.mainTableView.header endRefreshing];
-                    [self.mainTableView.footer endRefreshing];
-                    
+                     [_mainTableView reloadData];
+                    [self.hud hide:YES];
                 } else {
                     [self.hud hide:YES];
-                    [self.mainTableView.header endRefreshing];
-                    [self.mainTableView.footer endRefreshing];
-                    self.mainTableView.footer.state = MJRefreshStateNoMoreData;
-                    [self alertController:@"服务器繁忙,请稍后重试"];
-                }
 
-                
+                    [self alertController:@"暂无更多数据"];
+                }
+                //停止刷新
+                [self.mainTableView.header endRefreshing];
+                [self.mainTableView.footer endRefreshing];
+
             } else {
-            
                 [self.hud hide:YES];
                 [self.mainTableView.header endRefreshing];
                 [self.mainTableView.footer endRefreshing];
                 self.mainTableView.footer.state = MJRefreshStateNoMoreData;
-                [self alertController:kErrorDes];
+                [self alertController:@"服务器繁忙,请稍后重试"];
             }
+            
 
         });
     });

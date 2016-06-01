@@ -105,7 +105,7 @@
         } else {
             [hud hide:YES];
             UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
-                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
+                                                            message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"getVerificationCode"]]
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];

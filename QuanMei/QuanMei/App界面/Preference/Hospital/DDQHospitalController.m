@@ -108,15 +108,15 @@
         
         NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kHospital_DetailUrl];//发送下
         
+        NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            //解密
-            //12-21
-            NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-            NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
-            NSString *errorcode_string        = [get_jsonDic valueForKey:@"errorcode"];
-            if ([errorcode_string intValue] == 0 && get_jsonDic != nil) {
-              
+            
+            if ([errorcode_string intValue] == 0) {
+                //解密
+                //12-21
+                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+                NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
                 
                 self.hospitalModel = [[DDQHospitalModel alloc] init];
                 self.hospitalModel.alimg             = [get_jsonDic valueForKey:@"alimg"];

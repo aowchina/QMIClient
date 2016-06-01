@@ -146,58 +146,54 @@
         
         NSMutableDictionary *post_Dic = [[PostData alloc] postData:post_String AndUrl:kGroup_detail];
         
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+        //11-05
+        if ([[post_Dic objectForKey:@"errorcode"]intValue]==0) {
             
-           
-            if (post_Dic) {
-                //11-05
-                if ([[post_Dic objectForKey:@"errorcode"]intValue]==0) {
-                    
-                    NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
-                    
-                    self.groupHeaderArray = [NSMutableArray arrayWithCapacity:0];
-                    DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc]init];
-                    
-                    articleModel.amount = [get_jsonDic valueForKey:@"amount"];//人数
-                    
-                    articleModel.intro = [get_jsonDic valueForKey:@"intro"];//简介
-                    articleModel.isTemp = NO;
-                    [self.tagArray removeAllObjects];
-                    
-                    NSArray *temp_array = get_jsonDic[@"tag"];
-                    for (NSDictionary *dic in temp_array) {
-                        DDQTagModel *model = [[DDQTagModel alloc] init];
-                        model.iD = dic[@"id"];
-                        model.gid = dic[@"gid"];
-                        model.intime = dic[@"intime"];
-                        model.name = dic[@"name"];
-                        [self.tagArray addObject:model];
-                    }
-                    
-                    articleModel.isin =  [get_jsonDic valueForKey:@"isin"];
-                    
-                    [_groupHeaderArray addObject:articleModel];
-                    
-                    [self creatView];
-                    self.mainTableView.tableHeaderView = self.headerView;
-                    [self.hud hide:YES];
-                    
-                } else {
-                    
-                    [self.hud hide:YES];
-                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                    
-                }
+            NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
+            
+            self.groupHeaderArray = [NSMutableArray arrayWithCapacity:0];
+            DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc]init];
+            
+            articleModel.amount = [get_jsonDic valueForKey:@"amount"];//人数
+            
+            articleModel.intro = [get_jsonDic valueForKey:@"intro"];//简介
+            articleModel.isTemp = NO;
+            [self.tagArray removeAllObjects];
 
-            } else {
-            
-                [self.hud hide:YES];
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            NSArray *temp_array = get_jsonDic[@"tag"];
+            for (NSDictionary *dic in temp_array) {
+                DDQTagModel *model = [[DDQTagModel alloc] init];
+                model.iD = dic[@"id"];
+                model.gid = dic[@"gid"];
+                model.intime = dic[@"intime"];
+                model.name = dic[@"name"];
+                [self.tagArray addObject:model];
             }
             
-        });
-
+            articleModel.isin =  [get_jsonDic valueForKey:@"isin"];
+            
+            [_groupHeaderArray addObject:articleModel];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                
+                    [self creatView];
+                    self.mainTableView.tableHeaderView = self.headerView;
+                [self.hud hide:YES];
+                
+            });
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [self.hud hide:YES];
+                
+                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"服务器繁忙" message:@"提示" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                [alertView show];
+            });
+        }
+        //11-05
     });
 }
 
@@ -221,98 +217,88 @@ static int Page = 2;
         NSString *post_String = [postEncryption stringWithPost:post_baseString];
         
         NSMutableDictionary *post_Dic = [[PostData alloc] postData:post_String AndUrl:kWenzhangUrl];
-       
-        if (post_Dic) {
-            //11-05
-            if ([[post_Dic objectForKey:@"errorcode"]intValue] ==0) {
+        
+        //11-05
+        if ([[post_Dic objectForKey:@"errorcode"]intValue] ==0) {
+            
+            //解密
+            NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
                 
-                //解密
-                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
+                //10-30
+                //12-21
+                if (get_jsonDic != nil && get_jsonDic.count > 0) {
                     
                     //10-30
                     //12-21
-                    if (get_jsonDic != nil && get_jsonDic.count > 0) {
+                    for (NSDictionary *dic1 in get_jsonDic) {
+                        
+                        NSDictionary *dic = [DDQPublic nullDic:dic1];
+                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                        //精或热
+                        articleModel.isJing = [dic valueForKey:@"isjing"];//1是精,0不是
+                        articleModel.articleTitle = [dic valueForKey:@"title"];
+                        //                articleModel.groupName = [dic valueForKey:@"gname"];
+                        articleModel.articleType = [dic valueForKey:@"type"];
+                        //                articleModel.imgArray = [dic valueForKey:@"img"];
+                        articleModel.introString = [dic valueForKey:@"text"];
+                        //                articleModel.userHeaderImg = [dic valueForKey:@"pluserimg"];
+                        //                articleModel.userName = [dic valueForKey:@"plusername"];
+                        //12-14
+                        articleModel.replyNum = [dic valueForKey:@"pl"];
+                        articleModel.thumbNum = [dic valueForKey:@"zan"];
+                        //                articleModel.plTime = [dic valueForKey:@"pltime"];
                         
                         //10-30
-                        //12-21
-                        for (NSDictionary *dic1 in get_jsonDic) {
-                            
-                            NSDictionary *dic = [DDQPublic nullDic:dic1];
-                            DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                            //精或热
-                            articleModel.isJing = [dic valueForKey:@"isjing"];//1是精,0不是
-                            articleModel.articleTitle = [dic valueForKey:@"title"];
-                            //                articleModel.groupName = [dic valueForKey:@"gname"];
-                            articleModel.articleType = [dic valueForKey:@"type"];
-                            //                articleModel.imgArray = [dic valueForKey:@"img"];
-                            articleModel.introString = [dic valueForKey:@"text"];
-                            //                articleModel.userHeaderImg = [dic valueForKey:@"pluserimg"];
-                            //                articleModel.userName = [dic valueForKey:@"plusername"];
-                            //12-14
-                            articleModel.replyNum = [dic valueForKey:@"pl"];
-                            articleModel.thumbNum = [dic valueForKey:@"zan"];
-                            //                articleModel.plTime = [dic valueForKey:@"pltime"];
-                            
-                            //10-30
-                            articleModel.groupName = [dic valueForKey:@"groupname"];
-                            articleModel.imgArray = [dic valueForKey:@"imgs"];
-                            articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                            articleModel.userid = [dic valueForKey:@"userid"];
-                            articleModel.userName = [dic valueForKey:@"username"];
-                            articleModel.plTime = [dic valueForKey:@"pubtime"];
-                            
-                            articleModel.ctime = dic[@"ctime"];
-                            articleModel.articleId = dic[@"id"];
-                            [_articleModelArray addObject:articleModel];
-                            
-                            //12-04
-                            if ([articleModel.articleType isEqualToString:@"1"]) {
-                                rijicount++;
-                            }
-                            else
-                                if ([articleModel.articleType isEqualToString:@"2"]) {
-                                    tiezicount++;
-                                }
+                        articleModel.groupName = [dic valueForKey:@"groupname"];
+                        articleModel.imgArray = [dic valueForKey:@"imgs"];
+                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
+                        articleModel.userid = [dic valueForKey:@"userid"];
+                        articleModel.userName = [dic valueForKey:@"username"];
+                        articleModel.plTime = [dic valueForKey:@"pubtime"];
+                        
+                        articleModel.ctime = dic[@"ctime"];
+                        articleModel.articleId = dic[@"id"];
+                        [_articleModelArray addObject:articleModel];
+                        
+                        //12-04
+                        if ([articleModel.articleType isEqualToString:@"1"]) {
+                            rijicount++;
                         }
-                        [_mainTableView reloadData];
-                        
-                        [self.hud hide:YES];
-                        
-                    } else {
-                        [self.hud hide:YES];
-                        
-                        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"暂无更多数据" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                        [alertView show];
-                        [_mainTableView reloadData];
-                        
+                        else
+                            if ([articleModel.articleType isEqualToString:@"2"]) {
+                                tiezicount++;
+                            }
                     }
-                    
-                    
-                });
-            }
-            else
-            {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_mainTableView reloadData];
                     
                     [self.hud hide:YES];
                     
-                    UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                } else {
+                    [self.hud hide:YES];
+                    
+                    UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"暂无更多数据" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
                     [alertView show];
-                });
-            }
-            //11-05
-
-        } else {
-        
-            dispatch_async(dispatch_get_main_queue(), ^{
+                    [_mainTableView reloadData];
+                    
+                }
                 
-                [self.hud hide:YES];
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 
             });
         }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                [self.hud hide:YES];
+                
+                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                [alertView show];
+            });
+        }
+        //11-05
+        
     });
 
 }

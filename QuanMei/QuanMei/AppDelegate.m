@@ -52,6 +52,7 @@
               withSecret:kShardSecret];
     
     [WXApi registerApp:kWeChatKey];
+
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_7_1
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
@@ -101,7 +102,7 @@
     self.session_manager = [AFHTTPSessionManager manager];
     self.session_manager.responseSerializer = [AFJSONResponseSerializer serializer];
     self.session_manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html",@"text/plain", nil];
-    
+
     return YES;
 }
 
@@ -318,7 +319,7 @@
     [param_dic setValue:kWeChatSecret forKey:@"secret"];
     [param_dic setValue:code forKey:@"code"];
     [param_dic setValue:@"authorization_code" forKey:@"grant_type"];
-
+    
     self.alert_hud = [[MBProgressHUD alloc] initWithWindow:self.window];
     [self.window addSubview:self.alert_hud];
     self.alert_hud.detailsLabelText = @"请稍候...";
@@ -338,7 +339,7 @@
             }
             
         } else {
-        
+            
             [self.alert_hud hide:YES];
             [MBProgressHUD myCustomHudWithView:self.window andCustomText:@"微信登录失败" andShowDim:NO andSetDelay:YES andCustomView:nil];
             
@@ -406,11 +407,11 @@
             } else {
                 
                 [MBProgressHUD myCustomHudWithView:self.window andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-
+                
             }
-
+            
         } else {
-        
+            
             [self.alert_hud hide:YES];
             [MBProgressHUD myCustomHudWithView:self.window andCustomText:@"微信登录失败" andShowDim:NO andSetDelay:YES andCustomView:nil];
             
@@ -422,10 +423,10 @@
         [MBProgressHUD myCustomHudWithView:self.window andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         
     }];
-//            //AccessToken失效
-//            [self getAccessTokenWithRefreshToken:[[NSUserDefaults standardUserDefaults]objectForKey:@"WeiXinRefreshToken"]];
-
-
+    //            //AccessToken失效
+    //            [self getAccessTokenWithRefreshToken:[[NSUserDefaults standardUserDefaults]objectForKey:@"WeiXinRefreshToken"]];
+    
+    
 }
 
 - (void)getAccessTokenWithRefreshToken:(NSString *)refreshToken {

@@ -279,11 +279,12 @@
         NSMutableDictionary *post_dic = [[PostData alloc] postData:post_string AndUrl:kWenzhangUrl];
         
         //11-06
+        NSString *errorcode_string = [post_dic valueForKey:@"errorcode"];
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-            NSString *errorcode_string = [get_jsonDic valueForKey:@"errorcode"];
-            if ([errorcode_string intValue] == 0 && get_jsonDic != nil) {
+            
+            if ([errorcode_string intValue] == 0) {
                 
+                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
                 self.jsonDic = get_jsonDic;
                 
                 if (get_jsonDic!=nil && get_jsonDic.count != 0) {
