@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DDQParentMessageViewController">
+            <connections>
+                <outlet property="pm_replyButton" destination="EDu-Wp-0JU" id="cYc-kq-Y7D"/>
+                <outlet property="pm_zanButton" destination="XUy-op-l9m" id="Bn4-FH-eQN"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EDu-Wp-0JU">
+                    <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                    <animations/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="EDu-Wp-0JU" secondAttribute="height" multiplier="4:1" id="yQI-FW-aoe"/>
+                    </constraints>
+                    <state key="normal" title="回复"/>
+                    <variation key="default">
+                        <mask key="constraints">
+                            <exclude reference="yQI-FW-aoe"/>
+                        </mask>
+                    </variation>
+                    <variation key="heightClass=regular-widthClass=compact">
+                        <mask key="constraints">
+                            <include reference="yQI-FW-aoe"/>
+                        </mask>
+                    </variation>
+                    <connections>
+                        <action selector="replyAndZanButtonMethod:" destination="-1" eventType="touchUpInside" id="Cnc-tu-p7N"/>
+                    </connections>
+                </button>
+                <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="XUy-op-l9m">
+                    <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                    <animations/>
+                    <constraints>
+                        <constraint firstAttribute="width" secondItem="XUy-op-l9m" secondAttribute="height" multiplier="4:1" id="R26-qJ-0Oz"/>
+                    </constraints>
+                    <state key="normal" title="有用"/>
+                    <variation key="default">
+                        <mask key="constraints">
+                            <exclude reference="R26-qJ-0Oz"/>
+                        </mask>
+                    </variation>
+                    <variation key="heightClass=regular-widthClass=compact">
+                        <mask key="constraints">
+                            <include reference="R26-qJ-0Oz"/>
+                        </mask>
+                    </variation>
+                    <connections>
+                        <action selector="replyAndZanButtonMethod:" destination="-1" eventType="touchUpInside" id="BiN-2T-dy0"/>
+                    </connections>
+                </button>
+            </subviews>
+            <animations/>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="XUy-op-l9m" secondAttribute="trailing" id="IoQ-27-ebq"/>
+                <constraint firstItem="EDu-Wp-0JU" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="QD0-xj-IVV"/>
+                <constraint firstItem="EDu-Wp-0JU" firstAttribute="width" secondItem="i5M-Pr-FkT" secondAttribute="width" multiplier="1:2" id="gHJ-0s-YBc"/>
+                <constraint firstItem="XUy-op-l9m" firstAttribute="leading" secondItem="EDu-Wp-0JU" secondAttribute="trailing" id="k4V-aq-EC3"/>
+                <constraint firstItem="EDu-Wp-0JU" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="rQp-KD-XbD"/>
+                <constraint firstItem="XUy-op-l9m" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="uwU-XI-MbA"/>
+            </constraints>
+            <variation key="default">
+                <mask key="subviews">
+                    <exclude reference="EDu-Wp-0JU"/>
+                    <exclude reference="XUy-op-l9m"/>
+                </mask>
+                <mask key="constraints">
+                    <exclude reference="QD0-xj-IVV"/>
+                    <exclude reference="gHJ-0s-YBc"/>
+                    <exclude reference="rQp-KD-XbD"/>
+                    <exclude reference="IoQ-27-ebq"/>
+                    <exclude reference="k4V-aq-EC3"/>
+                    <exclude reference="uwU-XI-MbA"/>
+                </mask>
+            </variation>
+            <variation key="heightClass=regular-widthClass=compact">
+                <mask key="subviews">
+                    <include reference="EDu-Wp-0JU"/>
+                    <include reference="XUy-op-l9m"/>
+                </mask>
+                <mask key="constraints">
+                    <include reference="QD0-xj-IVV"/>
+                    <include reference="gHJ-0s-YBc"/>
+                    <include reference="rQp-KD-XbD"/>
+                    <include reference="IoQ-27-ebq"/>
+                    <include reference="k4V-aq-EC3"/>
+                    <include reference="uwU-XI-MbA"/>
+                </mask>
+            </variation>
+            <point key="canvasLocation" x="441" y="168"/>
+        </view>
+    </objects>
+</document>
