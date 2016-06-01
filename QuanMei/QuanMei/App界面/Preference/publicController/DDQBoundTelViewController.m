@@ -61,7 +61,7 @@
                         [UIView setAnimationDuration:1];
                         [self.bt_sendMessageButton setTitle:[NSString stringWithFormat:@"(%@秒)后获取",strTime] forState:UIControlStateNormal];
                         [UIView commitAnimations];
-                        [self.bt_sendMessageButton setBackgroundColor:[UIColor grayColor]];
+                        [self.bt_sendMessageButton setBackgroundColor:[UIColor lightGrayColor]];
                         self.bt_sendMessageButton.userInteractionEnabled = NO;
                         
                     });
@@ -70,10 +70,10 @@
             });
             dispatch_resume(_timer);
         } else {
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"codesenderrtitle", nil)
-                                                            message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"getVerificationCode"]]
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
+                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
                                                            delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"sure", nil)
+                                                  cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];
             [alert show];
         }
@@ -104,69 +104,78 @@
 
                 dispatch_async(dispatch_get_main_queue(), ^{
 
-                    switch ([[post_dic objectForKey:@"errorcode"]intValue]) {
-                        case 0:
-                        {
-                            [hud hide:YES];
-                            NSString *spellString             = [SpellParameters getBasePostString];
-                            NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], _tid];
-                            DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                            NSString *post_string             = [postEncryption stringWithPost:post_baseString];
-                            NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kOrder_addUrl];
-
-
-                            if (self.type == 1) {
-                                DDQOrderDetailViewController * detailVC = [[DDQOrderDetailViewController alloc]init];
+                    if (post_dic) {
+                        
+                        switch ([[post_dic objectForKey:@"errorcode"]intValue]) {
+                            case 0:
+                            {
+                                [hud hide:YES];
+                                NSString *spellString             = [SpellParameters getBasePostString];
+                                NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], _tid];
+                                DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+                                NSString *post_string             = [postEncryption stringWithPost:post_baseString];
+                                NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kOrder_addUrl];
                                 
-                                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
                                 
-                                detailVC.dj = _dj;
+                                if (self.type == 1) {
+                                    DDQOrderDetailViewController * detailVC = [[DDQOrderDetailViewController alloc]init];
+                                    
+                                    NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+                                    
+                                    detailVC.dj = _dj;
+                                    
+                                    detailVC.name = _name;
+                                    
+                                    detailVC.tel = get_jsonDic[@"tel"];
+                                    
+                                    detailVC.orderid = get_jsonDic[@"orderid"];
+                                    
+                                    self.navigationController.hidesBottomBarWhenPushed = YES;
+                                    
+                                    [self.navigationController pushViewController:detailVC animated:YES];
+                                } else {
+                                    
+                                    [self.navigationController popViewControllerAnimated:YES];
+                                }
                                 
-                                detailVC.name = _name;
-                                
-                                detailVC.tel = get_jsonDic[@"tel"];
-                                
-                                detailVC.orderid = get_jsonDic[@"orderid"];
-                                
-                                self.navigationController.hidesBottomBarWhenPushed = YES;
-                                
-                                [self.navigationController pushViewController:detailVC animated:YES];
-                            } else {
-                            
-                                [self.navigationController popViewControllerAnimated:YES];
+                                break;
                             }
-
-                            break;
+                            case 14:
+                            {
+                                [hud hide:YES];
+                                
+                                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"该手机号已被占用" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                                [alertView show];
+                                break;
+                            }
+                            default:
+                            {
+                                [hud hide:YES];
+                                
+                                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                                [alertView show];
+                                
+                                break;
+                            }
                         }
-                        case 14:
-                        {
-                            [hud hide:YES];
+                        
 
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"该手机号已被占用" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                            [alertView show];
-                            break;
-                        }
-                        default:
-                        {
-                            [hud hide:YES];
-
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            break;
-                        }
+                    } else {
+                    
+                        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:kErrorDes delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                        [alertView show];
+                        
                     }
-
                 });
                 
             });
         } else {
             
             [hud hide:YES];
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"codesenderrtitle", nil)
-                                                            message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"getVerificationCode"]]
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
+                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
                                                            delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"sure", nil)
+                                                  cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];
             [alert show];
         }

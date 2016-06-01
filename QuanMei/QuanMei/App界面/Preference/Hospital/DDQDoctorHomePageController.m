@@ -79,30 +79,39 @@
         NSString *errorcode_string = [post_dic valueForKey:@"errorcode"];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if ([errorcode_string intValue] == 0) {
-                //解密
-                //12-21
-                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+            
+            if (post_dic) {
                 
-                NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
-                
-                for (NSDictionary *dataDic in [get_jsonDic valueForKey:@"doctor"]) {
-                    DDQDoctorHomePageModel *pageModel = [[DDQDoctorHomePageModel alloc] init];
-                    pageModel.direction  = [dataDic valueForKey:@"direction"];
-                    pageModel.Id         = [NSString stringWithFormat:@"%@",[dataDic valueForKey:@"id"]];
-                    pageModel.img        = [dataDic valueForKey:@"img"];
-                    pageModel.intro      = [dataDic valueForKey:@"intro"];
-                    pageModel.name       = [dataDic valueForKey:@"name"];
-                    pageModel.pos        = [dataDic valueForKey:@"pos"];
-                    [self.homepage_sourceArray addObject:pageModel];
+                if ([errorcode_string intValue] == 0) {
+                    //解密
+                    //12-21
+                    NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+                    
+                    NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
+                    
+                    for (NSDictionary *dataDic in [get_jsonDic valueForKey:@"doctor"]) {
+                        DDQDoctorHomePageModel *pageModel = [[DDQDoctorHomePageModel alloc] init];
+                        pageModel.direction  = [dataDic valueForKey:@"direction"];
+                        pageModel.Id         = [NSString stringWithFormat:@"%@",[dataDic valueForKey:@"id"]];
+                        pageModel.img        = [dataDic valueForKey:@"img"];
+                        pageModel.intro      = [dataDic valueForKey:@"intro"];
+                        pageModel.name       = [dataDic valueForKey:@"name"];
+                        pageModel.pos        = [dataDic valueForKey:@"pos"];
+                        [self.homepage_sourceArray addObject:pageModel];
+                    }
+                    [self.mainTableView reloadData];
+                    
+                } else {
+                    [self alertController:@"系统繁忙"];
                 }
-                [self.mainTableView reloadData];
-               
-            } else {
-                [self alertController:@"系统繁忙"];
-            }
-            [self.mainTableView.header endRefreshing];
+                [self.mainTableView.header endRefreshing];
 
+            } else {
+            
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }
+            
          });
     });
 }

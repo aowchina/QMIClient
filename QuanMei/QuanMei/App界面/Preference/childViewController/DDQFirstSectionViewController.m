@@ -53,7 +53,19 @@
         [self.view addSubview:self.currentView];
         [self initCollectionView];
     }
-    [self asyProductList];
+    
+    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        
+        if (errorDic) {
+            [MBProgressHUD myCustomHudWithView:self.view
+                                 andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        } else {
+        
+            [self asyProductList];
+
+        }
+        
+    }];
 }
 
 -(void)initCollectionView {

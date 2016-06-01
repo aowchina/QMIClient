@@ -166,7 +166,7 @@
                 [self.mainTableView reloadData];
                 [_hud hide:YES];
 
-                [self alertController:@"服务器繁忙"];
+                [self alertController:kErrorDes];
             });
             
         }

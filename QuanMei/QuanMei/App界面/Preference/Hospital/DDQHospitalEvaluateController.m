@@ -77,13 +77,13 @@
         
         NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kHospital_pjUrl];//发送下
         
-        NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            
-            if ([errorcode_string intValue] == 0) {
+            NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+            NSString *errorcode_string        = [get_Dic valueForKey:@"errorcode"];
+
+            if ([errorcode_string intValue] == 0 && get_Dic != nil) {
                 //12-21
-                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
                 
                 for (NSDictionary *dataDic in get_Dic) {
                     
@@ -108,7 +108,7 @@
             } else {
                 
 //                [self alertController:@"系统繁忙"];
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 
             }
             

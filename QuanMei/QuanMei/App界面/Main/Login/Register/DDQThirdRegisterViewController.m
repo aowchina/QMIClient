@@ -149,7 +149,7 @@
                         [UIView setAnimationDuration:1];
                         [_sendMessageButton setTitle:[NSString stringWithFormat:@"(%@秒)后获取",strTime] forState:UIControlStateNormal];
                         [UIView commitAnimations];
-                        [_sendMessageButton setBackgroundColor:[UIColor grayColor]];
+                        [_sendMessageButton setBackgroundColor:[UIColor lightGrayColor]];
                         _sendMessageButton.userInteractionEnabled = NO;
                         
                     });
@@ -158,10 +158,10 @@
             });
             dispatch_resume(_timer);
         } else {
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"codesenderrtitle", nil)
-                                                            message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"getVerificationCode"]]
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
+                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
                                                            delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"sure", nil)
+                                                  cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];
             [alert show];
         }
@@ -255,10 +255,10 @@
         } else {
             
             [hud hide:YES];
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"codesenderrtitle", nil)
-                                                            message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"getVerificationCode"]]
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
+                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
                                                            delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"sure", nil)
+                                                  cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];
             [alert show];
         }

@@ -165,9 +165,14 @@ static NSString *identifier = @"cell";
         
         NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryptionString AndUrl:kDel_wenzhangUrl];
         
-        if ([post_dic[@"errorcode"] intValue] == 0) {
+        if ([post_dic[@"errorcode"] intValue] == 0 && post_dic != nil) {
             [self.articleModelArray removeAllObjects];
             [self requestDataWith:1 url:kMyDiaryUrl];
+        } else {
+         
+            [MBProgressHUD myCustomHudWithView:self.view
+                                 andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
         }
         
     }];
@@ -218,11 +223,11 @@ static NSString *identifier = @"cell";
         //传
         NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:url];
         dispatch_async(dispatch_get_main_queue(), ^{
+            NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
             //判断errorcode
-            NSString *errorcode = post_dic[@"errorcode"];
+            NSString *errorcode = get_jsonDic[@"errorcode"];
             int num = [errorcode intValue];
-            if (num == 0) {
-                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+            if (num == 0 && get_jsonDic != nil) {
                 
                 for (NSDictionary *dic in get_jsonDic) {
                     DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
@@ -289,7 +294,7 @@ static NSString *identifier = @"cell";
                 }
                 
             }else {
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             }
             
             

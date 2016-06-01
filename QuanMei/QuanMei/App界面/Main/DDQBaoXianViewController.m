@@ -115,6 +115,7 @@
             
         } else {
             
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
           
         }
     });

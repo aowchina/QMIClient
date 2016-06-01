@@ -28,7 +28,8 @@
 @interface AppDelegate ()<WXApiDelegate>
 
 @property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
-
+@property ( strong, nonatomic) AFHTTPSessionManager *session_manager;
+@property ( strong, nonatomic) MBProgressHUD *alert_hud;
 @end
 
 @implementation AppDelegate
@@ -51,7 +52,6 @@
               withSecret:kShardSecret];
     
     [WXApi registerApp:kWeChatKey];
-
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_7_1
     if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
@@ -97,6 +97,10 @@
 
     }];
     [[Reachability reachabilityForInternetConnection] startNotifier];
+    
+    self.session_manager = [AFHTTPSessionManager manager];
+    self.session_manager.responseSerializer = [AFJSONResponseSerializer serializer];
+    self.session_manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html",@"text/plain", nil];
     
     return YES;
 }
@@ -309,93 +313,118 @@
 
 - (void)getAccessTokenWithCode:(NSString *)code {
     
-    NSString *urlString =[NSString stringWithFormat:@"https://api.weixin.qq.com/sns/oauth2/access_token?appid=%@&secret=%@&code=%@&grant_type=authorization_code",kWeChatKey,kWeChatSecret,code];
-    NSURL *url = [NSURL URLWithString:urlString];
+    NSMutableDictionary *param_dic = [NSMutableDictionary dictionary];
+    [param_dic setValue:kWeChatKey forKey:@"appid"];
+    [param_dic setValue:kWeChatSecret forKey:@"secret"];
+    [param_dic setValue:code forKey:@"code"];
+    [param_dic setValue:@"authorization_code" forKey:@"grant_type"];
+
+    self.alert_hud = [[MBProgressHUD alloc] initWithWindow:self.window];
+    [self.window addSubview:self.alert_hud];
+    self.alert_hud.detailsLabelText = @"请稍候...";
+    [self.alert_hud show:YES];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.session_manager GET:@"https://api.weixin.qq.com/sns/oauth2/access_token?" parameters:param_dic success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         
-        NSString *dataStr = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
-        NSData *data = [dataStr dataUsingEncoding:NSUTF8StringEncoding];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if (responseObject) {
             
-            if (data){
-                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            if ([responseObject objectForKey:@"errcode"]){
                 
-                if ([dict objectForKey:@"errcode"]){
-                    
-                } else {
-                    [self getUserInfoWithAccessToken:[dict objectForKey:@"access_token"] andOpenId:[dict objectForKey:@"openid"]];
-                }
+                [self.alert_hud hide:YES];
+                
+            } else {
+                
+                [self getUserInfoWithAccessToken:[responseObject objectForKey:@"access_token"] andOpenId:[responseObject objectForKey:@"openid"]];
             }
-        });
-    });
+            
+        } else {
+        
+            [self.alert_hud hide:YES];
+            [MBProgressHUD myCustomHudWithView:self.window andCustomText:@"微信登录失败" andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }
+        
+    } failure:^(NSURLSessionDataTask * _Nonnull task, NSError * _Nonnull error) {
+        
+        [self.alert_hud hide:YES];
+        [MBProgressHUD myCustomHudWithView:self.window andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 
 - (void)getUserInfoWithAccessToken:(NSString *)accessToken andOpenId:(NSString *)openId {
-    NSString *urlString =[NSString stringWithFormat:@"https://api.weixin.qq.com/sns/userinfo?access_token=%@&openid=%@",accessToken,openId];
-    NSURL *url = [NSURL URLWithString:urlString];
     
-    //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSMutableDictionary *param_dic = [NSMutableDictionary dictionary];
+    [param_dic setValue:accessToken forKey:@"access_token"];
+    [param_dic setValue:openId forKey:@"openid"];
     
-    NSString *dataStr = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
-    NSData *data = [dataStr dataUsingEncoding:NSUTF8StringEncoding];
-    
-    //        dispatch_async(dispatch_get_main_queue(), ^{
-    
-    if (data) {
-        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-        //获取需要的数据
-        DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-        NSString *userImage = [dict valueForKey:@"headimgurl"];
-        NSString *change_userimage = [userImage substringToIndex:[userImage length]-1];
-        NSString *post_userimage = [NSString stringWithFormat:@"%@%d",change_userimage,64];
-        NSString *nickName = [dict valueForKey:@"nickname"];
+    [self.session_manager GET:@"https://api.weixin.qq.com/sns/userinfo?" parameters:param_dic success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         
-        infoModel.userimg = post_userimage;
-        infoModel.userName = nickName;
-        infoModel.isLogin = YES;
-        
-        NSString *string = [SpellParameters getBasePostString];//八段字符串
-        //转换过后的昵称
-        NSData *data = [nickName dataUsingEncoding:NSUTF8StringEncoding];
-        Byte *byteArray = (Byte *)[data bytes];
-        NSMutableString *str = [[NSMutableString alloc] init];
-        for(int i=0;i<[data length];i++) {
-            [str appendFormat:@"%d#",byteArray[i]];
-        }
-        
-        NSString *dsfType = @"1";
-        NSString *baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",string,dsfType,openId,str,post_userimage];
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *postString = [postEncryption stringWithPost:baseString];
-        
-        //传给服务器
-        NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kDSFRegisterUrl];
-        if ([postDic[@"errorcode"] intValue] == 0) {
-            //将这个字典解密
-            NSString *getString = [postEncryption stringWithDic:postDic];
+        if (responseObject) {
+            //获取需要的数据
+            DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+            NSString *userImage = [responseObject valueForKey:@"headimgurl"];
+            NSString *change_userimage = [userImage substringToIndex:[userImage length]-1];
+            NSString *post_userimage = [NSString stringWithFormat:@"%@%d",change_userimage,64];
+            NSString *nickName = [responseObject valueForKey:@"nickname"];
             
-            //将字符串装化为字典
-            NSMutableDictionary *jsonDic = [[[SBJsonParser alloc] init] objectWithString:getString];
-            infoModel.userid    = [jsonDic valueForKey:@"userid"];
-            infoModel.isLogin   = 1;
-            [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
-            self.baseTabBarC.selectedIndex = 0;
-            self.window.rootViewController = self.baseTabBarC;
+            infoModel.userimg = post_userimage;
+            infoModel.userName = nickName;
+            infoModel.isLogin = YES;
+            
+            NSString *string = [SpellParameters getBasePostString];//八段字符串
+            //转换过后的昵称
+            NSData *data = [nickName dataUsingEncoding:NSUTF8StringEncoding];
+            Byte *byteArray = (Byte *)[data bytes];
+            NSMutableString *str = [[NSMutableString alloc] init];
+            for(int i=0;i<[data length];i++) {
+                [str appendFormat:@"%d#",byteArray[i]];
+            }
+            
+            NSString *dsfType = @"1";
+            NSString *baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",string,dsfType,openId,str,post_userimage];
+            
+            DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+            NSString *postString = [postEncryption stringWithPost:baseString];
+            
+            //传给服务器
+            NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kDSFRegisterUrl];
+            [self.alert_hud hide:YES];
+            if ([postDic[@"errorcode"] intValue] == 0) {
+                //将这个字典解密
+                NSString *getString = [postEncryption stringWithDic:postDic];
+                
+                //将字符串装化为字典
+                NSMutableDictionary *jsonDic = [[[SBJsonParser alloc] init] objectWithString:getString];
+                infoModel.userid    = [jsonDic valueForKey:@"userid"];
+                infoModel.isLogin   = 1;
+                [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
+                self.baseTabBarC.selectedIndex = 0;
+                self.window.rootViewController = self.baseTabBarC;
+                
+            } else {
+                
+                [MBProgressHUD myCustomHudWithView:self.window andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+            }
 
         } else {
+        
+            [self.alert_hud hide:YES];
+            [MBProgressHUD myCustomHudWithView:self.window andCustomText:@"微信登录失败" andShowDim:NO andSetDelay:YES andCustomView:nil];
             
         }
         
-        if ([dict objectForKey:@"errcode"]){
-            //AccessToken失效
-            [self getAccessTokenWithRefreshToken:[[NSUserDefaults standardUserDefaults]objectForKey:@"WeiXinRefreshToken"]];
-        }else{
-            
-        }
-    }
+    } failure:^(NSURLSessionDataTask * _Nonnull task, NSError * _Nonnull error) {
+        
+        [self.alert_hud hide:YES];
+        [MBProgressHUD myCustomHudWithView:self.window andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+//            //AccessToken失效
+//            [self getAccessTokenWithRefreshToken:[[NSUserDefaults standardUserDefaults]objectForKey:@"WeiXinRefreshToken"]];
+
 
 }
 

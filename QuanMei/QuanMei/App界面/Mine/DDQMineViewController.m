@@ -72,18 +72,17 @@
     self.navigationController.navigationBar.translucent = NO;
     [self setNavigationBar];
 
-    [self.hud show:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self requestDataOne];
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+//    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+//        
+//        if (errorDic == nil) {
+//            
+//            [self requestDataOne];
+//            
+//        } else {
+//            
+//            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+//        }
+//    }];
 }
 
 -(void)viewDidDisappear:(BOOL)animated {
@@ -196,18 +195,7 @@
 }
 
 #pragma mark - initTabelView
--(void)initTableView {
-    
-    self.mainTabelView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) style:UITableViewStyleGrouped];
-    [self.mainTabelView setDelegate:self];
-    [self.mainTabelView setDataSource:self];
-    self.mainTabelView.backgroundColor = [UIColor backgroundColor];
-    [self.view addSubview:self.mainTabelView];
-    
-    self.mainTabelView.separatorStyle = UITableViewCellSeparatorStyleNone;
-//    self.mainTabelView.tableHeaderView = [self setHeaderView];
 
-}
 
 -(void)popMainViewController {
     
@@ -232,7 +220,7 @@
 }
 
 - (void)requestData {
-    
+    [self.hud show:YES];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         //八段
@@ -252,28 +240,36 @@
             //判断errorcode
             [self.hud hide:YES];
 
-            NSString *errorcode = post_dic[@"errorcode"];
-            int num = [errorcode intValue];
-            if (num == 0) {
+            if (post_dic) {
                 
-                //首先移除掉保存的userid
-                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-                
-                //然后改变model类的登陆属性
-                DDQUserInfoModel *userInfo = [DDQUserInfoModel singleModelByValue];
-                userInfo.isLogin = NO;
-                
-                //最后退回到首页
-                DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
-                [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:loginVC];
-                
-            } else if (num == 13) {
-                
-                [self alertController:@"用户未登录"];
-                
+                NSString *errorcode = post_dic[@"errorcode"];
+                int num = [errorcode intValue];
+                if (num == 0) {
+                    
+                    //首先移除掉保存的userid
+                    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
+                    
+                    //然后改变model类的登陆属性
+                    DDQUserInfoModel *userInfo = [DDQUserInfoModel singleModelByValue];
+                    userInfo.isLogin = NO;
+                    
+                    //最后退回到首页
+                    DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
+                    [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:loginVC];
+                    
+                } else if (num == 13) {
+                    
+                    [self alertController:@"用户未登录"];
+                    
+                } else {
+                    
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                }
+
             } else {
-                
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
             }
             
             
@@ -832,6 +828,8 @@ static NSString *uuidKey = @"ModelCenter uuid key";
 
 - (void)requestDataOne {
     
+    [self.hud show:YES];
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         //八段
@@ -876,7 +874,7 @@ static NSString *uuidKey = @"ModelCenter uuid key";
                 [alertView show];
             } else {
                 
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             }
             
             
