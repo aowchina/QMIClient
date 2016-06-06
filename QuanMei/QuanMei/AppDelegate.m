@@ -106,6 +106,12 @@
     return YES;
 }
 
+- (void)applicationDidBecomeActive:(UIApplication *)application {
+    
+    [application setApplicationIconBadgeNumber:0];
+    
+}
+
 #pragma mark - 处理推送的Delegate
 //记录点赞的人数
 - (void)networkDidReceiveMessage:(NSNotification *)notification {
