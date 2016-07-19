@@ -10,12 +10,12 @@
 
 @implementation SLActivityModel
 
-- (void)setValue:(id)value forUndefinedKey:(NSString *)key
-{
-    if ([key isEqualToString:@"id"]) {
-        _IdString = value;
-    }
-}
+//- (void)setValue:(id)value forUndefinedKey:(NSString *)key
+//{
+//    if ([key isEqualToString:@"id"]) {
+//        _IdString = value;
+//    }
+//}
 
 
 @end

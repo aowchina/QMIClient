@@ -22,6 +22,8 @@
 
 #import "DDQLoginViewController.h"
 
+#import "ProjectNetWork.h"
+
 @interface DDQPostingViewController ()<UITextFieldDelegate,UITextViewDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
 
 @property (strong,nonatomic) UISegmentedControl *segmentedControl;
@@ -71,6 +73,8 @@
 @property (nonatomic ,strong)NSMutableDictionary *tagDic;//选中的标签
 //11-06
 @property (nonatomic ,assign)BOOL ispopWrite;
+/** 网络请求 */
+@property (nonatomic, strong) ProjectNetWork *netWork;
 @end
 
 @implementation DDQPostingViewController
@@ -78,6 +82,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setNavigationBar];
+    
+    self.hud = [[MBProgressHUD alloc]initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.labelText = @"上传中...";
+    
+    self.netWork = [ProjectNetWork sharedWork];
     
 }
 
@@ -270,9 +280,9 @@
         _typeButton  = [UIButton buttonWithType:(UIButtonTypeCustom)];
         
         _typeButton.frame = CGRectMake(tubiaoView.frame.size.height+tubiaoView.frame.size.height*0.1 +5 ,tubiaoView.frame.size.height*0.1, photoButton1.frame.size.height, photoButton1.frame.size.height);
-
+        
         [tubiaoView addSubview:_typeButton];
-
+        
         [_typeButton setBackgroundImage:[UIImage imageNamed:@"btn_insert_tag_nor"] forState:(UIControlStateNormal)];
         [_typeButton.imageView.image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
         [_typeButton addTarget:self action:@selector(typeButtonPostingClicked:) forControlEvents:(UIControlEventTouchUpInside)];
@@ -329,7 +339,7 @@
     if (btn.isSelected == NO) {
         [btn setBackgroundImage:[UIImage imageNamed:@"btn_insert_tag_sel"] forState:UIControlStateNormal];
         _tagView = [[UIView alloc]initWithFrame:CGRectMake(0,(self.view.frame.size.height/2-64+30)+40 +40 , self.view.frame.size.width, self.view.frame.size.height - (self.view.frame.size.height/2-64+30)+40)];
-                
+        
         [self.view  addSubview:_tagView];
         
         
@@ -352,7 +362,7 @@
         [btn setSelected:YES];
     } else {
         [btn setBackgroundImage:[UIImage imageNamed:@"btn_insert_tag_nor"] forState:UIControlStateNormal];
-
+        
         [_tagView removeFromSuperview];
         [btn setSelected:NO];
     }
@@ -495,11 +505,11 @@
     if (collectionView.tag == 103) {
         
         return UIEdgeInsetsMake(1, 10, 1, 10);
-
+        
     } else {
         
         return UIEdgeInsetsMake(0, 0, 0, 0);
-
+        
     }
 }
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
@@ -512,9 +522,9 @@
             return CGSizeMake(kScreenWidth*0.25-20, 30);
             
         } else {
-        
+            
             return CGSizeMake(kScreenWidth*0.25-10, 30);
-
+            
         }
         
     }
@@ -524,12 +534,12 @@
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
-
+    
     return 0;
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
-
+    
     return 0;
 }
 
@@ -544,229 +554,124 @@
 //11-05
 //12-02
 #pragma  mark 发布
-- (void)postingVCReplay
-{
-    //12-21活动指示器
-    self.hud = [[MBProgressHUD alloc]initWithView:self.view];
-    [self.view addSubview:self.hud];
-    [self.hud show:YES];
-    self.hud.labelText = @"上传中...";
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+- (void)postingVCReplay {
+    
+    NSString *shangchuanString = [[NSString alloc]init];
+    
+    NSMutableString *linshiString = [[NSMutableString alloc]init];
+    
+    DDQHeaderSingleModel *groupHeader_single = [DDQHeaderSingleModel singleModelByValue];
+
+    if (_tagDic.count > 0) {//判断他有没有选标签
         
-        DDQHeaderSingleModel *groupHeader_single = [DDQHeaderSingleModel singleModelByValue];
-        
-        NSString *shangchuanString = [[NSString alloc]init];
-        
-        NSMutableString *linshiString = [[NSMutableString alloc]init];
-        
-        //判断标签字典(不为空时)
-        if (_tagDic.count!= 0) {
-            for (NSString *key in _tagDic) {
-                [linshiString appendString:[NSString stringWithFormat:@"%@,",[_tagDic objectForKey:key]]];
-                
-            }
-            shangchuanString = [linshiString substringToIndex:linshiString.length-1];
+        for (NSString *key in _tagDic) {
             
-            if ([_titleString length] ==0) {
-                [self.hud hide:YES];
+            [linshiString appendString:[NSString stringWithFormat:@"%@,",[_tagDic objectForKey:key]]];
+            
+        }
+        shangchuanString = [linshiString substringToIndex:linshiString.length-1];
+        
+        if ([_titleString length] ==0) {//判断他是否写过标题
+            
+            [self.hud hide:YES];
+            
+            UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请填写完整标题"preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+            [userNameAlert addAction:actionOne];
+            [self presentViewController:userNameAlert animated:YES completion:nil];
+            
+        } else if ([_contetSTring length] == 0){//判断他是否写过内容
+    
+            UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请填写完整内容"preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+            [userNameAlert addAction:actionOne];
+            [self presentViewController:userNameAlert animated:YES completion:nil];
                 
-                UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请填写完整标题"preferredStyle:UIAlertControllerStyleAlert];
-                UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-                [userNameAlert addAction:actionOne];
-                [self presentViewController:userNameAlert animated:YES completion:nil];
+        } else if ([DDQPublic isBlankString:shangchuanString]) {//选择的标签内容不为nill，null或空
+            
+            UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请选择标签"preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+            [userNameAlert addAction:actionOne];
+            [self presentViewController:userNameAlert animated:YES completion:nil];
+            
+        } else {
+            
+            [self.hud show:YES];
+            
+            //标题
+            NSData *data2 = [_titleString dataUsingEncoding:NSUTF8StringEncoding];
+            Byte *byteArray2 = (Byte *)[data2 bytes];
+            NSMutableString *titleString = [[NSMutableString alloc] init];
+            for(int i=0;i<[data2 length];i++) {
+                
+                [titleString appendFormat:@"%d#",byteArray2[i]];
+                
             }
-            else
-                if ([_contetSTring length] == 0)
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self.hud hide:YES];
+            
+            //内容
+            NSData *data4 = [_contetSTring dataUsingEncoding:NSUTF8StringEncoding];
+            Byte *byteArray4 = (Byte *)[data4 bytes];
+            NSMutableString *contetSTring = [[NSMutableString alloc] init];
+            for(int i=0;i<[data4 length];i++) {
+                
+                [contetSTring appendFormat:@"%d#",byteArray4[i]];
+            
+            }
+            
+            [self.netWork asyPOST_url:kTiezi_add Photo:_collectionArray Data:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], groupHeader_single.groupId, shangchuanString, titleString, contetSTring] TagArray:nil Success:^(id objc) {
+                
+                if (objc) {
+                    
+                    [self.hud hide:YES];
+                    
+                    int code = [[objc valueForKey:@"errorcode"] intValue];
+                    if (code == 0) {
                         
-                        UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请填写完整内容"preferredStyle:UIAlertControllerStyleAlert];
-                        UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+                        UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"上传成功" preferredStyle:UIAlertControllerStyleAlert];
+                        UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                            
+                            [self.navigationController popViewControllerAnimated:YES];
+                        }];
                         [userNameAlert addAction:actionOne];
                         [self presentViewController:userNameAlert animated:YES completion:nil];
+
+                    } else {
                         
-                    });
-                }
-                else
-                    if ([DDQPublic isBlankString:shangchuanString])
-                    {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [self.hud hide:YES];
-                            UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请选择标签"preferredStyle:UIAlertControllerStyleAlert];
-                            UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-                            [userNameAlert addAction:actionOne];
-                            [self presentViewController:userNameAlert animated:YES completion:nil];
-                        });
-                    }else
-                    {
-                        
-                        NSString *spellString = [SpellParameters getBasePostString];
-                        //标题
-                        NSData *data2 = [_titleString dataUsingEncoding:NSUTF8StringEncoding];
-                        Byte *byteArray2 = (Byte *)[data2 bytes];
-                        NSMutableString *titleString = [[NSMutableString alloc] init];
-                        for(int i=0;i<[data2 length];i++) {
-                            [titleString appendFormat:@"%d#",byteArray2[i]];
-                        }
-                        //内容
-                        NSData *data4 = [_contetSTring dataUsingEncoding:NSUTF8StringEncoding];
-                        Byte *byteArray4 = (Byte *)[data4 bytes];
-                        NSMutableString *contetSTring = [[NSMutableString alloc] init];
-                        
-                        for(int i=0;i<[data4 length];i++) {
-                            [contetSTring appendFormat:@"%d#",byteArray4[i]];
-                        }
-                        
-                        
-                        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc]init];
-                        
-                        NSString *post_String = [postEncryption stringWithPost:[NSString stringWithFormat:@"%@*%@*%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],groupHeader_single.groupId,shangchuanString/*标签字符串*/,titleString,contetSTring]];
-                        
-                        //拼接字符串
-                        NSString *BOUNDRY = [DDQPostingViewController uuid];
-                        NSString *PREFIX = @"--";
-                        NSString *LINEND = @"\r\n";
-                        NSString *MULTIPART_FROM_DATA = @"multipart/form-data";
-                        NSString *CHARSET = @"UTF-8";
-                        
-                        //图片
-                        int len=512;
-                        if (_collectionArray !=nil) {
-                            for (int i =0; i<_collectionArray.count; i++) {
-                                NSData *imageData = [_collectionArray objectAtIndex:i];
-                                //字节大小
-                                if(imageData !=nil){
-                                    len = (int)imageData.length + len;
-                                }
-                            }
-                        }
-                        
-                        //文本类型
-                        NSMutableData  * postData =[NSMutableData dataWithCapacity:len];
-                        
-                        //p0
-                        NSArray *postArray = [post_String componentsSeparatedByString:@"&"];
-                        
-                        NSMutableString *text = [[NSMutableString alloc]init];
-                        for (int i = 0; i<postArray.count; i++) {
-                            [text appendString:[NSString stringWithFormat:@"%@%@%@",PREFIX,BOUNDRY,LINEND]];
+                        [self.hud hide:YES];
+
+                        if (code == 14 || code == 15 || code == 16 || code == 19) {
                             
-                            NSString *key = [postArray objectAtIndex:i];
-                            
-                            NSArray * smallArray = [key componentsSeparatedByString:@"="];
-                            
-                            [text appendFormat:@"Content-Disposition: form-data; name=\"%@\"%@",[smallArray objectAtIndex:0],LINEND];
-                            
-                            [text appendFormat:@"Content-Type: text/plain; charset=UTF-8%@",LINEND];
-                            [text appendString:LINEND];
-                            
-                            NSString *str =[[smallArray objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                            [text appendFormat:@"%@",str];
-                            
-                            [text appendString:LINEND];
-                        }
-                        [postData appendData:[text dataUsingEncoding:NSUTF8StringEncoding]];
-                        
-                        //文件数据
-                        
-                        if (_collectionArray.count != 0)
-                        {
-                            
-                            for (int i =0 ; i<_collectionArray.count; i++)
-                            {
-                                NSData *imagedata =  _collectionArray[i];
-                                [postData  appendData:[[NSString   stringWithFormat:@"%@%@%@",PREFIX,BOUNDRY,LINEND] dataUsingEncoding:NSUTF8StringEncoding]];
-                                
-                                NSString *aaa = [NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\";filename=\"avatar.png\"%@Content-Type: application/octet-stream;charset=UTF-8%@%@",[NSString stringWithFormat:@"img%d",i],LINEND,LINEND,LINEND];
-                                
-                                [postData  appendData: [aaa dataUsingEncoding:NSUTF8StringEncoding]];
-                                
-                                [postData  appendData:imagedata];
-                                [postData appendData:[LINEND dataUsingEncoding:NSUTF8StringEncoding]];
-                                
-                            }
-                        }
-                        [postData appendData:[[NSString stringWithFormat:@"%@%@%@",PREFIX,BOUNDRY,PREFIX] dataUsingEncoding:NSUTF8StringEncoding]];
-                        
-                        //网络请求
-                        NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:kTiezi_add]];
-                        
-                        [urlRequest setTimeoutInterval:5000];
-                        [urlRequest setHTTPMethod:@"POST"];
-                        [urlRequest setValue:@"keep-alive" forHTTPHeaderField:@"connection"];
-                        [urlRequest setValue:CHARSET forHTTPHeaderField:@"Charsert"];
-                        [urlRequest setValue:[NSString stringWithFormat:@"%@;boundary=%@", MULTIPART_FROM_DATA,BOUNDRY] forHTTPHeaderField:@"Content-Type"];
-                        
-                        urlRequest.HTTPBody = postData;
-                        
-                        NSData *returnData = [NSURLConnection sendSynchronousRequest:urlRequest returningResponse:nil error:nil];
-                        
-                        NSMutableDictionary *dic = [NSJSONSerialization JSONObjectWithData:returnData options:NSJSONReadingMutableContainers error:nil];
-                        
-                        //10-29
-                        //11-2
-                        switch ([[dic objectForKey:@"errorcode"]intValue]) {
-                            case 0:
-                            {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [self.hud hide:YES];
+                            switch (code) {
                                     
-                                    UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"上传成功"preferredStyle:UIAlertControllerStyleAlert];
-                                    UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                                        
-                                        [self.navigationController popViewControllerAnimated:YES];
-                                    }];
-                                    [userNameAlert addAction:actionOne];
-                                    [self presentViewController:userNameAlert animated:YES completion:nil];
-                                });
-                                
-                                break;
-                            }
-                            case 15:
-                            {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [self.hud hide:YES];
-                                    UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"文章内容为空,请重新填写"preferredStyle:UIAlertControllerStyleAlert];
-                                    UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-                                    [userNameAlert addAction:actionOne];
-                                    [self presentViewController:userNameAlert animated:YES completion:nil];
+                                case 14:{
                                     
-                                    
-                                });
-                                break;
-                            }
-                            case 14:
-                            {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [self.hud hide:YES];
                                     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"文章标题格式不符合要求"preferredStyle:UIAlertControllerStyleAlert];
                                     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
                                     [userNameAlert addAction:actionOne];
                                     [self presentViewController:userNameAlert animated:YES completion:nil];
                                     
-                                    
-                                });
+                                }break;
+                        
+                                case 15:{
                                 
-                                break;
-                            }
-                            case 16:
-                            {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [self.hud hide:YES];
+                                    UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"文章内容为空,请重新填写"preferredStyle:UIAlertControllerStyleAlert];
+                                    UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+                                    [userNameAlert addAction:actionOne];
+                                    [self presentViewController:userNameAlert animated:YES completion:nil];
+                
+                                }break;
+                                    
+                                case 16:{
+                                
                                     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"医院名称格式不符合要求"preferredStyle:UIAlertControllerStyleAlert];
                                     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
                                     [userNameAlert addAction:actionOne];
                                     [self presentViewController:userNameAlert animated:YES completion:nil];
                                     
+                                }break;
                                     
-                                });
-                                break;
-                            }
-                            case 19:
-                            {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [self.hud hide:YES];
+                                case 19:{
+                                
                                     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"医院名称格式不符合要求"preferredStyle:UIAlertControllerStyleAlert];
                                     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                                         
@@ -777,37 +682,48 @@
                                     [userNameAlert addAction:actionOne];
                                     [self presentViewController:userNameAlert animated:YES completion:nil];
                                     
+                                }break;
                                     
-                                });
-                                break;
+                                default:
+                                    break;
+                                    
                             }
-                            default:
-                            {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [self.hud hide:YES];
-                                    UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"服务器繁忙,请稍后重试"preferredStyle:UIAlertControllerStyleAlert];
-                                    UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-                                    [userNameAlert addAction:actionOne];
-                                    [self presentViewController:userNameAlert animated:YES completion:nil];
-                                });
-                                break;
-                            }
-                        }//error判断结束
-                    }//上传参数结束
-        }
-        else
-        {
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.hud hide:YES];
-                UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请选择标签"preferredStyle:UIAlertControllerStyleAlert];
-                UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-                [userNameAlert addAction:actionOne];
-                [self presentViewController:userNameAlert animated:YES completion:nil];
+                            
+                        } else {
+                        
+                            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                            
+                        }
+                        
+                    }
+                    
+                } else {
                 
-            });
-        }//判断结束
-    });//子线程结束
+                    [self.hud hide:YES];
+                    
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+                }
+                
+            } andFailure:^(NSError *error) {
+                
+                [self.hud hide:YES];
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+            }];
+            
+        }
+
+    } else {
+        
+        UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:@"请选择标签"preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+        [userNameAlert addAction:actionOne];
+        [self presentViewController:userNameAlert animated:YES completion:nil];
+        
+    }
+    
 }
 
 //12-17
@@ -932,30 +848,10 @@
     }
 }
 
-- (void)pickImageFromAlbumPostingVC
-{
-    //    UIImagePickerController * imagePicker = [[UIImagePickerController alloc] init];
-    //
-    //    imagePicker.delegate = self;
-    //
-    //    imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    //
-    //    imagePicker.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-    //
-    //    imagePicker.allowsEditing = YES;
-    //
-    //    [self presentViewController:imagePicker animated:YES completion:nil];
+- (void)pickImageFromAlbumPostingVC {
     
     //10-27
     SGImagePickerController *picker = [[SGImagePickerController alloc] init];//WithRootViewController:nil];
-    //返回选择的缩略图
-    
-    
-    
-    [picker setDidFinishSelectThumbnails:^(NSArray *thumbnails) {
-        //      缩略图%@",thumbnails);
-        
-          }];
     
     //返回选中的原图
     [picker setDidFinishSelectImages:^(NSArray *images) {
@@ -995,7 +891,6 @@
         [_photoCollectionView reloadData];
         
         [self dismissViewPostingVC];
-
     }];
     
     [self presentViewController:picker animated:YES completion:nil];
@@ -1003,6 +898,7 @@
 
 
 - (void)saveImage:(UIImage*)currentImage withName:(NSString *)imageName{
+    
     NSData *imageData = UIImageJPEGRepresentation(currentImage, 0.5);
     //    NSData *imageData = UIImagePNGRepresentation(currentImage);
     
@@ -1010,48 +906,17 @@
     
     [imageData writeToFile:fullPath atomically:NO];
     
-    
 }
-//12-02
-//对图片尺寸进行压缩--
--(UIImage*)imageWithImage:(UIImage*)image scaledToSize:(CGSize)newSize
-{
-    UIGraphicsBeginImageContext(newSize);
-    
-    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
-    
-    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
-    
-    UIGraphicsEndImageContext();
-    
-    return newImage;
-}
-//10-22
+
 - (void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     [picker dismissViewControllerAnimated:YES completion:nil];
     
     UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
     
-    //12-02
-    //设置image的尺寸
-//    
-//    CGSize imagesize = image.size;
-//    
-//    imagesize.height = image.size.height*(kScreenWidth/kScreenHeight);
-//    
-//    imagesize.width = image.size.width*(kScreenWidth/kScreenHeight);
-    
-    //对图片大小进行压缩--
-    
-//    image = [self imageWithImage:image scaledToSize:imagesize];
-    
     [self saveImage:image withName:@"avatar.png"];
     
     NSString *fullPath =[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"avatar.png"];
-    
-    //12-02
-    
     
     NSData *data = [[NSData alloc] initWithContentsOfFile:fullPath];
     
@@ -1070,9 +935,10 @@
     
 }
 
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
-{
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    
     [self dismissViewControllerAnimated:YES completion:nil];
+    
 }
 
 static NSString *uuidKey = @"ModelCenter uuid key";

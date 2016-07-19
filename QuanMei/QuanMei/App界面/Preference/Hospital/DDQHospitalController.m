@@ -14,6 +14,8 @@
 
 #import "DDQHospitalModel.h"
 
+#import "ProjectNetWork.h"
+
 @interface DDQHospitalController ()<UITableViewDataSource,UITableViewDelegate>
 
 /**
@@ -25,45 +27,41 @@
 
 @property (strong,nonatomic) DDQHospitalModel *hospitalModel;
 
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
+@property (nonatomic, strong) MBProgressHUD *hud;
+
 @end
 
 @implementation DDQHospitalController
 
+- (MBProgressHUD *)hud {
+    
+    if (!_hud) {
+        
+        _hud = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:_hud];
+        _hud.detailsLabelText = @"请稍等...";
+        
+    }
+    
+    return _hud;
+    
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self initTableView];
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
     [self asyHospitalDetailNetWork];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            [self asyHospitalDetailNetWork];
-            [self.mainTableView.header endRefreshing];
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            [self.mainTableView.header endRefreshing];
-        }
-    }];
+   
     //注册一个通知你懂得
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(showImageBig:) name:@"show" object:nil];
+    
 }
 
--(void)viewWillAppear:(BOOL)animated {
-
-    [super viewWillAppear:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            [self.mainTableView.header endRefreshing];
-        }
-    }];
-}
 
 -(void)showImageBig:(NSNotification *)notifiction {
     
@@ -96,50 +94,54 @@
 }
 
 -(void)asyHospitalDetailNetWork {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kHospital_DetailUrl andData:@[self.hospital_id] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSString *spellString             = [SpellParameters getBasePostString];//八段
-        
-        NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@",spellString,self.hospital_id];//post字符串
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];//加密类
-        
-        NSString *post_string             = [postEncryption stringWithPost:post_baseString];//加密下
-        
-        NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kHospital_DetailUrl];//发送下
-        
-        NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if (code_error) {
             
-            if ([errorcode_string intValue] == 0) {
-                //解密
-                //12-21
-                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-                NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
+            [self.hud hide:YES];
+            
+            NSInteger code = code_error.code;
+            
+            if (code == 11) {
                 
-                self.hospitalModel = [[DDQHospitalModel alloc] init];
-                self.hospitalModel.alimg             = [get_jsonDic valueForKey:@"alimg"];
-                self.hospitalModel.ID                = [NSString stringWithFormat:@"%@",[get_jsonDic valueForKey:@"id"]];
-                self.hospitalModel.intro             = [get_jsonDic valueForKey:@"intro"];
-                self.hospitalModel.logo              = [get_jsonDic valueForKey:@"logo"];
-                self.hospitalModel.name              = [get_jsonDic valueForKey:@"name"];
-                self.hospitalModel.xcimg             = [get_jsonDic valueForKey:@"xcimg"];
-                
-                [self.mainTableView reloadData];
-                self.mainTableView.tableFooterView = [self tableViewFootView];
-                
-            } else if ([errorcode_string integerValue] == 11){
-                
-                [self alertController:@"医院信息不存在或已被删除"];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"医院信息不存在或已被删除" andShowDim:NO andSetDelay:YES andCustomView:nil];
+
             } else {
             
-                [self alertController:@"系统繁忙"];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
             }
             
-            [self.mainTableView.header endRefreshing];
-        });
-    });
+        } else {
+            
+            NSDictionary *get_jsonDic = [DDQPublic nullDic:responseObjc];
+            
+            self.hospitalModel = [[DDQHospitalModel alloc] init];
+            self.hospitalModel.alimg             = [get_jsonDic valueForKey:@"alimg"];
+            self.hospitalModel.ID                = [NSString stringWithFormat:@"%@",[get_jsonDic valueForKey:@"id"]];
+            self.hospitalModel.intro             = [get_jsonDic valueForKey:@"intro"];
+            self.hospitalModel.logo              = [get_jsonDic valueForKey:@"logo"];
+            self.hospitalModel.name              = [get_jsonDic valueForKey:@"name"];
+            self.hospitalModel.xcimg             = [get_jsonDic valueForKey:@"xcimg"];
+            
+            [self.hud hide:YES];
+            
+            [self.mainTableView reloadData];
+            self.mainTableView.tableFooterView = [self tableViewFootView];
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+
 }
 
 -(UIView *)tableViewFootView {
@@ -288,15 +290,5 @@
         
          return @"";
     }
-}
-
-#pragma mark - other methods
--(void)alertController:(NSString *)message {
-    UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-    UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
-    [userNameAlert addAction:actionOne];
-    [userNameAlert addAction:actionTwo];
-    [self presentViewController:userNameAlert animated:YES completion:nil];
 }
 @end

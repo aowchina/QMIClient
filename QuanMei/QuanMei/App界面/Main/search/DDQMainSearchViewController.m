@@ -45,6 +45,7 @@
 #import "DDQSearchBar.h"
 #import "Header.h"
 
+#import "ProjectNetWork.h"
 
 @interface DDQMainSearchViewController ()<UITableViewDataSource,UITableViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UISearchBarDelegate,SearchDelegate>
 {
@@ -53,9 +54,9 @@
     //搜索结果
     UIView *searchHearderView;
     
-    NSString *riji_count;
-    NSString *tiezi_count;
-    NSString *tehui_count;
+    int riji_count;
+    int tiezi_count;
+    int tehui_count;
     
 }
 @property (nonatomic ,strong)UITableView * searchTableView;
@@ -72,9 +73,15 @@
 //帖子
 @property (nonatomic ,strong)NSMutableArray *postSearchArray;
 
-@property ( strong, nonatomic)DDQSearchBar *searchBar;
+@property (strong, nonatomic)DDQSearchBar *searchBar;
 
-@property ( strong, nonatomic) MBProgressHUD *hud;
+@property (strong, nonatomic) MBProgressHUD *hud;
+
+@property (strong, nonatomic) ProjectNetWork *netWork;
+
+@property (strong, nonatomic) NSMutableDictionary *sourceDic;
+
+@property (assign, nonatomic) CGFloat rowHeight;
 
 @end
 
@@ -108,39 +115,30 @@
     [self.view addSubview:self.hud];
     self.hud.detailsLabelText = @"请稍等...";
     
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    _godsSearchArray  = [NSMutableArray array];
+    _diarySearchArray = [NSMutableArray array];
+    _postSearchArray  = [NSMutableArray array];
+    
+    self.sourceDic = [NSMutableDictionary dictionary];
+    
 }
+
 - (void)searchBarEndEditing {
 
     [self.view endEditing:YES];
     
     searchBarText = self.searchBar.inputField.text;
-    if (searchBarText == nil) {
+    
+    if (searchBarText == nil || [searchBarText isEqualToString:@""]) {
         
-        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"请重新填写查找的内容" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-        
-        [alertView show];
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"请输入搜索内容" andShowDim:NO andSetDelay:YES andCustomView:nil];
         
     }else{
-
-        [searchHearderView removeFromSuperview];
         
-        [_searchTableView removeFromSuperview];
-        
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-            
-            if (errorDic) {
-                
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                
-            } else {
-            
-                
-                [self.hud show:YES];
-                [self asyncListForSearchVC];
+        [self asyncListForSearchVC];
 
-            }
-            
-        }];
     }
     
 }
@@ -151,12 +149,10 @@
     
 }
 
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:YES];
     //背景
 
-    
     //不透明
     self.navigationController.navigationBar.translucent = NO;
     
@@ -231,18 +227,16 @@
     
     _searchCollectionView.dataSource = self;
     
-    //    _searchCollectionView.backgroundColor = [UIColor colorWithRed:147.0/255 green:147.0/255 blue:147.0/255 alpha:1];
-    
     [_searchCollectionView registerClass:[DDQThemeActivityItem class] forCellWithReuseIdentifier:@"collcell"];
     
     [view addSubview: _searchCollectionView];
     
     if (_godsSearchArray.count!=0 && _godsSearchArray!=nil) {
         if (_godsSearchArray.count%2 == 0) {
-            _searchCollectionView.frame = CGRectMake(0, godsSearchLabel.frame.size.height, kScreenWidth, _godsSearchArray.count/2 * kScreenHeight*0.45+44);
+            _searchCollectionView.frame = CGRectMake(0, godsSearchLabel.frame.size.height, kScreenWidth, _godsSearchArray.count/2 * 250+44);
         }else
         {
-            _searchCollectionView.frame = CGRectMake(0, godsSearchLabel.frame.size.height, kScreenWidth, (_godsSearchArray.count+1)/2 * kScreenHeight*0.45+44);
+            _searchCollectionView.frame = CGRectMake(0, godsSearchLabel.frame.size.height, kScreenWidth, (_godsSearchArray.count+1)/2 * 250+44);
             
         }
         
@@ -316,7 +310,7 @@
 }
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return CGSizeMake(kScreenWidth*0.5-20, kScreenHeight*0.5);
+    return CGSizeMake(kScreenWidth*0.5-20, 250);
 }
 - (void)moreSearchCollectionClick
 {
@@ -326,21 +320,18 @@
 }
 
 #pragma mark  - delegate for tableView
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (![DDQPublic isBlankString:riji_count] &&[riji_count intValue] !=0)
-    {
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (riji_count > 0){
         
         //有日记,有帖子
-        if (![DDQPublic isBlankString:tiezi_count] && [tiezi_count intValue]!=0)
-        {
+        if (tiezi_count > 0) {
             //日记的
-            if (indexPath.section == 0)
-            {
+            if (indexPath.section == 0){
                 
                 //更多
-                if ([indexPath row] ==_diarySearchArray.count)
-                {
+                if ([indexPath row] ==_diarySearchArray.count){
+                    
                     UITableViewCell *moreCell= [[UITableViewCell alloc]initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:@"morecell"];
                     UILabel *moreLabel = [[UILabel alloc]init];
                     
@@ -357,26 +348,33 @@
                     moreCell.selectionStyle = UITableViewCellSelectionStyleNone;
                     
                     return moreCell;
-                }
-                else
-                {
-                    DDQGroupArticleModel *articleModel = [_diarySearchArray objectAtIndex:indexPath.row];
+                    
+                } else {
+                    
+                    DDQGroupArticleModel *articleModel;
+                    if (_diarySearchArray.count > 0) {
+                        
+                        articleModel = [_diarySearchArray objectAtIndex:indexPath.row];
+                        
+                    }
+                    
                     DDQDiaryViewCell *diaryCell = [[DDQDiaryViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"tablecell"];
                     diaryCell.articleModel = articleModel;
-                    
+                    self.rowHeight = diaryCell.newRect.size.height;
                     diaryCell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中高亮
                     diaryCell.backgroundColor = [UIColor myGrayColor];
                     
                     return diaryCell;
                     
                 }
-            }
-            //帖子的
-            if (indexPath.section == 1)
-            {
                 
-                if ([indexPath row] ==_postSearchArray.count)
-                {
+            }
+            
+            //帖子的
+            if (indexPath.section == 1) {
+                
+                if ([indexPath row] ==_postSearchArray.count) {
+                    
                     UITableViewCell *moreCell= [[UITableViewCell alloc]initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:@"morecell"];
                     UILabel *moreLabel = [[UILabel alloc]init];
                     
@@ -393,25 +391,34 @@
                     moreCell.selectionStyle = UITableViewCellSelectionStyleNone;
                     
                     return moreCell;
-                }
-                else
-                {
-                    DDQGroupArticleModel *articleModel = [_postSearchArray objectAtIndex:indexPath.row];
+                    
+                } else {
+                    
+                    DDQGroupArticleModel *articleModel;
+                    if (_postSearchArray.count > 0) {
+                        
+                        articleModel = [_postSearchArray objectAtIndex:indexPath.row];
+                        
+                    }
+                    
                     DDQDiaryViewCell *diaryCell = [[DDQDiaryViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"tablecell"];
                     diaryCell.articleModel = articleModel;
-                    
+                    self.rowHeight = diaryCell.newRect.size.height;
+
                     diaryCell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中高亮
                     diaryCell.backgroundColor = [UIColor myGrayColor];
                     
                     return diaryCell;
                 }
+                
             }
-        }
+            
         //只有日记
-        else
-        {
+        } else {
+            
             //更多
             if ([indexPath row] ==_diarySearchArray.count) {
+                
                 UITableViewCell *moreCell= [[UITableViewCell alloc]initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:@"morecell"];
                 UILabel *moreLabel = [[UILabel alloc]init];
                 
@@ -428,28 +435,35 @@
                 moreCell.selectionStyle = UITableViewCellSelectionStyleNone;
                 
                 return moreCell;
-            }
-            else
-            {
-                DDQGroupArticleModel *articleModel = [_postSearchArray objectAtIndex:indexPath.row];
+                
+            } else {
+                
+                DDQGroupArticleModel *articleModel;
+                if (_diarySearchArray.count > 0) {
+                    
+                    articleModel = [_diarySearchArray objectAtIndex:indexPath.row];
+                    
+                }
+                
                 DDQDiaryViewCell *diaryCell = [[DDQDiaryViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"tablecell"];
                 diaryCell.articleModel = articleModel;
-                
+                self.rowHeight = diaryCell.newRect.size.height;
+
                 diaryCell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中高亮
                 diaryCell.backgroundColor = [UIColor myGrayColor];
                 return diaryCell;
                 
             }
+            
         }
-    }
-    //没有日记,
-    else
-    {
+        
+    //没有日记
+    } else {
         //有帖子
-        if (![DDQPublic isBlankString:tiezi_count] && [tiezi_count intValue] !=0)
-        {
+        if (tiezi_count > 0) {
             
             if ([indexPath row] ==_postSearchArray.count) {
+                
                 UITableViewCell *moreCell= [[UITableViewCell alloc]initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:@"morecell"];
                 UILabel *moreLabel = [[UILabel alloc]init];
                 
@@ -466,136 +480,156 @@
                 moreCell.selectionStyle = UITableViewCellSelectionStyleNone;
                 
                 return moreCell;
+        
+            } else {
                 
-            }
-            else
-            {
-                DDQGroupArticleModel *articleModel = [_postSearchArray objectAtIndex:indexPath.row];
+                DDQGroupArticleModel *articleModel;
+                if (_postSearchArray.count > 0) {
+                    
+                    articleModel = [_postSearchArray objectAtIndex:indexPath.row];
+                    
+                }
+                
                 DDQDiaryViewCell *diaryCell = [[DDQDiaryViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"tablecell"];
                 diaryCell.articleModel = articleModel;
-                
+                self.rowHeight = diaryCell.newRect.size.height;
+
                 diaryCell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中高亮
                 diaryCell.backgroundColor = [UIColor myGrayColor];
                 return diaryCell;
                 
+                
             }
-        }
+            
         //没有帖子
-        else
-        {
+        } else {
+            
             UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
             
             return cell;
+            
         }
+        
     }
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     
     return cell;
     
 }
 //12-11
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (![DDQPublic isBlankString:riji_count] && [riji_count intValue] !=0) {
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (riji_count > 0) {
         //日记
-        if (indexPath.section ==0 )
-        {
+        if (indexPath.section ==0 ) {
+            
             //hangwei
-            if(indexPath.row == _diarySearchArray.count)
-            {
-                return 44;
-            }
-            else
-            {
-                return kScreenHeight*0.5;
-            }
-        }
+            return [self sectionRowHeightWithSource:self.diarySearchArray Path:indexPath];
+            
         //帖子
-        
-        else
-            if (indexPath.section ==1)
-            {
-                if (indexPath.row == _postSearchArray.count) {
-                    return 44;
-                }
-                else
-                {
-                    return kScreenHeight *0.3;
-                }
-            }
-    }
-    else
-        if (![DDQPublic isBlankString:tiezi_count] && [tiezi_count intValue] !=0) {
-            if (indexPath.row ==_postSearchArray.count) {
-                return 44;
-            }
-            else
-            {
-                return kScreenHeight*0.3;
-            }
+        } else if (indexPath.section ==1) {
+            
+           return [self sectionRowHeightWithSource:self.postSearchArray Path:indexPath];
+            
         }
+        
+    } else if (tiezi_count > 0) {
+        
+        return [self sectionRowHeightWithSource:self.postSearchArray Path:indexPath];
+        
+    }
     return 44;
 }
 
 //12-11
--(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    if (![DDQPublic isBlankString:riji_count] && [riji_count intValue] !=0) {
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+//    NSString *key = @(section).stringValue;
+//    NSArray *allKey = [self.sourceDic allKeys];
+//    
+//    if ([allKey containsObject:key]) {
+//        
+//        NSArray *array = [self.sourceDic valueForKey:key];
+//        NSLog(@"%@,%s", array, __func__);
+//        return array.count;
+//        
+//    } else {
+//    
+//        return 0;
+//        
+//    }
+    
+    if (riji_count > 0) {
         
-        if (![DDQPublic isBlankString:tiezi_count] && [tiezi_count intValue] !=0) {
+        if (tiezi_count > 0) {
+            
             switch (section) {
-                case 0:
-                {
+                    
+                case 0:{
+                    
                     return _diarySearchArray.count + 1;
                     break;
                 }
-                case 1:
-                {
+                    
+                case 1: {
+                    
                     return _postSearchArray.count + 1;
                     break;
                 }
+                    
                 default:
                     break;
+                    
             }
-        }
-        else
-        {
+            
+        } else {
+            
             return _postSearchArray.count + 1;
+            
         }
+        
+    } else if (tiezi_count > 0) {
+        
+        return _postSearchArray.count + 1;
+        
+    } else {
+        
+        return 0;
     }
-    else
-        if (![DDQPublic isBlankString:tiezi_count] && [tiezi_count intValue]!=0) {
-            return _postSearchArray.count + 1;
-        }
-        else
-        {
-            return 0;
-        }
     return 0;
 }
-//12-11
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
-    if (![DDQPublic isBlankString:riji_count] && [riji_count intValue] !=0) {
-        
-        if (![DDQPublic isBlankString:tiezi_count]&& [tiezi_count intValue] !=0) {
-            return 2;
-        }
-        else
-        {
-            return 1;
-        }
-    }
-    else
-        if (![DDQPublic isBlankString:tiezi_count]&&[tiezi_count intValue] !=0) {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
+
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+
+    //返回数组个数
+//    NSLog(@"%ld", self.sourceDic.allKeys.count);
+//    return self.sourceDic.allKeys.count;
     
+    if (riji_count > 0) {
+        
+        if (tiezi_count > 0) {
+            
+            return 2;
+            
+        } else {
+            
+            return 1;
+            
+        }
+        
+    } else if (tiezi_count > 0) {
+        
+        return 1;
+        
+    } else {
+        
+        return 0;
+        
+    }
     return 0;
+    
 }
 //12-11
 //- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
@@ -635,15 +669,14 @@
 //    return nil;
 //}
 //12-11
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    DDQHeaderSingleModel *headerSingle = [DDQHeaderSingleModel singleModelByValue];
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    if (![DDQPublic isBlankString:riji_count] && [riji_count intValue] !=0) {
+    if (riji_count > 0) {
         
-        if (![DDQPublic isBlankString:tiezi_count]&& [tiezi_count intValue] !=0) {
-            if (indexPath.section ==0 )
-            {
+        if (tiezi_count > 0) {
+            
+            if (indexPath.section ==0 ) {
+                
                 //日记更多
                 if ( _diarySearchArray.count == indexPath.row) {
                     
@@ -655,27 +688,28 @@
                     
                     searchDetail.searchWenzhangText = searchBarText;
                     [self.navigationController pushViewController:searchDetail animated:YES];
-                }
+                
                 //详情
-                else
-                {
+                } else {
+                    
                     DDQGroupArticleModel *articleModel =self.diarySearchArray[indexPath.row];
                     
                     DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
                     commentVC.hidesBottomBarWhenPushed = YES;
                     //赋值
-                    headerSingle.ctime                      = articleModel.ctime;
-                    headerSingle.articleId                  = articleModel.articleId;
-                    headerSingle.userId                     = articleModel.userid;
+                    commentVC.ctime                      = articleModel.ctime;
+                    commentVC.articleId                  = articleModel.articleId;
+                    commentVC.userid                     = articleModel.userid;
                     [self.navigationController pushViewController:commentVC animated:YES];
                     
                 }
+
             }
-            /**************************/
-            //帖子更多
-            if (indexPath.section ==1)
-            {
+
+            if (indexPath.section ==1) {
+                
                 if (_postSearchArray.count == indexPath.row) {
+                    
                     DDQMainSearchDetailViewController *searchDetail = [[DDQMainSearchDetailViewController alloc]init];
                     
                     searchDetail.navigationItem.title = @"帖子";
@@ -686,28 +720,28 @@
                     
                     [self.navigationController pushViewController:searchDetail animated:YES];
                     
-                }
                 //帖子详情
-                else
-                {
+                } else {
+                    
                     DDQGroupArticleModel *articleModel = _postSearchArray[indexPath.row];
                     
                     DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
                     commentVC.hidesBottomBarWhenPushed = YES;
                     //赋值
-                    headerSingle.ctime                      = articleModel.ctime;
-                    headerSingle.articleId                  = articleModel.articleId;
-                    headerSingle.userId                     = articleModel.userid;
+                    commentVC.ctime                      = articleModel.ctime;
+                    commentVC.articleId                  = articleModel.articleId;
+                    commentVC.userid                     = articleModel.userid;
                     [self.navigationController pushViewController:commentVC animated:YES];
                 }
+                
             }
-        }
+            
         //只有日记
-        else
-        {
+        } else {
+            
             //日记更多
-            if (indexPath.section ==0)
-            {
+            if (indexPath.section ==0) {
+                
                 if(_diarySearchArray.count == indexPath.row) {
                     
                     DDQMainSearchDetailViewController * searchDetail = [[DDQMainSearchDetailViewController alloc]init];
@@ -718,110 +752,100 @@
                     
                     searchDetail.searchWenzhangText = searchBarText;
                     [self.navigationController pushViewController:searchDetail animated:YES];
-                }
+                
                 //日记详情
-                else
-                {
+                } else {
+                    
                     DDQGroupArticleModel *articleModel = _diarySearchArray [indexPath.row];
                     
                     DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
                     commentVC.hidesBottomBarWhenPushed = YES;
                     //赋值
-                    headerSingle.ctime                      = articleModel.ctime;
-                    headerSingle.articleId                  = articleModel.articleId;
-                    headerSingle.userId                     = articleModel.userid;
+                    commentVC.ctime                      = articleModel.ctime;
+                    commentVC.articleId                  = articleModel.articleId;
+                    commentVC.userid                     = articleModel.userid;
                     [self.navigationController pushViewController:commentVC animated:YES];
                     
                 }
-            }
-        }
-    }
-    //没有日记
-    else
-        if (![DDQPublic isBlankString:tiezi_count] && [tiezi_count intValue] !=0)
-        {
-            //帖子更多
-            if (indexPath.section ==0)
-            {
-                if (_postSearchArray.count == indexPath.row)
-                {
-                    DDQMainSearchDetailViewController *searchDetail = [[DDQMainSearchDetailViewController alloc]init];
-                    
-                    searchDetail.navigationItem.title = @"帖子";
-                    
-                    searchDetail.type = @"2";
-                    
-                    searchDetail.searchWenzhangText = searchBarText;
-                    
-                    [self.navigationController pushViewController:searchDetail animated:YES];
-                }
-                //帖子详情
-                else
-                {
-                    DDQGroupArticleModel *articleModel = _postSearchArray[indexPath.row];
-                    
-                    DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
-                    commentVC.hidesBottomBarWhenPushed = YES;
-                    //赋值
-                    headerSingle.ctime                      = articleModel.ctime;
-                    headerSingle.articleId                  = articleModel.articleId;
-                    headerSingle.userId                     = articleModel.userid;
-                    [self.navigationController pushViewController:commentVC animated:YES];
-                    
-                }
+                
             }
             
         }
+       
+    //没有日记
+    } else if (tiezi_count > 0) {
+        
+        //帖子更多
+        if (indexPath.section ==0) {
+            
+            if (_postSearchArray.count == indexPath.row) {
+                
+                DDQMainSearchDetailViewController *searchDetail = [[DDQMainSearchDetailViewController alloc]init];
+                
+                searchDetail.navigationItem.title = @"帖子";
+                
+                searchDetail.type = @"2";
+                
+                searchDetail.searchWenzhangText = searchBarText;
+                
+                [self.navigationController pushViewController:searchDetail animated:YES];
+                
+            //帖子详情
+            } else {
+                
+                DDQGroupArticleModel *articleModel = _postSearchArray[indexPath.row];
+                
+                DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
+                commentVC.hidesBottomBarWhenPushed = YES;
+                //赋值
+                commentVC.ctime                      = articleModel.ctime;
+                commentVC.articleId                  = articleModel.articleId;
+                commentVC.userid                     = articleModel.userid;
+                [self.navigationController pushViewController:commentVC animated:YES];
+                
+            }
+            
+        }
+        
+    }
     
 }
 
-
 //12-21
-- (void)asyncListForSearchVC
-{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //医院
+- (void)asyncListForSearchVC {
+    
+    if (searchBarText != nil && ![searchBarText isEqualToString:@""]) {
+        
+        [self.hud show:YES];
+        
         NSData *data1 = [searchBarText dataUsingEncoding:NSUTF8StringEncoding];
         Byte *byteArray1 = (Byte *)[data1 bytes];
         NSMutableString *searchtext = [[NSMutableString alloc] init];
         
         for(int i=0;i<[data1 length];i++) {
+            
             [searchtext appendFormat:@"%d#",byteArray1[i]];
+            
         }
         
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
-        
-        //加密
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],searchtext];
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:post_baseString];
-        
-        
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kSearchUrl];
-        
-        
-        if ([get_postDic[@"errorcode"] intValue] == 0) {
+        [self.netWork asyPOSTWithAFN_url:kSearchUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],searchtext] andSuccess:^(id responseObjc, NSError *code_error) {
             
-            NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
-
-            if (![get_JsonDic isKindOfClass:[NSNull class]]) {
+            if (code_error) {
                 
-                //            DDQMainSearchModel * model = [[DDQMainSearchModel alloc]init];
+                [self.hud hide:YES];
                 
-                tehui_count = get_JsonDic[@"th_amount"];
-                riji_count = get_JsonDic[@"rj_amount"];
-                tiezi_count = get_JsonDic[@"tz_amount"];
-                _godsSearchArray = [[NSMutableArray alloc]init];
-                _diarySearchArray = [[NSMutableArray alloc]init];
-                _postSearchArray = [[NSMutableArray alloc]init];
-                if (![DDQPublic isBlankString:tehui_count]) {
-                    
-                    
-                    for (NSDictionary *dic1 in get_JsonDic[@"th"])
-                    {
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            } else {
+            
+                tehui_count = [responseObjc[@"th_amount"] intValue];
+                riji_count  = [responseObjc[@"rj_amount"] intValue];
+                tiezi_count = [responseObjc[@"tz_amount"] intValue];
+                
+                if (tehui_count > 0) {
+                
+                    for (NSDictionary *dic1 in responseObjc[@"th"]) {
+                        
                         NSDictionary * dic = [DDQPublic nullDic:dic1];
                         
                         zhutiModel *thmodel = [[zhutiModel alloc]init];
@@ -837,10 +861,14 @@
                         [_godsSearchArray addObject: thmodel];
                         
                     }
-                }
-                if (![DDQPublic isBlankString:riji_count]) {
                     
-                    for (NSDictionary *dic1 in get_JsonDic[@"rj"]) {
+                    [self.sourceDic setValue:_godsSearchArray forKey:@"2"];
+                    
+                }
+                
+                if (riji_count > 0) {
+                    
+                    for (NSDictionary *dic1 in responseObjc[@"rj"]) {
                         
                         NSDictionary * dic = [DDQPublic nullDic:dic1];
                         
@@ -860,14 +888,18 @@
                         articleModel.imgArray      = [dic valueForKey:@"imgs"];
                         articleModel.ctime         = [dic valueForKey:@"ctime"];
                         
-                        
                         [_diarySearchArray addObject:articleModel];
+                        
                     }
+                    
+                    [self.sourceDic setValue:_diarySearchArray forKey:@"0"];
+
                 }
-                if (![DDQPublic isBlankString:tiezi_count])
-                {
-                    for (NSDictionary *dic1 in get_JsonDic[@"tz"])
-                    {
+                
+                if (tiezi_count > 0) {
+                    
+                    for (NSDictionary *dic1 in responseObjc[@"tz"]) {
+                        
                         NSDictionary * dic = [DDQPublic nullDic:dic1];
                         
                         DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
@@ -888,32 +920,99 @@
                         articleModel.ctime         = [dic valueForKey:@"ctime"];
                         
                         [_postSearchArray addObject: articleModel];
+                        
                     }
+                    
+                    [self.sourceDic setValue:_postSearchArray forKey:@"1"];
+
                 }
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self.hud hide:YES];
-                    [self creatView];
-                });
+                [self.hud hide:YES];
+                [self creatView];
                 
             }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }];
 
-        } else {
+    }
+    
+}
+
+- (CGFloat)sectionRowHeightWithSource:(NSArray *)array Path:(NSIndexPath *)path {
+ 
+    CGFloat h;
+    if (kScreenHeight <= 568) {
         
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.hud hide:YES];
+        h = 20;
+        
+    } else if (kScreenHeight == 667) {
+        
+        h = 30;
+        
+    } else {
+        
+        h = 40;
+        
+    }
+    
+    if (path.section == 0) {
+        
+        if (path.row == array.count) {
+            
+            return 44;
+            
+        } else if (array != 0) {
+            
+            return  self.rowHeight + kScreenHeight*0.5-h;
+            
+        } else {
+            
+            DDQGroupArticleModel *model;
+            
+            if (array.count > 0) {
                 
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                model = array[path.row];
                 
-            });
+            }
+            
+            if (model.imgArray.count == 0 ){//不传图的情况
+                
+                if ([model.introString isEqualToString:@""]) {//不传图还不传字
+                    
+                    return kScreenHeight *0.25 - h;
+                    
+                } else {//有字，那就是帖子了
+                    
+                    return kScreenHeight *0.25 + self.rowHeight - h;
+                    
+                }
+                
+            } else {//传了图
+                
+                return self.rowHeight + kScreenHeight *0.5-h;
+                
+            }
             
         }
-    });
+        
+    } else {
+        
+        return kScreenHeight*0.2;
+        
+    }
+
 }
 
 //12-04
-- (void)leftBarButtonItemForMainSearchVC
-{
+- (void)leftBarButtonItemForMainSearchVC {
+    
     [self.navigationController popToRootViewControllerAnimated:YES];
+    
 }
 @end

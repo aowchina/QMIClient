@@ -9,6 +9,7 @@
 #import "DDQEvaluateViewController.h"
 #import "StarsView.h"
 #import "DDQBaseViewController.h"
+#import "ProjectNetWork.h"
 
 @interface DDQEvaluateViewController ()<UITextViewDelegate,StarsDelegate>
 {
@@ -24,9 +25,12 @@
 @property (nonatomic, strong) StarsView *effectStarsView2;
 @property (nonatomic, strong) StarsView *effectStarsView3;
 
-@property ( strong, nonatomic) NSString *star_str1;
-@property ( strong, nonatomic) NSString *star_str2;
-@property ( strong, nonatomic) NSString *star_str3;
+@property (strong, nonatomic) NSString *star_str1;
+@property (strong, nonatomic) NSString *star_str2;
+@property (strong, nonatomic) NSString *star_str3;
+
+@property (nonatomic, strong) ProjectNetWork *netWork;
+@property (nonatomic, strong) MBProgressHUD *hud;
 
 @end
 
@@ -44,6 +48,12 @@
     self.star_str2 = @"5";
     self.star_str3 = @"5";
 
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
+    
 }
 
 - (void)creatViewForEvaluate
@@ -198,11 +208,7 @@
                                                                         kScreenWidth/3*2,
                                                                         shenmeiLabel.frame.size.height)];
     [self.effectStarsView1 setStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
-//    self.effectStarsView1.frame = CGRectMake(shenmeiLabel.frame.origin.x +shenmeiLabel.frame.size.width,
-//                                            shenmeiLabel.frame.origin.y,
-//                                            kScreenWidth/3*2,
-//                                            shenmeiLabel.frame.size.height);
-//    
+  
     [fenshuView addSubview:self.effectStarsView1];
 
     //环境
@@ -222,13 +228,6 @@
                                                                         huanjingTitleLabel.frame.size.height)];
     [self.effectStarsView2 setStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
     
-//    self.effectStarsView2 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
-//    
-//    self.effectStarsView2.frame = CGRectMake(huanjingTitleLabel.frame.origin.x +huanjingTitleLabel.frame.size.width,
-//                                            huanjingTitleLabel.frame.origin.y,
-//                                            kScreenWidth/3*2,
-//                                            huanjingTitleLabel.frame.size.height);
-//
     [fenshuView addSubview:self.effectStarsView2];
 
     //服务
@@ -241,12 +240,6 @@
     fuwuTitleLabel.font = [UIFont systemFontOfSize:15];
     
     [fenshuView addSubview:fuwuTitleLabel];
-//    self.effectStarsView3 = [[StarsView alloc] initWithStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
-//    
-//    self.effectStarsView3.frame = CGRectMake(fuwuTitleLabel.frame.origin.x +fuwuTitleLabel.frame.size.width,
-//                                            fuwuTitleLabel.frame.origin.y,
-//                                            kScreenWidth/3*2,
-//                                            fuwuTitleLabel.frame.size.height);
     self.effectStarsView3 = [[StarsView alloc] initWithFrame:CGRectMake(fuwuTitleLabel.frame.origin.x +fuwuTitleLabel.frame.size.width,
                                                                         fuwuTitleLabel.frame.origin.y,
                                                                         kScreenWidth/3*2,
@@ -254,18 +247,9 @@
     [self.effectStarsView3 setStarSize:CGSizeMake(20, 20) space:10 numberOfStar:5];
 
     [fenshuView addSubview:self.effectStarsView3];
-//    [self.effectStarsView3 mas_makeConstraints:^(MASConstraintMaker *make) {
-//        
-//        make.centerY.equalTo(fuwuTitleLabel.mas_centerY);
-//        make.left.equalTo(fuwuTitleLabel.mas_right);
-//        make.height.equalTo(fuwuTitleLabel.mas_height);
-//        make.right.equalTo(fenshuView.mas_right).offset(-10);
-//        
-//    }];
+
 
     //星星
-    
-    
     
     UIView *lineView3 = [[UIView alloc]initWithFrame:CGRectMake(0,
                                                                fenshuView.frame.size.height +fenshuView.frame.origin.y,
@@ -402,10 +386,14 @@
     }
     
 }
-- (void)buttonClicked
-{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        if (![DDQPublic isBlankString:_textView.text]) {
+/** 网络请求 */
+- (void)buttonClicked{
+    
+    if (![DDQPublic isBlankString:_textView.text]) {//输入的内容不为空
+        
+        if (huaString != nil) {
+           
+            [self.hud show:YES];
             
             //标题
             NSData *data2 = [_textView.text dataUsingEncoding:NSUTF8StringEncoding];
@@ -415,68 +403,43 @@
                 [titleString appendFormat:@"%d#",byteArray2[i]];
             }
             
-            if (huaString != nil) {
+            [self.netWork asyPOSTWithAFN_url:kOrderPjUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],_orderid,_hid,huaString,self.star_str1,self.star_str2,self.star_str3,titleString] andSuccess:^(id responseObjc, NSError *code_error) {
                 
-                //八段
-                NSString *spellString = [SpellParameters getBasePostString];
-                
-                //拼参数
-                NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@*%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],_orderid,_hid,huaString,self.star_str1,self.star_str2,self.star_str3,titleString];
-                
-                //加密
-                DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-                NSString *post_encryption = [post stringWithPost:post_baseString];
-                //传
-                NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kOrderPjUrl];
-
-                if ([[post_dic objectForKey:@"errorcode"] intValue]==0) {
+                if (code_error) {
                     
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        
-                        
-                        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"上传成功" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                        [alertView show];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:kFreshOrderCNotification object:nil];
-                        
-                        [self.navigationController popViewControllerAnimated:YES];
-
-                        
-                    });
-                }
-                else
-                {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        
-                        if ([post_dic[@"errorcode"] intValue] == 20) {
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"订单已不存在" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                            [alertView show];
-                        } else {
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                            [alertView show];
-                        }
-
-                    });
-                }
-            }
-            else
-            {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"请选择好中差评" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                    [alertView show];
+                    [self.hud hide:YES];
                     
-                });
-            }
-        }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"请填写评价内容" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                [alertView show];
-                
-            });
+                    NSInteger code = code_error.code;
+                    if (code == 20) {
+                        
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"订单已不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        
+                    } else {
+                     
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
 
+                    }
+                    
+                }
+                
+            } andFailure:^(NSError *error) {
+                
+                [self.hud hide:YES];
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+            }];
+            
+        } else {
+        
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"请选择好中差评" andShowDim:NO andSetDelay:YES andCustomView:nil];
         }
-    });
+        
+    } else {
+    
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"评价内容不能为空" andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }
 
 }
 

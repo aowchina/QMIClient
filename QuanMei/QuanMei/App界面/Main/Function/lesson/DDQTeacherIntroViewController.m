@@ -17,6 +17,11 @@
 #import "WXApi.h"
 #import "payRequsestHandler.h"
 #import "DDQBoundTelViewController.h"
+#import "ProjectNetWork.h"
+#import "MJExtension.h"
+#import "DDQAlipay.h"
+#import "DDQWXPay.h"
+
 @interface DDQTeacherIntroViewController ()<IntroViewDelegate>
 {
     NSString *orderString;
@@ -28,6 +33,7 @@
 @property (assign,nonatomic) NSInteger type;
 @property ( strong, nonatomic) DDQRowTwoTableViewCell * two_cell;
 @property ( strong, nonatomic) UILabel *label;
+@property (nonatomic, strong) ProjectNetWork *netWork;
 @end
 
 @implementation DDQTeacherIntroViewController
@@ -53,25 +59,22 @@
     self.hud = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:self.hud];
     [self.hud show:YES];
-    self.hud.labelText = @"加载中...";
+    self.hud.detailsLabelText = @"加载中...";
     
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self teacher_netWork];
-            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
-            self.two_cell = (DDQRowTwoTableViewCell *)[self.intro_view.intro_tableview cellForRowAtIndexPath:indexPath];
-            [self.two_cell.rt_showLabel addObserver:self forKeyPath:@"text" options:NSKeyValueObservingOptionNew |NSKeyValueObservingOptionOld context:nil];
-            self.type = 1;
-            
-        } else {
-            [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    self.netWork = [ProjectNetWork sharedWork];
     
+    [self teacher_netWork];
+    
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:1 inSection:0];
+    
+    self.two_cell = (DDQRowTwoTableViewCell *)[self.intro_view.intro_tableview cellForRowAtIndexPath:indexPath];
+    
+    [self.two_cell.rt_showLabel addObserver:self forKeyPath:@"text" options:NSKeyValueObservingOptionNew |NSKeyValueObservingOptionOld context:nil];
+    
+    self.type = 1;
+
 }
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
     
     int num = [change[@"new"] intValue];
@@ -83,127 +86,126 @@
 
     [super viewWillDisappear:animated];
     [self.two_cell.rt_showLabel removeObserver:self forKeyPath:@"text"];
+    
 }
-
 
 -(void)intro_selectedType {
 
     UIAlertController *alert_vc = [UIAlertController alertControllerWithTitle:@"提示" message:@"请选择支付方式:" preferredStyle:UIAlertControllerStyleActionSheet];
+    
     UIAlertAction *action_1 = [UIAlertAction actionWithTitle:@"支付宝支付" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-            //拼8段
-            NSString *spellString = [SpellParameters getBasePostString];
-            //拼参数
-            NSString *base_str = [NSString stringWithFormat:@"%@*%@*%@*%ld*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.intro_model.course_id,self.type,self.intro_model.course_price];
-            //加密这个八段
-            DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-            NSString *post_baseString = [postEncryption stringWithPost:base_str];
-            //post一小下
-            NSMutableDictionary *get_serverDic = [[PostData alloc] postData:post_baseString AndUrl:kteacher_orderUrl];
-
-            NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
-
-            dispatch_async(dispatch_get_main_queue(), ^{
+        [self.hud show:YES];
+        
+        [self.netWork asyPOSTWithAFN_url:kteacher_orderUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.intro_model.course_id,@(self.type).stringValue,self.intro_model.course_price] andSuccess:^(id responseObjc, NSError *code_error) {
+            
+            if (code_error) {
                 
-                //11-30-15
-                if ([errorcode_string intValue] == 0 && get_serverDic !=nil) {
-                    
-                    NSDictionary *get_json = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
-                    [self alipaySignWith:get_json[@"orderid"] name:self.intro_model.course_name price:self.intro_model.course_price count:self.type];
-
-                    
-                } else if ([errorcode_string intValue] == 18){
+                [self.hud hide:YES];
+                
+                NSInteger code = code_error.code;
+                
+                if (code == 18) {
                     
                     DDQBoundTelViewController * boundTelVC = [[DDQBoundTelViewController alloc]init];
                     boundTelVC.type = 2;
                     self.navigationController.hidesBottomBarWhenPushed = YES;
                     [self.navigationController pushViewController:boundTelVC animated:YES];
-                  
+                    
                 } else {
-                
+                    
                     [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
                 }
-
-            });
-            //11-06
-        });
+                
+            } else {
+                
+                 [self alipaySignWith:responseObjc[@"orderid"] name:self.intro_model.course_name price:self.intro_model.course_price count:self.type];
+                
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }];
 
     }];
     
     UIAlertAction *action_2 = [UIAlertAction actionWithTitle:@"微信支付" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-            //拼8段
-            NSString *spellString = [SpellParameters getBasePostString];
-            //拼参数
-            NSString *base_str = [NSString stringWithFormat:@"%@*%@*%@*%ld*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.intro_model.course_id,self.type,self.intro_model.course_price];
-            //加密这个八段
-            DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-            NSString *post_baseString = [postEncryption stringWithPost:base_str];
-            //post一小下
-            NSMutableDictionary *get_serverDic = [[PostData alloc] postData:post_baseString AndUrl:kWX_payUrl];
+        [self.hud show:YES];
+        
+        [self.netWork asyPOSTWithAFN_url:kWX_payUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.intro_model.course_id,@(self.type).stringValue,self.intro_model.course_price] andSuccess:^(id responseObjc, NSError *code_error) {
             
-            NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-
-                //11-06
-                //11-30-15
-                if ([errorcode_string intValue] == 0 && get_serverDic !=nil) {
-                    
-                    NSDictionary *get_json = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
-                    
-                    
-                            NSDictionary *dic = get_json[@"wxinfo"];
-                            
-                            PayReq *pay_req = [[PayReq alloc] init];
-                            pay_req.openID = kWeChatKey;
-                            //微信支付分配的商户号
-                            pay_req.partnerId = kWeChatPartner;
-                            //微信返回的支付交易回话id
-                            pay_req.prepayId= dic[@"pid"];
-                            self.order_id = dic[@"orderid"];
-                            //填写固定值sign = WXPay
-                            pay_req.package = @"Sign=WXPay";
-                            //
-                            pay_req.nonceStr= dic[@"nonce_str"];
-                            //时间戳
-                            pay_req.timeStamp = [dic[@"timestamp"] floatValue];
-                            
-                            NSMutableDictionary *params = [NSMutableDictionary dictionary];
-                            [params setObject:kWeChatKey forKey:@"appid"];
-                            [params setObject:pay_req.partnerId forKey:@"partnerid"];
-                            [params setObject:pay_req.prepayId forKey:@"prepayid"];
-                            [params setObject:[NSString stringWithFormat:@"%.0u",(unsigned int)pay_req.timeStamp] forKey:@"timestamp"];
-                            
-                            [params setObject:pay_req.nonceStr forKey:@"noncestr"];
-                            [params setObject:pay_req.package forKey:@"package"];
-                            //签名
-                            payRequsestHandler *pay = [[payRequsestHandler alloc]init];
-                            
-                            NSString *sign  = [pay createMd5Sign:params];
-                            
-                            pay_req.sign= sign;
-                            
-                           [WXApi sendReq:pay_req];
-                        
-                            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userLesson) name:@"lesson" object:nil];
-                    
-                } else if ([errorcode_string intValue] == 18) {
+            if (code_error) {
+                
+                [self.hud hide:YES];
+                
+                NSInteger code = code_error.code;
+                
+                if (code == 18) {
                     
                     DDQBoundTelViewController * boundTelVC = [[DDQBoundTelViewController alloc]init];
                     boundTelVC.type = 2;
                     self.navigationController.hidesBottomBarWhenPushed = YES;
                     [self.navigationController pushViewController:boundTelVC animated:YES];
-                    
+
                 } else {
-                    
+                
                     [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
                 }
-            });
+                
+            } else {
+                
+                NSDictionary *dic = responseObjc[@"wxinfo"];
+                
+                PayReq *pay_req = [[PayReq alloc] init];
+                pay_req.openID = kWeChatKey;
+                //微信支付分配的商户号
+                pay_req.partnerId = kWeChatPartner;
+                //微信返回的支付交易回话id
+                pay_req.prepayId= dic[@"pid"];
+                self.order_id = dic[@"orderid"];
+                //填写固定值sign = WXPay
+                pay_req.package = @"Sign=WXPay";
+                //
+                pay_req.nonceStr= dic[@"nonce_str"];
+                //时间戳
+                pay_req.timeStamp = [dic[@"timestamp"] floatValue];
+                
+                NSMutableDictionary *params = [NSMutableDictionary dictionary];
+                [params setObject:kWeChatKey forKey:@"appid"];
+                [params setObject:pay_req.partnerId forKey:@"partnerid"];
+                [params setObject:pay_req.prepayId forKey:@"prepayid"];
+                [params setObject:[NSString stringWithFormat:@"%.0u",(unsigned int)pay_req.timeStamp] forKey:@"timestamp"];
+                
+                [params setObject:pay_req.nonceStr forKey:@"noncestr"];
+                [params setObject:pay_req.package forKey:@"package"];
+                //签名
+                payRequsestHandler *pay = [[payRequsestHandler alloc]init];
+                
+                NSString *sign  = [pay createMd5Sign:params];
+                
+                pay_req.sign= sign;
+                
+                [WXApi sendReq:pay_req];
+                
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userLesson) name:@"lesson" object:nil];
+
+            }
             
-        });
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }];
+        
     }];
     
     UIAlertAction *action_3 = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
@@ -212,52 +214,52 @@
     [alert_vc addAction:action_2];
     [alert_vc addAction:action_3];
     [self presentViewController:alert_vc animated:YES completion:nil];
+    
 }
 
 -(void)userLesson {
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kWX_payNotifyUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.order_id] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        //八段
-        NSString *spellString = [SpellParameters getBasePostString];
-        
-        //拼参数
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.order_id];
-        
-        //加密
-        DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-        NSString *post_encryption = [post stringWithPost:post_baseString];
-        
-        //传
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kWX_payNotifyUrl];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if (code_error) {
             
-            //判断errorcode
-            NSString *errorcode = post_dic[@"errorcode"];
-            int num = [errorcode intValue];
-            if (num == 0) {
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"支付成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
-            } else if (num == 15||num==16||num==17) {
+            [self.hud hide:YES];
+            
+            NSInteger code = code_error.code;
+            
+            if (code == 15|| code==16 || code==17) {
+                
                 [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"获取微信订单信息异常" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
             } else {
+                
                 [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
             }
-        });
-    });
+            
+        } else {
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"支付成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
 
 }
 
-//-(void)intro_viewWithOrder:(NSInteger)num {
-//
-//    self.type = num;
-//}
-
 -(void)alipaySignWith:(NSString *)order_id name:(NSString *)name price:(NSString *)price count:(NSInteger)count {
     
-    NSString *partner = @"2088121000537625";
-    NSString *seller = @"846846@qq.com";
-    NSString *privateKey = @"MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAMWuQ1WaXHjQcp3EOEfWhIezMJ0006VIsYNaaEyle4MoooWhk00vctcBYTdd6VQjIIeQdk2u5oDJCPAG a0fL0mesdF31dlw4l6zUoDS5eSA5wVYtNkFeYcKt972XClaeBivjdZA6ZghfstKEYz+d4WTn2gOvChB5Zm6iWlfVUqQTAgMBAAECgYB75sbTf8XX/6bnVdaEyGMW/uxI jJTfcxm4H9FhwRMSWUTMh0JhTY0oT/gUEOuvTbkU3yoXdLmLHPZaI1vYi1sbfcXb F/FotGmkfSKoQSk/lokQxfcW8i4LOJLOfyKoEQhqhAedG5Q96TMiaHAbOPdwq6oC 7tuN4sw1zqnRTmxoUQJBAP95kdPuq0TDt3egirBaUUf7UenCwySPtifKJduMlcDg S2dIIkss3Sm1D5++dzOrAtFb2lYC1zteP5+2AK7ocakCQQDGFkg/F6tujNy1yBuj I8bpl8DMvB+oJJeF8oRrTosQL8hdGlh4NgmEUs7uIDnj6rn+C79CBBJbgOD75qt+wHVbAkBN2LuI+tcRcxn6x9668iqGZpyFQKW6BFibM0vp5KLVTQNtC1v30EnsJZIH OUCVa+zF4tlbEC6JlqSIhCsdIRNRAkBsa7/JgMwda05W1RuDdM6oBp7JsOJm5vhk oXQnQ8tL5ct2YjgwO+uDmMuYfN0SyeRZj9Z0bMQbf3QljIErlG3nAkEAo0bBRYWJ NDT7qYbLI5zaMDthr9E+K9/x8fLBRlTd38ghUxlzfg2i1fwoGUgCLtMBcjG8RuGI Q7/yxavY7RuJMQ==";
+    NSString *partner = kAlipayPartner;
+    NSString *seller = kAlipaySeller;
+    NSString *privateKey = kAlipayPrivateKey;
     
     /*
      *生成订单信息及签名
@@ -319,65 +321,60 @@
 
 -(void)teacher_netWork {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-        //拼8段
-        NSString *spellString = [SpellParameters getBasePostString];
-        //拼参数
-        NSString *base_str = [NSString stringWithFormat:@"%@*%@",spellString,self.teacher_id];
-        //加密这个八段
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_baseString = [postEncryption stringWithPost:base_str];
-        //post一小下
-        NSMutableDictionary *get_serverDic = [[PostData alloc] postData:post_baseString AndUrl:kteacher_introUrl];
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kteacher_introUrl andData:@[self.teacher_id] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
-        
-        //11-06
-        //11-30-15
-        if ([errorcode_string intValue] == 0 && get_serverDic !=nil) {
+        if (code_error) {
             
-            NSDictionary *get_json = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
+            [self.hud hide:YES];
             
-            self.intro_model = [DDQTeacherIntroModel new];
+            NSInteger code = code_error.code;
             
-            self.intro_model.course_banner = get_json[@"course_banner"];
-            self.intro_model.course_id = get_json[@"course_id"];
-            self.intro_model.course_intro = get_json[@"course_intro"];
-            self.intro_model.course_name = get_json[@"course_name"];
-            self.intro_model.course_price = get_json[@"course_price"];
-            self.intro_model.teacher_intro = get_json[@"teacher_intro"];
-            self.intro_model.teacher_name = get_json[@"teacher_name"];
+            if (code == 11 || code == 12) {
+                
+                switch (code) {
+                        
+                    case 11:
+                        
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"教师不存在或已被删除" andShowDim:YES andSetDelay:YES andCustomView:nil];
+                        break;
+                       
+                    case 12:
+                        
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"课程不存在或已被删除" andShowDim:YES andSetDelay:YES andCustomView:nil];
+                        break;
+                        
+                    default:
+                        break;
+                }
+                
+            } else {
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
 
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                [self.hud hide:YES];
-                [self.hud removeFromSuperViewOnHide];
-                
-                self.intro_view.intro_model = self.intro_model;
-                [self.intro_view.intro_tableview reloadData];
-                
-                self.label.text = self.intro_model.course_name;
-                
-            });
-        } else if ([errorcode_string intValue] == 11 && get_serverDic !=nil) {
-            
-            [self.hud hide:YES];
-            [self.hud removeFromSuperViewOnHide];
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"教师不存在或已被删除" andShowDim:YES andSetDelay:YES andCustomView:nil];
-        } else if ([errorcode_string intValue] == 12 && get_serverDic !=nil) {
+            }
         
-            [self.hud hide:YES];
-            [self.hud removeFromSuperViewOnHide];
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"课程不存在或已被删除" andShowDim:YES andSetDelay:YES andCustomView:nil];
         } else {
         
-            [self.hud hide:YES];
-            [self.hud removeFromSuperViewOnHide];
+            self.intro_model = [DDQTeacherIntroModel mj_objectWithKeyValues:responseObjc];
             
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:YES andSetDelay:YES andCustomView:nil];
+            [self.hud hide:YES];
+            
+            self.intro_view.intro_model = self.intro_model;
+            [self.intro_view.intro_tableview reloadData];
+            
+            self.label.text = self.intro_model.course_name;
+            
         }
-    });
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 @end

@@ -108,6 +108,10 @@
     
     //11-05
     _tagDic = [[NSMutableDictionary alloc]init];
+    
+    self.hud = [[MBProgressHUD alloc]initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.labelText = @"上传中...";
 }
 
 - (void)creatView
@@ -672,7 +676,7 @@
         [self presentViewController:imagePicker animated:YES completion:nil];
     }else{
         //如果没有提示用户
-        UIAlertController * alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"该设备未安装摄像头" preferredStyle:(UIAlertControllerStyleAlert)];
+        UIAlertController * alertController = [UIAlertController alertControllerWithTitle:@"Error" message:@"没有摄像头开启摄像头" preferredStyle:(UIAlertControllerStyleAlert)];
         
         UIAlertAction *enalbleAction = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:nil];
         
@@ -682,12 +686,10 @@
     }
 }
 
-- (void)pickImageFromAlbumWriteVC
-{
-    
+- (void)pickImageFromAlbumWriteVC {
     //10-27
     SGImagePickerController *picker = [[SGImagePickerController alloc] init];//WithRootViewController:nil];
-  
+    
     //返回选中的原图
     [picker setDidFinishSelectImages:^(NSArray *images) {
         //      @"原图%@",images);
@@ -726,7 +728,7 @@
         [_photoCollectionView reloadData];
         
         [self dismissViewWriteVC];
-
+        
     }];
     [self presentViewController:picker animated:YES completion:nil];
 }
@@ -746,32 +748,11 @@
     
     UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
     
-    //12-02
-    //设置image的尺寸
-    
-//    CGSize imagesize = image.size;
-    
-//    imagesize.height = 157;
-//    
-//    imagesize.width = 157;
-    
-    //对图片大小进行压缩--
-    
-//    image = [self imageWithImage:image scaledToSize:imagesize];
-    
     [self saveImage:image withName:@"avatar.png"];
     
     NSString *fullPath =[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"avatar.png"];
     
-    //12-02
-    
-    
     NSData *data = [[NSData alloc] initWithContentsOfFile:fullPath];
-    
-    //    UIImage *savedImage = [[UIImage alloc]initWithContentsOfFile:fullPath];
-    //    [_photoButton setBackgroundImage:savedImage forState:(UIControlStateNormal)];
-    
-    //    [_collectionArray addObject:data];
     
     [self dismissViewWriteVC];
     
@@ -786,24 +767,12 @@
         }
     }
 }
-//12-02
-//对图片尺寸进行压缩--
--(UIImage*)imageWithImage:(UIImage*)image scaledToSize:(CGSize)newSize
-{
-    UIGraphicsBeginImageContext(newSize);
-    
-    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
-    
-    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
-    
-    UIGraphicsEndImageContext();
-    
-    return newImage;
-}
 
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
-{
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    
     [self dismissViewControllerAnimated:YES completion:nil];
+    
 }
 
 //10-21
@@ -880,14 +849,10 @@ static NSString *uuidKey = @"ModelCenter uuid key";
 //11-05
 //12-02
 #pragma mark - 解析上传
-- (void)writeVCReplay
-{
-    //12-21活动指示器
-    self.hud = [[MBProgressHUD alloc]initWithView:self.view];
-    [self.view addSubview:self.hud];
-    [self.hud show:YES];
-    self.hud.labelText = @"上传中...";
+- (void)writeVCReplay {
     
+    [self.hud show:YES];
+
     //10-23
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
@@ -950,7 +915,6 @@ static NSString *uuidKey = @"ModelCenter uuid key";
                         }
                         else
                         {
-                            
                             
                             NSString *spellString = [SpellParameters getBasePostString];
                             //医院
@@ -1053,7 +1017,7 @@ static NSString *uuidKey = @"ModelCenter uuid key";
                             //网络请求
                             NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:kRiji_add]];
                             
-                            [urlRequest setTimeoutInterval:20];
+                            [urlRequest setTimeoutInterval:30];
                             [urlRequest setHTTPMethod:@"POST"];
                             [urlRequest setValue:@"keep-alive" forHTTPHeaderField:@"connection"];
                             [urlRequest setValue:CHARSET forHTTPHeaderField:@"Charsert"];

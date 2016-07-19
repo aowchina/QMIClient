@@ -12,7 +12,6 @@
 #import "DDQPreferenceViewController.h"
 #import "DDQLoginViewController.h"
 #import "DDQMineViewController.h"
-#import "DDQOrderDetailViewController.h"
 #import "WXApi.h"
 #import "WeiboSDK.h"
 #import <TencentOpenAPI/TencentOAuth.h>
@@ -24,23 +23,32 @@
 #import "DDQBaseTabBarController.h"
 #import "IQKeyboardManager.h"
 #import "DDQMyWalletViewController.h"
-#include "ProjectNetWork.h"
+#import "ProjectNetWork.h"
+#import "DDQPreferenceDetailViewController.h"
 @interface AppDelegate ()<WXApiDelegate>
 
+/** 单例TabBarController */
 @property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
+/** 网络请求 */
 @property ( strong, nonatomic) AFHTTPSessionManager *session_manager;
+/** 提示用的hud */
 @property ( strong, nonatomic) MBProgressHUD *alert_hud;
+
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
 @end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
    
+    //设置根控制器
     self.baseTabBarC = [DDQBaseTabBarController sharedController];
     [self.window setRootViewController:self.baseTabBarC];
     [self.window makeKeyAndVisible];
     self.window.backgroundColor = [UIColor whiteColor];
 
+    //注册通知
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
     [defaultCenter addObserver:self selector:@selector(changeTabBarSelectedController:) name:@"change" object:nil];
     [defaultCenter addObserver:self selector:@selector(gestureChangeTabBarSelectedController:) name:@"change1" object:nil];
@@ -48,9 +56,11 @@
     [defaultCenter addObserver:self selector:@selector(mineChangSelectController:) name:@"minechange" object:nil];
 
 
+    //短信注册
     [SMSSDK registerApp:kShardAppKey
               withSecret:kShardSecret];
     
+    //微信注册
     [WXApi registerApp:kWeChatKey];
 
     
@@ -84,31 +94,39 @@
                           name:kJPFNetworkDidReceiveMessageNotification
                         object:nil];
     
+    //init方法
     [self checkUserState];
     
+    //键盘遮挡解决办法
     IQKeyboardManager *keyboard_manager = [IQKeyboardManager sharedManager];
     keyboard_manager.enable = YES;
     keyboard_manager.shouldResignOnTouchOutside = YES;
     keyboard_manager.shouldToolbarUsesTextFieldTintColor = YES;
     keyboard_manager.enableAutoToolbar = NO;
     
+    //检测网络变化情况
     [[NSNotificationCenter defaultCenter] addObserverForName:kReachabilityChangedNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         
         [[NSNotificationCenter defaultCenter] postNotificationName:@"changeNet" object:nil userInfo:note.userInfo];
 
     }];
+    
     [[Reachability reachabilityForInternetConnection] startNotifier];
     
+    //配置session
     self.session_manager = [AFHTTPSessionManager manager];
     self.session_manager.responseSerializer = [AFJSONResponseSerializer serializer];
     self.session_manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/json", @"text/javascript",@"text/html",@"text/plain", nil];
 
+    self.netWork = [ProjectNetWork sharedWork];
     return YES;
 }
 
+/** 清零badge */
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    
+
     [application setApplicationIconBadgeNumber:0];
+    [APService setBadge:0];
     
 }
 
@@ -147,7 +165,6 @@
         }
         
         //把消息次数存起来
-        
         NSString *temp_stringTwo = [[NSUserDefaults standardUserDefaults] valueForKey:@"zanCount"];
         
         if (temp_stringTwo == nil) {
@@ -178,7 +195,6 @@
         NSString *dateString = [dateFormatter stringFromDate:currentDate];
         
         //把日期存起来
-        
         NSString *temp_string = [[NSUserDefaults standardUserDefaults] valueForKey:@"replyData"];
         
         if (temp_string == nil) {
@@ -233,6 +249,7 @@
     
 }
 
+/** 注册apns */
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
 
     [APService registerDeviceToken:deviceToken];
@@ -243,23 +260,35 @@
     } Failure:^(NSError *net_error) {
         
         [MBProgressHUD myCustomHudWithView:self.window andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
     }];
     
     
 }
 
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-}
-
--(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    
-    [APService handleRemoteNotification:userInfo];
-}
-
+/** 接收到apns:注这是7.0后的方法 */
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
 
     [APService handleRemoteNotification:userInfo];
     completionHandler(UIBackgroundFetchResultNewData);
+    
+    NSString *type = userInfo[@"type"];
+    NSString *id_str = userInfo[@"id"];
+    
+    if ([self.window.rootViewController isKindOfClass:[UITabBarController class]]) {
+        
+        if ([type isEqualToString:@"tehui"]) {
+            
+            UITabBarController *tabC = (UITabBarController *)self.window.rootViewController;
+            UINavigationController *navigation = tabC.selectedViewController;
+            DDQPreferenceDetailViewController *preferenceDetailC = [[DDQPreferenceDetailViewController alloc] initWithActivityID:id_str];
+            preferenceDetailC.hidesBottomBarWhenPushed = YES;
+            [navigation pushViewController:preferenceDetailC animated:YES];
+
+        }
+        
+    }
+    
 }
 
 #pragma mark - 从客户端回调到APP
@@ -302,22 +331,22 @@
 
 
 - (void)getWeiXinCodeFinishedWithResp:(BaseResp *)resp {
-    if (resp.errCode == 0)
-    {
+    
+    if (resp.errCode == 0){
+        
         if ([resp isKindOfClass:[SendAuthResp class]]) {
+            
             SendAuthResp *aresp = (SendAuthResp *)resp;
             
             [self getAccessTokenWithCode:aresp.code];
+            
         } 
         
-    }else if (resp.errCode == -4){
-        //statusCodeLabel.text = @"用户拒绝";
-    }else if (resp.errCode == -2){
-        //statusCodeLabel.text = @"用户取消";
     }
+    
 }
 
-
+/** 获取accessToken和openid */
 - (void)getAccessTokenWithCode:(NSString *)code {
     
     NSMutableDictionary *param_dic = [NSMutableDictionary dictionary];
@@ -360,6 +389,7 @@
     
 }
 
+/** 获取微信用户信息 */
 - (void)getUserInfoWithAccessToken:(NSString *)accessToken andOpenId:(NSString *)openId {
     
     NSMutableDictionary *param_dic = [NSMutableDictionary dictionary];
@@ -369,18 +399,13 @@
     [self.session_manager GET:@"https://api.weixin.qq.com/sns/userinfo?" parameters:param_dic success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         
         if (responseObject) {
+            
             //获取需要的数据
-            DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
             NSString *userImage = [responseObject valueForKey:@"headimgurl"];
             NSString *change_userimage = [userImage substringToIndex:[userImage length]-1];
             NSString *post_userimage = [NSString stringWithFormat:@"%@%d",change_userimage,64];
             NSString *nickName = [responseObject valueForKey:@"nickname"];
             
-            infoModel.userimg = post_userimage;
-            infoModel.userName = nickName;
-            infoModel.isLogin = YES;
-            
-            NSString *string = [SpellParameters getBasePostString];//八段字符串
             //转换过后的昵称
             NSData *data = [nickName dataUsingEncoding:NSUTF8StringEncoding];
             Byte *byteArray = (Byte *)[data bytes];
@@ -390,31 +415,32 @@
             }
             
             NSString *dsfType = @"1";
-            NSString *baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",string,dsfType,openId,str,post_userimage];
             
-            DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-            NSString *postString = [postEncryption stringWithPost:baseString];
-            
-            //传给服务器
-            NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kDSFRegisterUrl];
-            [self.alert_hud hide:YES];
-            if ([postDic[@"errorcode"] intValue] == 0) {
-                //将这个字典解密
-                NSString *getString = [postEncryption stringWithDic:postDic];
+            [self.netWork asyPOSTWithAFN_url:kDSFRegisterUrl andData:@[dsfType,openId,str,post_userimage] andSuccess:^(id responseObjc, NSError *code_error) {
                 
-                //将字符串装化为字典
-                NSMutableDictionary *jsonDic = [[[SBJsonParser alloc] init] objectWithString:getString];
-                infoModel.userid    = [jsonDic valueForKey:@"userid"];
-                infoModel.isLogin   = 1;
-                [[NSUserDefaults standardUserDefaults] setValue:[jsonDic valueForKey:@"userid"] forKey:@"userId"];
-                self.baseTabBarC.selectedIndex = 0;
-                self.window.rootViewController = self.baseTabBarC;
+                if (!code_error) {
+                    
+                    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+                    infoModel.userimg = [responseObjc valueForKey:@"userimg"];
+                    infoModel.userName = nickName;
+                    infoModel.isLogin = YES;
+                    
+                    [[NSUserDefaults standardUserDefaults] setValue:[responseObjc valueForKey:@"userid"] forKey:@"userId"];
+                    self.baseTabBarC.selectedIndex = 0;
+                    self.window.rootViewController = self.baseTabBarC;
+                    
+                } else {
                 
-            } else {
+                    [MBProgressHUD myCustomHudWithView:self.window andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+                }
                 
-                [MBProgressHUD myCustomHudWithView:self.window andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            } andFailure:^(NSError *error) {
                 
-            }
+                [self.alert_hud hide:YES];
+                [MBProgressHUD myCustomHudWithView:self.window andCustomText:@"微信登录失败" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }];
             
         } else {
             
@@ -429,8 +455,6 @@
         [MBProgressHUD myCustomHudWithView:self.window andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         
     }];
-    //            //AccessToken失效
-    //            [self getAccessTokenWithRefreshToken:[[NSUserDefaults standardUserDefaults]objectForKey:@"WeiXinRefreshToken"]];
     
     
 }
@@ -464,6 +488,7 @@
 
 
 #pragma mark - gesture and target seletedItem
+/** 跳转到特惠 */
 -(void)changeTabBarSelectedController:(NSNotification *)info {
     
     if ([[info.userInfo valueForKey:@"firstname"] isEqualToString:@"more1"]) {
@@ -473,6 +498,8 @@
     }
     
 }
+
+/** 跳转到小组 */
 - (void)groupChangSelectController:(NSNotification *)info {
     
     if ([[info.userInfo valueForKey:@"beautiful"]isEqualToString:@"morebeautiful"]) {
@@ -482,6 +509,8 @@
     }
     
 }
+
+/** 跳转到特惠 */
 -(void)gestureChangeTabBarSelectedController:(NSNotification *)info {
     
     if ([[info.userInfo valueForKey:@"secondname"] isEqualToString:@"more2"]) {
@@ -491,6 +520,8 @@
     }
     
 }
+
+/** 跳转到我的 */
 - (void)mineChangSelectController:(NSNotification *)info {
     
     if ([[info.userInfo valueForKey:@"mine"] isEqualToString:@"mine"]) {

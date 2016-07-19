@@ -89,6 +89,6 @@
 /**
  *  点赞人数
  */
-@property (strong,nonatomic) UILabel *deleteLabel;
+@property (strong,nonatomic) UIButton *deleteButton;
 
 @end

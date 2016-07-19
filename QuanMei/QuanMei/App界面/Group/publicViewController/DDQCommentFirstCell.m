@@ -22,7 +22,7 @@
 
 -(void)cellWithCommentModel:(DDQCommentModel *)commentModel {
     self.commentModel = commentModel;
-    CGRect titleSize    = [commentModel.title boundingRectWithSize:CGSizeMake(kScreenWidth-20, 40) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:17.0f weight:4.0f]} context:nil];
+    CGRect titleSize    = [commentModel.title boundingRectWithSize:CGSizeMake(kScreenWidth-20, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:17.0f weight:4.0f]} context:nil];
 
     UILabel *titleLable = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, titleSize.size.width, titleSize.size.height)];
     titleLable.text     = commentModel.title;
@@ -30,8 +30,7 @@
     [self.contentView addSubview:titleLable];
     
     
-    CGRect textSize     = [commentModel.text boundingRectWithSize:CGSizeMake(kScreenWidth-20, kScreenHeight) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
-    
+    CGRect textSize     = [commentModel.text boundingRectWithSize:CGSizeMake(kScreenWidth-20, 1000) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
     
     UILabel *textLabel  = [[UILabel alloc] initWithFrame:CGRectMake(10, 10+titleSize.size.height, textSize.size.width, textSize.size.height)];
     textLabel.text      = commentModel.text;
@@ -41,7 +40,7 @@
   
     CGFloat UImageW = kScreenWidth - 20;
     CGFloat UImageH = UImageW;
-    if (commentModel.imgs.count != 0) {
+    if (commentModel.imgs.count > 0) {
 
         for (int i = 0; i<commentModel.imgs.count; i++) {
 
@@ -57,8 +56,8 @@
     } else {
     
         self.newHeight = titleSize.size.height + textLabel.frame.size.height;
-
     }
+    
 }
 
 

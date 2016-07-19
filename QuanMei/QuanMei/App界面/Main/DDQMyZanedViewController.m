@@ -10,12 +10,14 @@
 
 #import "DDQZanedCell.h"
 #import "DDQMyZanedModel.h"
-
+#import "DDQUserCommentViewController.h"
 @interface DDQMyZanedViewController ()<UITableViewDataSource,UITableViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *mz_mainTableView;
 
 @property (strong,nonatomic) NSMutableArray *mz_dataArray;
+
+@property (nonatomic, assign) int page;
 
 @end
 
@@ -24,6 +26,9 @@
 - (void)viewDidLoad {
     
     [super viewDidLoad];
+    
+    self.navigationController.navigationBar.translucent = NO;
+
     self.mz_dataArray = [NSMutableArray array];
     
     [self.mz_mainTableView setFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
@@ -31,58 +36,50 @@
     self.mz_mainTableView.backgroundColor = [UIColor backgroundColor];
     
     //请求接口
-    [self mz_netWorkWithPage:1];
+    self.page = 1;
+    [self mz_netWorkWithPage:self.page];
     
-    //下拉刷新
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+    self.mz_mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
-        if (errorDic == nil) {
+        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
             
-            self.mz_mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+            if (errorDic == nil) {
                 
-                [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-                    
-                    if (errorDic == nil) {
-                        
-                        [self.mz_dataArray removeAllObjects];
-                        [self mz_netWorkWithPage:1];
-                        [self.mz_mainTableView.header endRefreshing];
-                        
-                    } else {
-                        
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                        [self.mz_mainTableView.header endRefreshing];
-                    }
-                }];
+                self.page = 1;
+                [self.mz_dataArray removeAllObjects];
+                [self mz_netWorkWithPage:self.page];
+                [self.mz_mainTableView.header endRefreshing];
                 
-            }];
-            
-            self.mz_mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+            } else {
                 
-                //确保网络连接无错误,防止别人手贱
-                if (errorDic == nil) {
-                    
-                    int num = mz_page ++;
-                    [self mz_netWorkWithPage:num];
-                    
-                    [self.mz_mainTableView.footer endRefreshing];
-                } else {
-                    
-                    [self.mz_mainTableView.footer endRefreshing];
-                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                }
-                
-            }];
-            
-        } else {
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                [self.mz_mainTableView.header endRefreshing];
+            }
+        }];
+        
     }];
+    
+    self.mz_mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+
+            //确保网络连接无错误,防止别人手贱
+            if (errorDic == nil) {
+                
+                self.page = self.page + 1;
+                [self mz_netWorkWithPage:self.page];
+                
+                [self.mz_mainTableView.footer endRefreshing];
+            } else {
+                
+                [self.mz_mainTableView.footer endRefreshing];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            }
+            
+        }];
+        
+    }];
+
 
 }
 
@@ -118,29 +115,22 @@ static int mz_page = 2;
             
             NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
             
-            //请求回来有东西
-            if (get_jsonDic.count != 0) {
+            for (NSDictionary *dic in get_jsonDic) {
                 
-                for (NSDictionary *dic in get_jsonDic) {
-                    
-                    DDQMyZanedModel *zanModel = [[DDQMyZanedModel alloc] init];
-                    zanModel.iD        = dic[@"id"];
-                    zanModel.text2     = dic[@"text2"];
-                    zanModel.userid    = dic[@"userid"];
-                    zanModel.userimg   = dic[@"userimg"];
-                    zanModel.username  = dic[@"username"];
-                    zanModel.pubtime   = dic[@"pubtime"];
-                    
-                    [self.mz_dataArray addObject:zanModel];
-                }
-                
-            } else {
-                
-                [self alertController:@"无更多数据"];
+                DDQMyZanedModel *zanModel = [[DDQMyZanedModel alloc] init];
+                zanModel.iD        = dic[@"id"];
+                zanModel.text2     = dic[@"text2"];
+                zanModel.userid    = dic[@"userid"];
+                zanModel.userimg   = dic[@"userimg"];
+                zanModel.username  = dic[@"username"];
+                zanModel.pubtime   = dic[@"pubtime"];
+                zanModel.ctime     = dic[@"ctime"];
+
+                [self.mz_dataArray addObject:zanModel];
                 
             }
-            
-            if (self.mz_dataArray.count == 0) {
+           
+            if (self.mz_dataArray.count == 0 && [get_jsonDic count] == 0) {
                 
                 UIImageView *temp_img = [[UIImageView alloc] init];
                 [self.view addSubview:temp_img];
@@ -176,7 +166,19 @@ static int mz_page = 2;
             }
             
             [self.mz_mainTableView reloadData];
+            
+            if (get_jsonDic.count == 0) {
+                
+                self.mz_mainTableView.footer.state = MJRefreshStateNoMoreData;
+                
+            } else {
+                
+                self.mz_mainTableView.footer.state = MJRefreshStateIdle;
+                
+            }
+            
         });
+        
     });
 
 }
@@ -192,18 +194,18 @@ static NSString *identifier = @"cell";
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
     DDQZanedCell *zanCell = [tableView dequeueReusableCellWithIdentifier:identifier];
-    if (!zanCell) {
-        DDQMyZanedModel *zanModel;
-        if (self.mz_dataArray.count != 0) {
-            zanModel = self.mz_dataArray[indexPath.row];
-        }
-        
-        zanCell = [[DDQZanedCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
-        [zanCell.mz_userimg sd_setImageWithURL:[NSURL URLWithString:zanModel.userimg] placeholderImage:[UIImage imageNamed:@"default_pic"]];
-        zanCell.mz_username.text = zanModel.username;
-        zanCell.mz_pubtime.text  = zanModel.pubtime;
-        zanCell.mz_content.text  = zanModel.text2;
+    
+    DDQMyZanedModel *zanModel;
+    if (self.mz_dataArray.count != 0) {
+        zanModel = self.mz_dataArray[indexPath.row];
     }
+    
+    zanCell = [[DDQZanedCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+    [zanCell.mz_userimg sd_setImageWithURL:[NSURL URLWithString:zanModel.userimg] placeholderImage:[UIImage imageNamed:@"default_pic"]];
+    zanCell.mz_username.text = zanModel.username;
+    zanCell.mz_pubtime.text  = zanModel.pubtime;
+    zanCell.mz_content.text  = zanModel.text2;
+    
     return zanCell;
 }
 
@@ -211,6 +213,19 @@ static NSString *identifier = @"cell";
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
     return 120;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    DDQMyZanedModel *model = [self.mz_dataArray objectAtIndex:indexPath.row];
+    DDQUserCommentViewController *commentC = [[DDQUserCommentViewController alloc] init];
+    commentC.hidesBottomBarWhenPushed = YES;
+    commentC.userid = model.userid;
+    commentC.articleId = model.iD;
+    commentC.ctime = model.ctime;
+    
+    [self.navigationController pushViewController:commentC animated:YES];
+    
 }
 
 #pragma mark - other methods

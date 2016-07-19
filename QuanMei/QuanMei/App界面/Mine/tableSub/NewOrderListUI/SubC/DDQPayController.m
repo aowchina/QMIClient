@@ -18,7 +18,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *pay_table;
 @property ( assign, nonatomic) CGFloat cell_h;
 @property ( strong, nonatomic) NSMutableArray *payC_source;
-
+/** 页码 */
+@property (assign, nonatomic) int page;
 @end
 
 @implementation DDQPayController
@@ -31,6 +32,8 @@
 
     self.payC_source = [NSMutableArray array];
     
+    self.page = 1;
+    
     [self pay_controllerNetWithPage:1];
     
     /**
@@ -38,16 +41,17 @@
      */
     self.pay_table.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
+        self.page = 1;
         [self.payC_source removeAllObjects];
-        [self pay_controllerNetWithPage:1];
+        [self pay_controllerNetWithPage:self.page];
         [self.pay_table.header endRefreshing];
         
     }];
     
     self.pay_table.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         
-        int page = page_num + 1;
-        [self pay_controllerNetWithPage:page];
+        self.page = self.page + 1;
+        [self pay_controllerNetWithPage:self.page];
         [self.pay_table.footer endRefreshing];
         
     }];
@@ -73,7 +77,7 @@
  *
  *  @param page 页码
  */
-static int page_num = 2;
+//static int page_num = 2;
 - (void)pay_controllerNetWithPage:(int)page {
 
     [self.wait_hud show:YES];

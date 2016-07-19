@@ -76,10 +76,10 @@
                     for (NSDictionary *dic in get_jsonDic) {
                         
                         DDQMyCommentChildModel *comment_childModel = [[DDQMyCommentChildModel alloc] init];
-                        comment_childModel.iD        = dic[@"id"];
+                        comment_childModel.id        = dic[@"id"];
                         comment_childModel.pubtime   = dic[@"pubtime"];
-                        comment_childModel.title     = dic[@"text"];
-                        comment_childModel.intro     = dic[@"text2"];
+                        comment_childModel.text     = dic[@"text"];
+                        comment_childModel.text2     = dic[@"text2"];
                         comment_childModel.userid    = dic[@"userid"];
                         comment_childModel.userid2   = dic[@"userid2"];
                         comment_childModel.userimg   = dic[@"userimg"];

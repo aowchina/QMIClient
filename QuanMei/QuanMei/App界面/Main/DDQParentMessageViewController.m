@@ -37,14 +37,14 @@
     self.myReplyedVC = [DDQMyReplyedViewController new];
     [self addChildViewController:self.myReplyedVC];
     
-    self.myReplyedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-5, self.view.frame.size.width, kScreenHeight);
+    self.myReplyedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-10, self.view.frame.size.width, kScreenHeight + 80);
     
     [self.view addSubview:self.myReplyedVC.view];
     
     self.myZanedVC = [DDQMyZanedViewController new];
     [self addChildViewController:self.myZanedVC];
     
-    self.myZanedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-5, self.view.frame.size.width, kScreenHeight);
+    self.myZanedVC.view.frame = CGRectMake(0, self.pm_replyButton.frame.size.height-10, self.view.frame.size.width, kScreenHeight + 80);
     
     [self.view addSubview:self.myZanedVC.view];
 
@@ -78,6 +78,8 @@
             cicrle_view.image = [UIImage imageNamed:@"椭圆"];
         }
     }
+    
+    self.navigationItem.title = @"关于我";
     
 }
 

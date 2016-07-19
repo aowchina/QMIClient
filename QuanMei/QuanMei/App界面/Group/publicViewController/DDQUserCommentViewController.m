@@ -16,7 +16,7 @@
 #import "DDQReplyModel.h"
 #import "DDQCommentFirstCell.h"
 #import "DDQCommentSecondCell.h"
-
+#import "DDQLoginViewController.h"
 #import <TencentOpenAPI/TencentOAuth.h>
 #import <TencentOpenAPI/TencentMessageObject.h>
 #import <TencentOpenAPI/TencentOAuthObject.h>
@@ -27,6 +27,9 @@
 #import "WXApiObject.h"
 #import "WXApi.h"
 #import "WXApiRequestHandler.h"
+
+#import "ProjectNetWork.h"
+#import "MJExtension.h"
 
 typedef enum : NSUInteger {
     kWXFriend = 0,
@@ -41,7 +44,7 @@ typedef enum : NSUInteger {
  */
 @property (strong,nonatomic) UITableView *mainTableView;
 
-@property (strong,nonatomic) DDQHeaderSingleModel *singleModel;
+//@property (strong,nonatomic) DDQHeaderSingleModel *singleModel;
 
 @property (strong,nonatomic) DDQCommentModel *header_model;
 
@@ -50,24 +53,30 @@ typedef enum : NSUInteger {
 @property (assign,nonatomic) CGFloat floor_height;
 
 @property (assign,nonatomic) CGFloat celltop_H;
+
 @property (assign,nonatomic) CGFloat cellbottom_H;
-
-
+/** 数据源 */
 @property (strong,nonatomic) NSMutableArray *cell_sourceArray;
+/** 网络请求 */
+@property (strong,nonatomic) ProjectNetWork *netWork;
+/** 分享的内容 */
+@property (assign, nonatomic) shared type;
 
+@property (strong, nonatomic) MBProgressHUD *hud;
 
-@property (assign,nonatomic) shared type;
+@property (nonatomic, assign) int page;
+/** 点赞图片 */
+@property (nonatomic, strong) UIImageView *thumb_image;
 
 @end
 
 @implementation DDQUserCommentViewController
 
-static int num = 2;
+//static int num = 1;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     //初始化
-    self.singleModel       = [DDQHeaderSingleModel singleModelByValue];
     self.cell_sourceArray  = [NSMutableArray array];
 
     /**
@@ -79,68 +88,137 @@ static int num = 2;
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor meiHongSe]};
     [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     
-    
+    //更多按钮
     UIBarButtonItem *rightItem = [[UIBarButtonItem  alloc] initWithTitle:@"更多" style:UIBarButtonItemStyleDone target:self action:@selector(showMoreFunction)];
     self.navigationItem.rightBarButtonItem = rightItem;
     
     self.view.backgroundColor = [UIColor whiteColor];
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
+    
+    //表述图和赞
+    [self initTableView];
+    [self replyButton];
+
+    self.page = 1;
+    
+    //下拉刷新
+    self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        
+        self.page = 1;
+        [self.cell_sourceArray removeAllObjects];
+        [self asyWenZhangDetailNetWork];
+        [self asyPLListNetWorkAndPage:self.page];
+        [self.mainTableView.header endRefreshing];
+        
+    }];
+    
+    self.mainTableView.footer = [MJRefreshAutoStateFooter footerWithRefreshingBlock:^{
+        
+        self.page = self.page + 1;
+        [self asyPLListNetWorkAndPage:self.page];
+        [self.mainTableView.footer endRefreshing];
+        
+    }];
+    
 }
 
+/** 展示更多分享内容 */
 -(void)showMoreFunction {
     
     UIAlertController *more_alert = [UIAlertController alertControllerWithTitle:@"更多" message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction *first_action = [UIAlertAction actionWithTitle:@"分享" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        
         [self layoutSharedView];
+        
     }];
     
-    UIAlertAction *second_action = [UIAlertAction actionWithTitle:@"收藏" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    NSString *title;
+    NSString *url;
+    NSString *alert;
+    NSArray *param;
+    //判断是否被收藏
+    if ([self.header_model.isSc intValue] == 1) {
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            //调用点赞接口
-            //八段
-            NSString *spellString = [SpellParameters getBasePostString];
-            
-            //拼参数
-            NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"1",self.header_model.iD];
-            
-            //加密
-            DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-            NSString *post_encryption = [post stringWithPost:post_baseString];
-            
-            //传
-            NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kSc_addUrl];
-            
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                //判断errorcode
-                NSString *errorcode = post_dic[@"errorcode"];
-                int num = [errorcode intValue];
-                if (num == 0) {
-                    
-                    [self alertController:@"收藏成功"];
-                    
-                } else if (num == 14) {
-                    
-                    [self alertController:@"您还未登录，无法评价"];
+        title = @"取消收藏";
+        url = kSc_delUrl;
+        alert = @"取消成功";
+        param = @[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], self.header_model.id];
+        
+    } else {
+    
+        title = @"收藏";
+        url = kSc_addUrl;
+        alert = @"收藏成功";
+        param = @[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"1", self.header_model.id];
 
-                } else if (num == 16) {
+    }
+    
+    UIAlertAction *second_action = [UIAlertAction actionWithTitle:title style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        
+        [self.hud show:YES];
+        
+        [self.netWork asyPOSTWithAFN_url:url andData:param andSuccess:^(id responseObjc, NSError *code_error) {
+            
+            if (!code_error) {
                 
-                    [self alertController:@"您收藏的信息不存在"];
-                } else if (num == 17) {
+                [self.hud hide:YES];
+                [self alertController:alert];
+                //再请求一次刷新数据
+                [self asyWenZhangDetailNetWork];
+
+            } else {
                 
-                    [self alertController:@"请勿重复操作"];
+                [self.hud hide:YES];
+                NSInteger code = code_error.code;
+                if (code == 14 || code == 16 || code == 17 || code == 12 ) {
+                    
+                    switch (code) {
+                            
+                        case 12:
+                            
+                            [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[DDQLoginViewController alloc] init]];
+                            break;
+                            
+                        case 14:
+                            
+                            [self alertController:@"您还未登录，无法收藏"];
+                            break;
+                            
+                        case 16:
+                            
+                            [self alertController:@"您收藏的信息不存在"];
+                            break;
+                            
+                        case 17:
+                            
+                            [self alertController:@"您已收藏过该内容"];
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                
                 } else {
                 
-                    [self alertController:@"系统繁忙"];
+                    [self alertController:kServerDes];
+                    
                 }
-            });
-        });
-
+                
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            [self alertController:kErrorDes];
+            
+        }];
+        
     }];
     
     UIAlertAction *third_action = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
@@ -152,7 +230,7 @@ static int num = 2;
     [self presentViewController:more_alert animated:YES completion:nil];
     
 }
-
+/** 布局分享页面 */
 -(void)layoutSharedView {
     
     UIView *temp_view = [[UIView alloc] init];
@@ -317,6 +395,7 @@ static int num = 2;
 -(void)hiddenSharedView:(UIButton *)button {
     
     [button.superview removeFromSuperview];
+    
 }
 
 -(void)sharedButtonMethod:(UIButton *)button {
@@ -385,72 +464,15 @@ static int num = 2;
     [super viewWillAppear:YES];
     
     self.navigationController.navigationBar.translucent = NO;
-    num = 2;
-    if (self.cell_sourceArray.count > 0) {
-        [self asyWenZhangDetailNetWork];
-        return;
-    }
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self asyWenZhangDetailNetWork];
-            [self asyPLListNetWorkAndPage:1];
-            //表述图
-            [self initTableView];
-            [self replyButton];
-
-            //下拉刷新
-            self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-                
-                [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-                    
-                    if (errorDic == nil) {
-                        
-                        [self.cell_sourceArray removeAllObjects];
-                        [self asyWenZhangDetailNetWork];
-                        [self asyPLListNetWorkAndPage:1];
-                        [self.mainTableView.header endRefreshing];
-                        
-                    } else {
-                        
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                        [self.mainTableView.header endRefreshing];
-                    }
-                }];
-            }];
-            
-            self.mainTableView.footer = [MJRefreshAutoStateFooter footerWithRefreshingBlock:^{
-                
-                [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-                    
-                    if (errorDic == nil) {
-                        
-                        int page = num ++;
-                        [self asyPLListNetWorkAndPage:page];
-                        [self.mainTableView.footer endRefreshing];
-                        
-                    } else {
-                        
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                        [self.mainTableView.footer endRefreshing];
-                    }
-                }];
-                
-            }];
-
-        } else {
-            //表述图
-            [self initTableView];
-            [self replyButton];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            [self.mainTableView.footer endRefreshing];
-        }
-    }];
+    
+    [self asyWenZhangDetailNetWork];
+    //删除所有数据并重新请求
+    [self.cell_sourceArray removeAllObjects];
+    [self asyPLListNetWorkAndPage:1];
 
 }
 
-
+/** 点击查看大图 */
 -(void)changePicSize:(NSNotification *)notification{
     
     NSDictionary *dic = notification.userInfo;
@@ -494,7 +516,8 @@ static int num = 2;
 
 
 -(void)initTableView {
-    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, self.view.frame.size.height) style:UITableViewStyleGrouped];
+    
+    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, self.view.frame.size.height - 70) style:UITableViewStylePlain];
     [self.mainTableView setDelegate:self];
     [self.mainTableView setDataSource:self];
     [self.view addSubview:self.mainTableView];
@@ -517,21 +540,15 @@ static int num = 2;
     bottomview_one.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.5f];
     
     
-    UIImageView *thumb_image = [[UIImageView alloc] init];
-    [bottomview_one addSubview:thumb_image];
-    [thumb_image mas_makeConstraints:^(MASConstraintMaker *make) {
+    self.thumb_image = [[UIImageView alloc] init];
+    [bottomview_one addSubview:self.thumb_image];
+    [self.thumb_image mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(bottomview_one.mas_centerY);
         make.right.equalTo(bottomview_one.mas_centerX);
         make.width.offset(20);
         make.height.offset(20);
     }];
-    
-    if ([_header_model.iszan intValue] == 1) {
-        [thumb_image setImage:[UIImage imageNamed:@"is_praised_item"]];
-    } else {
-        [thumb_image setImage:[UIImage imageNamed:@"like"]];
-    }
-    
+
     
     UILabel *label_one = [[UILabel alloc] init];
     [bottomview_one addSubview:label_one];
@@ -602,10 +619,24 @@ static int num = 2;
     [bottomview_two addGestureRecognizer:reply_tap];
 }
 
+- (void)changPic {
+
+    if ([_header_model.iszan intValue] == 1) {
+        
+        [self.thumb_image setImage:[UIImage imageNamed:@"is_praised_item"]];
+        
+    } else {
+        
+        [self.thumb_image setImage:[UIImage imageNamed:@"like"]];
+        
+    }
+    
+}
+
 - (void)replayButtonClicked {
     
     DDQReplayViewController * replayVC = [DDQReplayViewController new];
-    replayVC.wenzhangId = self.singleModel.articleId;
+    replayVC.wenzhangId = self.articleId;
     replayVC.beiPLUserId = @"0";
     replayVC.fathPLId = @"0";
     replayVC.hidesBottomBarWhenPushed  = YES;
@@ -613,241 +644,257 @@ static int num = 2;
     [self.navigationController pushViewController:replayVC animated:YES];
 }
 
-
+/** 点赞 */
 -(void)clickedZan:(UITapGestureRecognizer *)tap {
 
     if ([_header_model.iszan intValue] == 0) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [self.netWork asyPOSTWithAFN_url:kAddZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"1", self.header_model.id] andSuccess:^(id responseObjc, NSError *code_error) {
             
-            //调用点赞接口
-            //八段
-            NSString *spellString = [SpellParameters getBasePostString];
-            
-            //拼参数
-            NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"1",self.header_model.iD];
-            
-            //加密
-            DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-            NSString *post_encryption = [post stringWithPost:post_baseString];
-            
-            //传
-            NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kAddZan];
-            
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                                
-                //判断errorcode
-                NSString *errorcode = post_dic[@"errorcode"];
-                int num = [errorcode intValue];
-                if (num == 0) {
+            if (!code_error) {
+                
+                UIView *tap_view = [tap view];
+                for (UIView *view in tap_view.subviews) {
                     
-                    UIView *tap_view = [tap view];
-                    for (UIView *view in tap_view.subviews) {
+                    if ([view isKindOfClass:[UIImageView class]]) {
                         
-                        if ([view isKindOfClass:[UIImageView class]]) {
-                            
-                            [(UIImageView *)view setImage:[UIImage imageNamed:@"is_praised_item"]];
-                        }
+                        [(UIImageView *)view setImage:[UIImage imageNamed:@"is_praised_item"]];
                     }
-                    [self alertController:@"点赞成功"];
-                    [self asyWenZhangDetailNetWork];
+                }
+                
+                [self alertController:@"点赞成功"];
+                [self asyWenZhangDetailNetWork];
+                
+            } else {
+            
+                NSInteger code = code_error.code;
+                if (code == 14 || code == 16) {
                     
-                } else if (num == 14) {
-                    
-                    [self alertController:@"您还未登录，无法评价"];
-                    
-                } else if (num == 16) {
-                    
-                    [self alertController:@"您已经赞过了！"];
+                    switch (code) {
+                            
+                        case 14:
+                            
+                            [self alertController:@"您还未登录，无法评价"];
+                            break;
+                            
+                        case 16:
+                            
+                            [self alertController:@"您已经赞过了！"];
+                            break;
+                            
+                        default:
+                            break;
+                    }
                     
                 } else {
+                
+                    [self alertController:kServerDes];
                     
-                    [self alertController:@"系统繁忙"];
                 }
-            });
-        });
+                
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self alertController:kErrorDes];
+            
+        }];
+        
     } else {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        
+        [self.netWork asyPOSTWithAFN_url:kDelZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"1", self.header_model.id] andSuccess:^(id responseObjc, NSError *code_error) {
             
-            //调用点赞接口
-            //八段
-            NSString *spellString = [SpellParameters getBasePostString];
-            
-            //拼参数
-            NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"1",self.header_model.iD];
-            
-            //加密
-            DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-            NSString *post_encryption = [post stringWithPost:post_baseString];
-            
-            //传
-            NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kDelZan];
-            
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
+            if (!code_error) {
                 
-                
-                //判断errorcode
-                NSString *errorcode = post_dic[@"errorcode"];
-                int num = [errorcode intValue];
-                if (num == 0) {
+                UIView *tap_view = [tap view];
+                for (UIView *view in tap_view.subviews) {
                     
-                    UIView *tap_view = [tap view];
-                    for (UIView *view in tap_view.subviews) {
+                    if ([view isKindOfClass:[UIImageView class]]) {
                         
-                        if ([view isKindOfClass:[UIImageView class]]) {
-                            
-                            [(UIImageView *)view setImage:[UIImage imageNamed:@"like"]];
-                        }
+                        [(UIImageView *)view setImage:[UIImage imageNamed:@"like"]];
                     }
-                    [self alertController:@"取消点赞"];
-                    [self asyWenZhangDetailNetWork];
+                }
+                
+                [self alertController:@"取消点赞"];
+                [self asyWenZhangDetailNetWork];
 
+            } else {
+                
+                NSInteger code = code_error.code;
+                if (code == 14 || code == 16) {
                     
-                } else if (num == 14) {
-                    
-                    [self alertController:@"您还未登录，无法评价"];
-                    
-                } else if (num == 16) {
-                    
-                    [self alertController:@"文章/评论不存在或已被删除"];
+                    switch (code) {
+                            
+                        case 14:
+                            
+                            [self alertController:@"您还未登录，无法评价"];
+                            break;
+                            
+                        case 16:
+                            
+                            [self alertController:@"文章/评论不存在或已被删除"];
+                            break;
+                            
+                        default:
+                            break;
+                    }
                     
                 } else {
                     
-                    [self alertController:@"系统繁忙"];
+                    [self alertController:kServerDes];
+                    
                 }
-            });
-        });
-
+                
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self alertController:kErrorDes];
+            
+        }];
         
     }
-}
-                                     
-
--(void)viewDidDisappear:(BOOL)animated {
-
-    [super viewDidDisappear:YES];
-    self.header_model = nil;
+    
 }
 
 #pragma mark - network
 -(void)asyWenZhangDetailNetWork {
-    //拼8段
-    NSString *spellString = [SpellParameters getBasePostString];
-    NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@",spellString,self.singleModel.ctime,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
-    //加密这个段数
-    DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-    NSString *post_string = [postEncryption stringWithPost:post_baseString];
-    //post
-    NSMutableDictionary *post_dic = [[PostData alloc] postData:post_string AndUrl:kWenzhangDetailUrl];
     
-    NSString *errorcode = [post_dic valueForKey:@"errorcode"];
-    if ([errorcode intValue] == 0) {
-        //12-21
-        //解密
-        NSDictionary *dic1 = [DDQPOSTEncryption judgePOSTDic:post_dic];
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kWenzhangDetailUrl andData:@[self.ctime, [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSDictionary *get_jsonDic = [DDQPublic nullDic:dic1];
-        
-        self.header_model = [[DDQCommentModel alloc] init];
-        _header_model.imgs             = [get_jsonDic valueForKey:@"imgs"];
-        _header_model.text             = [get_jsonDic valueForKey:@"text"];
-        _header_model.title            = [get_jsonDic valueForKey:@"title"];
-        _header_model.userid           = [get_jsonDic valueForKey:@"userid"];
-        _header_model.username         = [get_jsonDic valueForKey:@"username"];
-        _header_model.userimg          = [get_jsonDic valueForKey:@"userimg"];
-        _header_model.pubtime          = [get_jsonDic valueForKey:@"pubtime"];
-        _header_model.iszan            = get_jsonDic[@"iszan"];
-        _header_model.type             = get_jsonDic[@"type"];
-        _header_model.iD               = get_jsonDic[@"id"];
-        _header_model.pluser           = get_jsonDic[@"pluser"];
-        _header_model.zan              = get_jsonDic[@"zan"];
+        if (!code_error) {
+            
+            self.header_model = nil;
+            
+            self.header_model = [DDQCommentModel mj_objectWithKeyValues:responseObjc];
+            
+            [self changPic];
+            
+            [self.mainTableView reloadData];
+            
+            self.mainTableView.tableHeaderView = [self setTableViewHeaderView];
+            
+            [self.hud hide:YES];
 
-        [self.mainTableView reloadData];
-    
-    } else {
-        [self alertController:@"服务器繁忙"];
-    }
+        } else {
+            
+            [self.hud hide:YES];
+            [self alertController:kServerDes];
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        [self alertController:kErrorDes];
+        
+    }];
 
 }
 
-static BOOL showFoot = NO;
 -(void)asyPLListNetWorkAndPage:(int)page {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-        //拼8段
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%d",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.singleModel.articleId,page];
-        //加密这个段数
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_string = [postEncryption stringWithPost:post_baseString];
-        //post
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_string AndUrl:KPLListUrl];
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:KPLListUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.articleId,@(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSString *errorcode = [post_dic valueForKey:@"errorcode"];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            if ([errorcode intValue] == 0) {
-                //解密
-                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+        if (!code_error) {
+
+            for (NSDictionary *dataDic in responseObjc) {
                 
-                if (get_jsonDic.count != 0) {
-                    for (NSDictionary *dataDic in get_jsonDic) {
-                        DDQReplyModel *replyModel = [[DDQReplyModel alloc] init];
-                        replyModel.iD             = [dataDic valueForKey:@"id"];
-                        replyModel.pubtime        = [dataDic valueForKey:@"pubtime"];
-                        replyModel.son            = [dataDic valueForKey:@"son"];
-                        replyModel.status         = [dataDic valueForKey:@"status"];
-                        replyModel.text           = [dataDic valueForKey:@"text"];
-                        replyModel.userid         = [dataDic valueForKey:@"userid"];
-                        replyModel.userid2        = [dataDic valueForKey:@"userid2"];
-                        replyModel.userimg        = [dataDic valueForKey:@"userimg"];
-                        replyModel.username       = [dataDic valueForKey:@"username"];
-                        replyModel.wid            = [dataDic valueForKey:@"wid"];
-                        replyModel.more_hf        = dataDic[@"more_hf"];
-                        replyModel.isReuse        = NO;
-                        [self.cell_sourceArray addObject:replyModel];
-                    }
-                    [self.mainTableView reloadData];
-                    [self.mainTableView.header endRefreshing];
-                    [self.mainTableView.footer endRefreshing];
+                DDQReplyModel *replyModel = [[DDQReplyModel alloc] init];
+                replyModel.iD             = [dataDic valueForKey:@"id"];
+                replyModel.pubtime        = [dataDic valueForKey:@"pubtime"];
+                replyModel.son            = [dataDic valueForKey:@"son"];
+                replyModel.status         = [dataDic valueForKey:@"status"];
+                replyModel.text           = [dataDic valueForKey:@"text"];
+                replyModel.userid         = [dataDic valueForKey:@"userid"];
+                replyModel.userid2        = [dataDic valueForKey:@"userid2"];
+                replyModel.userimg        = [dataDic valueForKey:@"userimg"];
+                replyModel.username       = [dataDic valueForKey:@"username"];
+                replyModel.wid            = [dataDic valueForKey:@"wid"];
+                replyModel.more_hf        = dataDic[@"more_hf"];
+                replyModel.isReuse        = NO;
+                [self.cell_sourceArray addObject:replyModel];
+                
+            }
+            
+            if ([responseObjc count] == 0  && self.cell_sourceArray.count == 0){
+            
+                self.mainTableView.footer = nil;
+                
+                UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 70)];
+                
+                tempView.backgroundColor = [UIColor clearColor];
+                
+                UILabel *tipLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 5, kScreenWidth, 20)];
+                [tempView addSubview:tipLabel];
+
+                tipLabel.textAlignment = NSTextAlignmentCenter;
+                tipLabel.text = @"赶紧回帖给楼主动力吧!";
+                tipLabel.font = [UIFont systemFontOfSize:15.0];
+                tipLabel.textColor = kTextColor;
+                
+                self.mainTableView.tableFooterView = tempView;
+                
+            } else {
+            
+                self.mainTableView.tableFooterView = nil;
+                
+                if (self.mainTableView.footer == nil) {
+                    
+                    self.mainTableView.footer = [MJRefreshAutoStateFooter footerWithRefreshingBlock:^{
+                        
+                        self.page = self.page + 1;
+                        [self asyPLListNetWorkAndPage:self.page];
+                        [self.mainTableView.footer endRefreshing];
+                        
+                    }];
+                    
+                }
+                
+                if ([responseObjc count] > 0) {
+                    
+                    self.mainTableView.footer.state = MJRefreshStateIdle;
                     
                 } else {
                     
-                    [self.mainTableView.header endRefreshing];
-                    [self.mainTableView.footer endRefreshing];
                     self.mainTableView.footer.state = MJRefreshStateNoMoreData;
-                    /**
-                     *  这里是为了区分我第一次请求为空，以及上拉请求后数据为空的差别
-                     */
-                    if (showFoot == NO) {
-                        
-                        UIView *footView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 30)];
-                        self.mainTableView.tableFooterView = footView;
-                        
-                        UILabel *tip_label = [[UILabel alloc] init];
-                        [footView addSubview:tip_label];
-                        [tip_label mas_makeConstraints:^(MASConstraintMaker *make) {
-                            
-                            make.centerX.equalTo(footView.mas_centerX);
-                            make.centerY.equalTo(footView.mas_centerY);
-                            
-                        }];
-                        tip_label.font = [UIFont systemFontOfSize:13.0f];
-                        tip_label.text = @"还没有人回帖哦，快点给楼主点鼓励吧!";
-                        tip_label.textColor = [UIColor lightGrayColor];
-                        
-                        showFoot = YES;
-
-                    }
+                    
                 }
                 
-            } else {
-                [self alertController:@"系统繁忙"];
             }
-        });
-    });
+
+            [self.mainTableView reloadData];
+
+            [self.hud hide:YES];
+
+        } else {
+            
+            [self.hud hide:YES];
+            NSInteger code = code_error.code;
+            
+            if (code == 14) {
+                
+                [self alertController:@"文章不存在或已被删除"];
+
+            } else {
+            
+                [self alertController:kServerDes];
+
+            }
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        [self alertController:kErrorDes];
+        
+    }];
+
 }
 
 
@@ -865,7 +912,7 @@ static BOOL showFoot = NO;
     [userView addSubview:userImage];
     [userImage mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(userView.mas_centerY);
-        make.left.equalTo(userView.mas_left).with.offset(self.view.bounds.size.width*0.01);
+        make.left.equalTo(userView.mas_left).with.offset(15);
         if (kScreenHeight == 480) {
             make.width.equalTo(@30);
             make.height.equalTo(@30);
@@ -992,7 +1039,7 @@ static BOOL showFoot = NO;
     if (indexPath.section == 0) {
         
         if (indexPath.row == 0) {
-            return  self.newRowHeight+50;
+            return  self.newRowHeight+25;
         } else {
             if (kScreenHeight == 480) {
                 return 70;
@@ -1072,7 +1119,7 @@ static NSString *identifierSecond = @"second";
                 num = (int)temp_array.count;
             }
             for (int i = 0 ; i < num; i++) {
-                UIImageView *imageView        = [[UIImageView alloc] initWithFrame:CGRectMake(imgW*i + split_left*i + 5, 5, imgW, imgH)];
+                UIImageView *imageView        = [[UIImageView alloc] initWithFrame:CGRectMake(imgW*i + split_left*i + 10, 5, imgW, imgH)];
                 imageView.layer.cornerRadius  = imgW/2;
                 imageView.layer.masksToBounds = YES;
                 [imageView sd_setImageWithURL:[NSURL URLWithString:temp_array[i]] placeholderImage:[UIImage imageNamed:@"default_pic"]];
@@ -1106,9 +1153,8 @@ static NSString *identifierSecond = @"second";
         }
         
     } else {
-#warning 这里的重用啊，报警了
+        
         DDQCommentSecondCell *secondCell = [tableView dequeueReusableCellWithIdentifier:identifierSecond];
-
 
         DDQReplyModel *replyModel = [self.cell_sourceArray objectAtIndex:indexPath.row];
         secondCell = [[DDQCommentSecondCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifierSecond];

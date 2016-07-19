@@ -13,13 +13,15 @@
 
 #import "zhutiModel.h"
 
+#import "ProjectNetWork.h"
+
 @interface DDQThemeActivityViewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,MBProgressHUDDelegate>
 
 @property (strong,nonatomic) UICollectionView *mainCollectionView;
 @property (strong,nonatomic) NSMutableArray *listArray;
 @property (nonatomic ,strong)MBProgressHUD *hud;
-
-
+@property (nonatomic, strong) ProjectNetWork *netWork;
+@property (nonatomic, assign) int page;
 @end
 
 @implementation DDQThemeActivityViewController
@@ -36,34 +38,24 @@
     [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     
     [self initCollectionView];
+    
     _hud = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:_hud];
     [self.hud show:YES];
     
     _listArray = [[NSMutableArray alloc]init];
 
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self asyProductListWithPage:1];
+    self.page = 1;
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self asyProductListWithPage:1];
 
-            self.mainCollectionView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-                
-                int num = page + 1;
-                [self asyProductListWithPage:num];
-                
-            }];
-            
-        } else {
-            [self.hud hide:YES];
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
+    self.mainCollectionView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        self.page = self.page + 1;
+        [self asyProductListWithPage:self.page];
+        
     }];
     
 }
@@ -82,41 +74,78 @@
     
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-
-    [super viewDidDisappear:YES];
-    page = 2;
-}
-
 #pragma mark - 网络相关
-static int page = 2;
+//static int page = 2;
 -(void)asyProductListWithPage:(int)page {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [NSString stringWithFormat:@"%@*%@*%@*%d",[SpellParameters getBasePostString],_hid,_pid,page];
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:spellString];
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kTehui_alist];
-        NSDictionary *get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kTehui_alist andData:@[_hid,_pid, @(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        
-        for (NSDictionary *dic in get_JsonDic) {
-
-            zhutiModel *model = [[zhutiModel alloc]init];
-            [model setValuesForKeysWithDictionary:dic];
-            [_listArray addObject:model];
-        }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if (code_error) {
             
             [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+            
+            for (NSDictionary *dic in responseObjc) {
+                
+                zhutiModel *model = [[zhutiModel alloc]init];
+                [model setValuesForKeysWithDictionary:dic];
+                [_listArray addObject:model];
+            }
+            
+            [self.hud hide:YES];
+            
             [_mainCollectionView reloadData];
-            [_mainCollectionView.footer endRefreshing];
-            self.mainCollectionView.footer.state = MJRefreshStateNoMoreData;
-        });
-    });
+            
+            if ([responseObjc count] == 0) {
+                
+                self.mainCollectionView.footer.state = MJRefreshStateNoMoreData;
+                
+            } else {
+            
+                self.mainCollectionView.footer.state = MJRefreshStateIdle;
+            }
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//        //请求特惠列表
+//        NSString *spellString = [NSString stringWithFormat:@"%@*%@*%@*%d",[SpellParameters getBasePostString],_hid,_pid,page];
+//        //加密
+//        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+//        NSString *post_String = [postEncryption stringWithPost:spellString];
+//        //接受字典
+//        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kTehui_alist];
+//        NSDictionary *get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
+//        
+//        
+//        for (NSDictionary *dic in get_JsonDic) {
+//
+//            zhutiModel *model = [[zhutiModel alloc]init];
+//            [model setValuesForKeysWithDictionary:dic];
+//            [_listArray addObject:model];
+//        }
+//        
+//        dispatch_async(dispatch_get_main_queue(), ^{
+//            
+//            [self.hud hide:YES];
+//            [_mainCollectionView reloadData];
+//            [_mainCollectionView.footer endRefreshing];
+//            self.mainCollectionView.footer.state = MJRefreshStateNoMoreData;
+//        });
+//    });
 }
 #pragma mark - collectionView
 -(void)initCollectionView{

@@ -28,7 +28,7 @@
 
 -(void)setMineInfoModel:(DDQMineInfoModel *)mineInfoModel {
     NSURL *url = [NSURL URLWithString:mineInfoModel.userimg];
-    [self.headView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"myIcon"]];
+    [self.headView sd_setImageWithURL:url placeholderImage:[UIImage imageNamed:@"default_pic"]];
     [self layoutIfNeeded];
 }
 

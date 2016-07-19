@@ -16,5 +16,6 @@
 @property (copy,nonatomic) NSString *text2;
 @property (copy,nonatomic) NSString *userid;
 @property (copy,nonatomic) NSString *pubtime;
+@property (copy,nonatomic) NSString *ctime;
 
 @end

@@ -10,14 +10,14 @@
 
 @interface SLActivityModel : NSObject
 // 图片名
-@property (nonatomic, strong) NSString *localImageName;
-
-@property (nonatomic, copy) NSNumber *currentPrice;
-@property (nonatomic, copy) NSNumber *refPrice;
-@property (nonatomic, strong) NSArray *friends;
-@property (nonatomic, copy) NSString *introduce;
-@property (nonatomic, copy) NSString *URLString;
-@property (nonatomic, copy) NSNumber *webHeight;
+//@property (nonatomic, strong) NSString *localImageName;
+//
+//@property (nonatomic, copy) NSNumber *currentPrice;
+//@property (nonatomic, copy) NSNumber *refPrice;
+//@property (nonatomic, strong) NSArray *friends;
+//@property (nonatomic, copy) NSString *introduce;
+//@property (nonatomic, copy) NSString *URLString;
+//@property (nonatomic, copy) NSNumber *webHeight;
 
 
 
@@ -27,12 +27,14 @@
 @property (nonatomic ,strong)NSString * newval ;//新
 @property (nonatomic ,strong)NSString * oldval ;//旧
 
-@property (nonatomic ,strong)NSString * IdString ;
+@property (nonatomic ,strong)NSString *id ;
 @property (nonatomic ,strong)NSString *hid;
 
 @property (nonatomic ,strong)NSString *hname;//医院
 
 @property (nonatomic ,strong)NSString *himg;//医院logo
+
+@property (nonatomic ,strong)NSString *fname;//项目名称
 
 @property (nonatomic ,strong)NSString *dj;
 
@@ -51,5 +53,10 @@
 @property (nonatomic ,strong)NSMutableArray *users;
 //12-13
 @property (nonatomic ,strong)NSString * name;
+
+/** 是否点击展开 */
+@property (nonatomic, assign) BOOL isClicked;
+/** 点击展开显示的文字 */
+@property (nonatomic ,strong) NSString * val_desc;
 
 @end

@@ -43,7 +43,7 @@
 
 -(void)setCommentChildModel:(DDQMyCommentChildModel *)commentChildModel {
 
-    self.hfId = commentChildModel.iD;
+    self.hfId = commentChildModel.id;
     //用户头像
     CGFloat img_w;
     CGFloat img_h;
@@ -94,7 +94,7 @@
     pubtime_label.tag           = 3;
 
     //评论内容
-    CGRect introRect = [commentChildModel.title boundingRectWithSize:CGSizeMake(kScreenWidth, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];;
+    CGRect introRect = [commentChildModel.text boundingRectWithSize:CGSizeMake(kScreenWidth, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];;
 
 //    if ([commentChildModel.title isKindOfClass:[NSNull class]]) {
 //        introRect = [commentChildModel.title boundingRectWithSize:CGSizeMake(kScreenWidth, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
@@ -105,7 +105,7 @@
     [self.background_view addSubview:intro_label];
     intro_label.numberOfLines = 0;
     intro_label.font          = [UIFont systemFontOfSize:13.0f];
-    intro_label.text          = commentChildModel.title;
+    intro_label.text          = commentChildModel.text;
     intro_label.tag           = 4;
     
 //    if (![commentChildModel.intro isKindOfClass:[NSNull class]]) {
@@ -113,15 +113,20 @@
     NSString *new_string;
     
     if (![commentChildModel.username2 isEqualToString:@""]) {
-         new_string = [NSString stringWithFormat:@"%@:%@",commentChildModel.username2,commentChildModel.intro];
+         new_string = [NSString stringWithFormat:@"%@:%@",commentChildModel.username2,commentChildModel.text2];
     } else {
-        new_string = [NSString stringWithFormat:@"%@",commentChildModel.intro];
+        new_string = [NSString stringWithFormat:@"%@",commentChildModel.text2];
 
     }
     
         CGRect newRect = [new_string boundingRectWithSize:CGSizeMake(kScreenWidth, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f]} context:nil];
         
         NSMutableAttributedString *mutable_string = [[NSMutableAttributedString alloc] initWithString:new_string];
+    
+    if (commentChildModel.username2 == nil) {
+        commentChildModel.username2 = @"";
+    }
+    
         NSAttributedString *attributed_comment    = [[NSAttributedString alloc] initWithString:commentChildModel.username2 attributes:@{NSForegroundColorAttributeName:[UIColor meiHongSe],NSFontAttributeName:[UIFont systemFontOfSize:13.0f]}];
         [mutable_string replaceCharactersInRange:NSMakeRange(0, commentChildModel.username2.length) withAttributedString:attributed_comment];
         
@@ -195,7 +200,9 @@
 -(void)viewClickMethod:(UITapGestureRecognizer *)tap {
 
     if (self.delegate != nil && [self.delegate respondsToSelector:@selector(myCommentCellDelegateWithTapMethodAndWenzhangId:)]) {
+        
         [self.delegate myCommentCellDelegateWithTapMethodAndWenzhangId:self.hfId];
+        
     }
 }
 

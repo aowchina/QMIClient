@@ -12,6 +12,8 @@
 
 #import "DDQDoctorHomePageModel.h"
 
+#import "ProjectNetWork.h"
+
 @interface DDQDoctorHomePageController ()<UITableViewDataSource,UITableViewDelegate>
 
 /**
@@ -23,88 +25,84 @@
 
 @property (strong,nonatomic) NSMutableArray *homepage_sourceArray;
 
+@property (nonatomic, strong) MBProgressHUD *hud;
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
 @end
 
 @implementation DDQDoctorHomePageController
 
+- (MBProgressHUD *)hud {
+    
+    if (!_hud) {
+        
+        _hud = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:_hud];
+        _hud.detailsLabelText = @"请稍等...";
+        
+    }
+    
+    return _hud;
+    
+}
+
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
     self.homepage_sourceArray = [NSMutableArray array];
     [self initTableView];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            [self.mainTableView.header endRefreshing];
-        }
-    }];
     
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self asyDoctorNetWork];
+
     self.title = @"主力医生";
-
     
-}
-
--(void)viewWillAppear:(BOOL)animated {
-
-    [super viewWillAppear:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self asyDoctorNetWork];
-
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            [self.mainTableView.header endRefreshing];
-        }
-    }];
 }
 
 -(void)asyDoctorNetWork {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kHospital_DoctorUrl andData:@[self.hospital_id] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        //拼8段
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@",spellString,self.hospital_id];
-        //加密这个段数
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_string = [postEncryption stringWithPost:post_baseString];
-        //post
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_string AndUrl:kHospital_DoctorUrl];
+        if (code_error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
         
-        NSString *errorcode_string = [post_dic valueForKey:@"errorcode"];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([errorcode_string intValue] == 0) {
-                //解密
-                //12-21
-                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+            NSDictionary *get_jsonDic = [DDQPublic nullDic:responseObjc];
+            
+            for (NSDictionary *dataDic in [get_jsonDic valueForKey:@"doctor"]) {
                 
-                NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
+                DDQDoctorHomePageModel *pageModel = [[DDQDoctorHomePageModel alloc] init];
+                pageModel.direction  = [dataDic valueForKey:@"direction"];
+                pageModel.Id         = [NSString stringWithFormat:@"%@",[dataDic valueForKey:@"id"]];
+                pageModel.img        = [dataDic valueForKey:@"img"];
+                pageModel.intro      = [dataDic valueForKey:@"intro"];
+                pageModel.name       = [dataDic valueForKey:@"name"];
+                pageModel.pos        = [dataDic valueForKey:@"pos"];
+                [self.homepage_sourceArray addObject:pageModel];
                 
-                for (NSDictionary *dataDic in [get_jsonDic valueForKey:@"doctor"]) {
-                    DDQDoctorHomePageModel *pageModel = [[DDQDoctorHomePageModel alloc] init];
-                    pageModel.direction  = [dataDic valueForKey:@"direction"];
-                    pageModel.Id         = [NSString stringWithFormat:@"%@",[dataDic valueForKey:@"id"]];
-                    pageModel.img        = [dataDic valueForKey:@"img"];
-                    pageModel.intro      = [dataDic valueForKey:@"intro"];
-                    pageModel.name       = [dataDic valueForKey:@"name"];
-                    pageModel.pos        = [dataDic valueForKey:@"pos"];
-                    [self.homepage_sourceArray addObject:pageModel];
-                }
-                [self.mainTableView reloadData];
-               
-            } else {
-                [self alertController:@"系统繁忙"];
             }
-            [self.mainTableView.header endRefreshing];
+            
+            [self.hud hide:YES];
+            
+            [self.mainTableView reloadData];
 
-         });
-    });
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 
 
@@ -174,13 +172,4 @@
     
 }
 
-#pragma mark - other methods
--(void)alertController:(NSString *)message {
-    UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-    UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
-    [userNameAlert addAction:actionOne];
-    [userNameAlert addAction:actionTwo];
-    [self presentViewController:userNameAlert animated:YES completion:nil];
-}
 @end

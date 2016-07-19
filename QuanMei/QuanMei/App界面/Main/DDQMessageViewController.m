@@ -24,7 +24,6 @@
     
     [super viewDidLoad];
     
-    
     [self.message_mainTableView registerNib:[UINib nibWithNibName:@"DDQMessageCell" bundle:nil]
     forCellReuseIdentifier:@"message"];
     

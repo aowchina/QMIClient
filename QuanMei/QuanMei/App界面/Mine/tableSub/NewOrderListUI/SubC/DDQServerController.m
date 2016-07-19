@@ -25,7 +25,8 @@
 @property ( assign, nonatomic) CGFloat cell_h;
 
 @property ( strong, nonatomic) NSMutableArray *serverC_source;
-
+/** 页码 */
+@property (assign, nonatomic) int page;
 @end
 
 @implementation DDQServerController
@@ -36,6 +37,9 @@
     
     self.serverC_source = [NSMutableArray array];
     self.server_table.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
+    
+    self.page = 1;
+    
     [self serverC_netServerWithPage:1];
     
     /**
@@ -43,16 +47,17 @@
      */
     self.server_table.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
+        self.page = 1;
         [self.serverC_source removeAllObjects];
-        [self serverC_netServerWithPage:1];
+        [self serverC_netServerWithPage:self.page];
         [self.server_table.header endRefreshing];
         
     }];
     
     self.server_table.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         
-        int page = page_num + 1;
-        [self serverC_netServerWithPage:page];
+        self.page = self.page + 1;
+        [self serverC_netServerWithPage:self.page];
         [self.server_table.footer endRefreshing];
 
     }];
@@ -66,7 +71,7 @@
     
 }
 
-static int page_num = 2;
+//static int page_num = 2;
 - (void)serverC_netServerWithPage:(int)page {
     
     [self.wait_hud show:YES];

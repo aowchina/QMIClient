@@ -25,6 +25,7 @@
 #import "DDQMineViewController.h"
 #import "DDQUserInfoModel.h"
 
+#import "ProjectNetWork.h"
 
 @interface DDQPreferenceViewController ()<MBProgressHUDDelegate>
 
@@ -63,8 +64,10 @@
 //存放用户头像的数组
 @property (nonatomic,strong)NSMutableArray *UserArray;
 
-@property (nonatomic,strong)NSMutableArray *QArray;
-@property (nonatomic ,strong)MBProgressHUD *hud;
+@property (nonatomic, strong) NSMutableArray *QArray;
+@property (nonatomic, strong) MBProgressHUD *hud;
+
+@property (nonatomic, strong) ProjectNetWork *netWork;
 
 @end
 
@@ -89,28 +92,14 @@
     _UserArray       = [NSMutableArray new];
     _QArray          = [NSMutableArray new];
     
-    _hud = [[MBProgressHUD alloc] initWithView:self.view];
-    [self.view addSubview:_hud];
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
     [self.hud show:YES];
     self.hud.detailsLabelText = @"加载中...";
     
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self asyProductList];
-            
-        } else {
-            
-            [self.hud hide:YES];
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self asyProductList];
     
 }
 
@@ -165,23 +154,10 @@
             self.navigationItem.leftBarButtonItem = leftItem;
         }
         
-    } else {
-        
-        UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"登录" style:UIBarButtonItemStyleDone target:self action:@selector(pushToLoginViewController)];
-        //10-19
-        //11-06
-        leftItem.tintColor        = [UIColor meiHongSe];
-        
-        self.navigationItem.leftBarButtonItem = leftItem;
     }
-    
 }
 
 #pragma mark - navigationBar item target aciton
--(void)pushToLoginViewController {
-
-}
-
 -(void)pushToMineViewController {
     
     [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
@@ -191,53 +167,56 @@
 #pragma mark - 网络相关
 static BOOL isFresh = NO;
 -(void)asyProductList {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:spellString];
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kTeHuiListUrl];
-        //11-30-15 判断是否成功
-        if([[get_postDic objectForKey:@"errorcode"]intValue]==0 && get_postDic !=nil)
-        {
-            //12-21
-            NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
-            NSDictionary *get_JsonDic = [DDQPublic nullDic:get_Dic];
+    
+    [self.view bringSubviewToFront:self.hud];
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kTeHuiListUrl andData:nil andSuccess:^(id responseObjc, NSError *code_error) {
+        
+        if (code_error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+        
+            [self.hud hide:YES];
+            
+            NSDictionary *get_JsonDic = [DDQPublic nullDic:responseObjc];
             
             NSMutableDictionary *firstArray = [get_JsonDic objectForKey:@"act_first"];
             _tArray = [get_JsonDic objectForKey:@"types"];
             NSMutableArray *act = [get_JsonDic objectForKey:@"act_list"];
             //表视图
-    //                for (NSDictionary *dic in firstArray) {
-                        _amount = [firstArray objectForKey:@"amount"];
-                        _bimg = [firstArray objectForKey:@"bimg"];
-                        _fname = [firstArray objectForKey:@"fname"];
-                        _hid = [firstArray objectForKey:@"hid"];
-                        _name = [firstArray objectForKey:@"name"];
-                        _pid = [firstArray objectForKey:@"pid"];
-                        _simg = [firstArray objectForKey:@"simg"];
+            //                for (NSDictionary *dic in firstArray) {
+            _amount = [firstArray objectForKey:@"amount"];
+            _bimg = [firstArray objectForKey:@"bimg"];
+            _fname = [firstArray objectForKey:@"fname"];
+            _hid = [firstArray objectForKey:@"hid"];
+            _name = [firstArray objectForKey:@"name"];
+            _pid = [firstArray objectForKey:@"pid"];
+            _simg = [firstArray objectForKey:@"simg"];
             NSMutableArray *userArr = [firstArray objectForKey:@"yyuser"];
-
+            
             
             //用户头像
-                    for (NSDictionary *dic in userArr) {
-                        NSString *userid = [dic objectForKey:@"userid"];
-                        NSString *userimg = [dic objectForKey:@"userimg"];
-                        NSMutableArray *addArray = [NSMutableArray arrayWithObjects:userid,userimg, nil];
-                        [_UserArray addObject:addArray];
-                    }
+            for (NSDictionary *dic in userArr) {
+                
+                NSString *userid = [dic objectForKey:@"userid"];
+                NSString *userimg = [dic objectForKey:@"userimg"];
+                NSMutableArray *addArray = [NSMutableArray arrayWithObjects:userid,userimg, nil];
+                [_UserArray addObject:addArray];
+            }
             
             //act_list
             for (NSDictionary *dic in act) {
-                
                 
                 ListModel *model = [[ListModel alloc]init];
                 [model setValuesForKeysWithDictionary:dic];
                 [_act_list addObject:model];
             }
-
+            
             //特惠列表
             for (NSDictionary *dic in _tArray) {
                 NSString *str = [dic objectForKey:@"name"];
@@ -275,37 +254,144 @@ static BOOL isFresh = NO;
                 [model.TH_TypesNameArray removeAllObjects];
                 [model.TH_TypesNameArray addObject:_nameArray];
             }
-
             
+            [self.hud hide:YES];
 
-            dispatch_async(dispatch_get_main_queue(), ^{
-    //            [self.mainTableView reloadData];
-                [self.hud hide:YES];
-                [self.myCollectionView reloadData];
-                [self.myCollectionView1 reloadData];
-                if (isFresh == NO) {
-                    [self initTableView];
-                    isFresh = YES;
-                }
+            [self.myCollectionView reloadData];
+            [self.myCollectionView1 reloadData];
+            
+            if (isFresh == NO) {
+                [self initTableView];
+                isFresh = YES;
+            }
 
-            });
+
         }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                [self.hud hide:YES];
-                UIImageView *imageView = [[UIImageView alloc]initWithFrame:self.view.bounds];
-                
-                imageView.image = [UIImage imageNamed:@"美女啊"];
-                
-                
-                [self.view addSubview:imageView];
-            });
-        }
-        //11-30-15
-
-    });
+        
+    } andFailure:^(NSError *error) {
+       
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
+    
+//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//        //请求特惠列表
+//        NSString *spellString = [SpellParameters getBasePostString];
+//        //加密
+//        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+//        NSString *post_String = [postEncryption stringWithPost:spellString];
+//        //接受字典
+//        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kTeHuiListUrl];
+//        //11-30-15 判断是否成功
+//        if([[get_postDic objectForKey:@"errorcode"]intValue]==0 && get_postDic !=nil)
+//        {
+//            //12-21
+//            NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
+//            NSDictionary *get_JsonDic = [DDQPublic nullDic:get_Dic];
+//            
+//            NSMutableDictionary *firstArray = [get_JsonDic objectForKey:@"act_first"];
+//            _tArray = [get_JsonDic objectForKey:@"types"];
+//            NSMutableArray *act = [get_JsonDic objectForKey:@"act_list"];
+//            //表视图
+//    //                for (NSDictionary *dic in firstArray) {
+//                        _amount = [firstArray objectForKey:@"amount"];
+//                        _bimg = [firstArray objectForKey:@"bimg"];
+//                        _fname = [firstArray objectForKey:@"fname"];
+//                        _hid = [firstArray objectForKey:@"hid"];
+//                        _name = [firstArray objectForKey:@"name"];
+//                        _pid = [firstArray objectForKey:@"pid"];
+//                        _simg = [firstArray objectForKey:@"simg"];
+//            NSMutableArray *userArr = [firstArray objectForKey:@"yyuser"];
+//
+//            
+//            //用户头像
+//                    for (NSDictionary *dic in userArr) {
+//                        NSString *userid = [dic objectForKey:@"userid"];
+//                        NSString *userimg = [dic objectForKey:@"userimg"];
+//                        NSMutableArray *addArray = [NSMutableArray arrayWithObjects:userid,userimg, nil];
+//                        [_UserArray addObject:addArray];
+//                    }
+//            
+//            //act_list
+//            for (NSDictionary *dic in act) {
+//                
+//                
+//                ListModel *model = [[ListModel alloc]init];
+//                [model setValuesForKeysWithDictionary:dic];
+//                [_act_list addObject:model];
+//            }
+//
+//            //特惠列表
+//            for (NSDictionary *dic in _tArray) {
+//                NSString *str = [dic objectForKey:@"name"];
+//                [_nameArray addObject:str];
+//                
+//                TypesModel *model = [[TypesModel alloc]init];
+//                [model setValuesForKeysWithDictionary:dic];
+//                [_typesArray addObject:model];
+//                
+//            }
+//            if (_nameArray.count>=7) {
+//                NSArray *arr = [_nameArray objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, 7)]];
+//                for (NSString *str in arr) {
+//                    [_array addObject:str];
+//                }
+//                [_array addObject:@"更多"];
+//            }else
+//            {
+//                for (NSString *str in _nameArray) {
+//                    [_QArray addObject:str];
+//                }
+//            }
+//            //把这个数组添加到单利数组里面
+//            Singleton *model = [Singleton sharedDataTool];
+//            //判断特惠是否为空
+//            if (model.TH_TypesArray.count == 0 && model.TH_TypesNameArray.count==0) {
+//                [model.TH_TypesArray addObject:_tArray];
+//                [model.TH_TypesNameArray addObject:_nameArray];
+//            }else
+//            {
+//                //添加所有属性
+//                [model.TH_TypesArray removeAllObjects];
+//                [model.TH_TypesArray addObject:_tArray];
+//                //名字用于显示
+//                [model.TH_TypesNameArray removeAllObjects];
+//                [model.TH_TypesNameArray addObject:_nameArray];
+//            }
+//
+//            
+//
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//    //            [self.mainTableView reloadData];
+//                [self.hud hide:YES];
+//                [self.myCollectionView reloadData];
+//                [self.myCollectionView1 reloadData];
+//                if (isFresh == NO) {
+//                    [self initTableView];
+//                    isFresh = YES;
+//                }
+//
+//            });
+//        }
+//        else
+//        {
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                
+//                [self.hud hide:YES];
+//                UIImageView *imageView = [[UIImageView alloc]initWithFrame:self.view.bounds];
+//                
+//                imageView.image = [UIImage imageNamed:@"美女啊"];
+//                
+//                
+//                [self.view addSubview:imageView];
+//            });
+//        }
+//        //11-30-15
+//
+//    });
 }
 #pragma mark - tableView
 -(void)initTableView {
@@ -333,8 +419,6 @@ static BOOL isFresh = NO;
     imgView.userInteractionEnabled=YES;
     UITapGestureRecognizer *Tap1 =[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(titleImg)];
     [imgView addGestureRecognizer:Tap1];
-
-    
     
     UILabel *zhuti = [[UILabel alloc]initWithFrame:CGRectMake(kScreenWidth*0.01, kScreenHeight*0.01, kScreenWidth*0.4, kScreenHeight*0.04)];
     zhuti.text = @"主题";

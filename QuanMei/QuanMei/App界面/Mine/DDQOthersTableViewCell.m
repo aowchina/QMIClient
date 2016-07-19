@@ -24,11 +24,9 @@
     CGFloat spliteLeft = 10;
     CGFloat view_width = kScreenWidth * 0.25;
     
-    
-    
     if (othersModel.imgArray != 0) {
         
-        self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(10, 0, kScreenWidth, kScreenHeight * 0.2)];
+        self.mainScroll = [[UIScrollView alloc] initWithFrame:CGRectMake(10, 0, kScreenWidth, kScreenWidth * 0.25 + 35)];
         [self.contentView addSubview:self.mainScroll];
         self.mainScroll.contentSize   = CGSizeMake(view_width * othersModel.imgArray.count + spliteLeft * othersModel.imgArray.count, self.mainScroll.frame.size.height);
         self.mainScroll.pagingEnabled = YES;
@@ -40,13 +38,13 @@
             [temp_View sd_setImageWithURL:[NSURL URLWithString:[othersModel.imgArray[i] valueForKey:@"icon"]] placeholderImage:[UIImage imageNamed:@"default_pic"]];
             [self.mainScroll addSubview:temp_View];
             
-            UILabel *temp_label = [[UILabel alloc] initWithFrame:CGRectMake(spliteLeft * i + view_width * i, 10+temp_View.frame.size.height, view_width,15)];
+            UILabel *temp_label = [[UILabel alloc] initWithFrame:CGRectMake(spliteLeft * i + view_width * i, 10 + temp_View.frame.size.height, view_width, 30)];
             [self.mainScroll addSubview:temp_label];
             temp_label.textAlignment = NSTextAlignmentCenter;
             temp_label.text = [othersModel.imgArray[i] valueForKey:@"name"];
             temp_label.font = [UIFont systemFontOfSize:12.0f];
         }
-        self.img_height = kScreenHeight * 0.2;
+        self.img_height = view_width * 0.2 + 25;
     } else {
     
         self.img_height = 0 ;

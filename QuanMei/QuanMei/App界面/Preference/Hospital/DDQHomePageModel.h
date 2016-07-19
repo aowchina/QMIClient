@@ -37,7 +37,7 @@
  *  医院logo
  */
 @property (copy,nonatomic) NSString *logo;
-@property (copy,nonatomic) NSString *plamount;
+@property (strong,nonatomic) NSString *plamount;
 /**
  *  星级
  */

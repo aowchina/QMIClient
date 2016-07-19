@@ -82,17 +82,7 @@
 
     [super viewWillAppear:YES];
     self.navigationController.navigationBar.translucent = NO;
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        
-        if (errorDic == nil) {
-            
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+
 }
 
 static int commentPage = 2;
@@ -256,6 +246,7 @@ static int diaryPage = 2;
                 self.userInfo.userimg = dic[@"userimg"];
                 self.userInfo.username = dic[@"username"];
                 self.userInfo.group = dic[@"group"];
+                self.userInfo.bgimg = dic[@"bgimg"];
             }
             self.mainTableView.tableHeaderView = [self setHeaderView];
             [self.mainTableView reloadData];
@@ -278,20 +269,24 @@ static int diaryPage = 2;
 //设置头视图
 -(UIView *)setHeaderView {
     
-    self.backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height*0.3)];
-    [self.view addSubview:self.backgroundImageView];
+    self.backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height*0.35)];
+//    [self.view addSubview:self.backgroundImageView];
     
     //创建一个文件管理者
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *fullPath =[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"avatar.png"];
+//    NSFileManager *fileManager = [NSFileManager defaultManager];
+//    NSString *fullPath =[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] stringByAppendingPathComponent:@"avatar.png"];
+//    
+//    if ([fileManager fileExistsAtPath:fullPath] == YES) {
+//        
+//        self.backgroundImageView.image = [UIImage imageWithContentsOfFile:fullPath];
+//        
+//    } else {
+//        
+//        self.backgroundImageView.image = nil;
+//        
+//    }
     
-    if ([fileManager fileExistsAtPath:fullPath] == YES) {
-        self.backgroundImageView.image = [UIImage imageWithContentsOfFile:fullPath];
-        
-    } else {
-        self.backgroundImageView.image = nil;
-    }
-    
+    [self.backgroundImageView sd_setImageWithURL:[NSURL URLWithString:self.userInfo.bgimg] placeholderImage:[UIImage imageNamed:@"ad_doctor_3"]];
     
     self.userMessage = [[UIView alloc] init];
     [self.backgroundImageView addSubview:self.userMessage];
@@ -313,8 +308,6 @@ static int diaryPage = 2;
         }
     }];
     [self.userMessage.layer setCornerRadius:10.0f];
-    
-
     [self.userMessage.layer setMasksToBounds:YES];
     [self.userMessage setBackgroundColor:[UIColor whiteColor]];
     NSString *sex = self.userInfo.sex;
@@ -591,7 +584,7 @@ static NSString *identifier = @"cell";
 
     if (indexPath.section == 0) {
         
-        return self.group_height;
+        return kScreenWidth * 0.25 + 35;
         
     } else if (indexPath.section == 1) {
         

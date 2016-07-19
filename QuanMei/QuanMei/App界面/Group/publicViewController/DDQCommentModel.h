@@ -17,7 +17,9 @@
  *  图片数组
  */
 @property (strong,nonatomic) NSArray *imgs;
-@property (strong,nonatomic) NSDictionary *pluser;
+@property (strong,nonatomic) NSArray *pluser;
+/** 是否被收藏 */
+@property (nonatomic, strong) id isSc;
 /**
  *  标题
  */
@@ -53,7 +55,7 @@
 /**
  *  文章id
  */
-@property (copy,nonatomic) NSString *iD;
+@property (copy,nonatomic) NSString *id;
 @property (copy,nonatomic) NSString *zan;
 
 @end

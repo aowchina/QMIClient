@@ -21,8 +21,7 @@
 #import "DDQDoctorHomePageModel.h"
 #import "zhutiModel.h"
 #import "DDQHospitalEvaluteModel.h"
-
-typedef void(^ItemHeightBlock)(CGFloat height,BOOL isFinished);
+#import "ProjectNetWork.h"
 
 @interface DDQHospitalHomePageController ()<UITableViewDataSource,UITableViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout>
 
@@ -50,58 +49,69 @@ typedef void(^ItemHeightBlock)(CGFloat height,BOOL isFinished);
  */
 @property ( assign, nonatomic) CGFloat new_height;
 
-@property ( copy, nonatomic) ItemHeightBlock block;
-
-- (void)item_height:(ItemHeightBlock)block;
+@property (nonatomic, assign) int page;
+@property (nonatomic, strong) MBProgressHUD *hud;
+@property (nonatomic, strong) ProjectNetWork *netWork;
 
 @end
 
 @implementation DDQHospitalHomePageController
 
+- (MBProgressHUD *)hud {
+
+    if (!_hud) {
+    
+        _hud = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:_hud];
+        _hud.detailsLabelText = @"请稍等...";
+        
+    }
+    
+    return _hud;
+    
+}
+
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
     
     self.collectionView_source = [NSMutableArray array];
     self.temp_pjArray = [NSMutableArray array];
     
     [self initTableView];
-    //调用下
-   
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self asyHospitalHomePageNetWork];
-            [self asyTeHuiNetWorkWithPage:1];
-            
-            self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-               
-                [_collectionView_source removeAllObjects];
-                tehui_page = 2;
-                [self asyHospitalHomePageNetWork];
-                [self asyTeHuiNetWorkWithPage:1];
-            }];
-            
-            self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-                
-                int num = tehui_page++;
-                [self asyTeHuiNetWorkWithPage:num];
-                
-            }];
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
+    
+    self.page = 1;
+
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self asyHospitalHomePageNetWork];
+    
+    [self asyTeHuiNetWorkWithPage:self.page];
+    
+    self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+       
+        self.page = 1;
+        [_collectionView_source removeAllObjects];
+        [self asyHospitalHomePageNetWork];
+        [self asyTeHuiNetWorkWithPage:self.page];
+        [self.mainTableView.header endRefreshing];
+
     }];
     
+    self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        self.page = self.page + 1;
+        [self asyTeHuiNetWorkWithPage:self.page];
+        [self.mainTableView.footer endRefreshing];
+        
+    }];
+
     self.title = self.hospital_name;
-}
+    
+    self.homePageModel          = [[DDQHomePageModel alloc] init];
 
--(void)viewDidDisappear:(BOOL)animated {
-
-    [super viewDidDisappear:YES];
-    tehui_page = 2;
+    self.temp_pjArray = [NSMutableArray array];
+    
 }
 
 
@@ -109,120 +119,123 @@ typedef void(^ItemHeightBlock)(CGFloat height,BOOL isFinished);
 
     [super viewWillAppear:YES];
     self.navigationController.navigationBar.translucent = YES;
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+    
+}
+/** 医院请求 */
+-(void)asyHospitalHomePageNetWork {
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kHospital_MainUrl andData:@[self.hospital_id] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        if (errorDic == nil) {
+        if (code_error) {
             
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             
         } else {
+        
+            NSDictionary *get_jsonDic = [DDQPublic nullDic:responseObjc];
             
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            self.homePageModel.doctor   = [get_jsonDic valueForKey:@"doctor"];
+            self.homePageModel.fw       = [get_jsonDic valueForKey:@"fw"];
+            self.homePageModel.hj       = [get_jsonDic valueForKey:@"hj"];
+            self.homePageModel.Id       = [get_jsonDic valueForKey:@"id"];
+            self.homePageModel.logo     = [get_jsonDic valueForKey:@"logo"];
+            self.homePageModel.name     = [get_jsonDic valueForKey:@"name"];
+            self.homePageModel.plamount = [get_jsonDic valueForKey:@"plamount"];
+            self.homePageModel.sm       = [get_jsonDic valueForKey:@"sm"];
+            self.homePageModel.stars    = [get_jsonDic valueForKey:@"stars"];
+            self.homePageModel.pl       = [get_jsonDic valueForKey:@"pl"];
+            self.homePageModel.hp       = [get_jsonDic valueForKey:@"hp"];
+            
+            [self.mainTableView reloadData];
+            
         }
+      
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
     }];
+    
 }
-
--(void)asyHospitalHomePageNetWork {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
-        //网络解析一小下
-        NSString *spellString             = [SpellParameters getBasePostString];//八段
+//static int tehui_page = 2;
+/** 医院对应的特惠 */
+-(void)asyTeHuiNetWorkWithPage:(int)page {
+    
+    [self.hud show:YES];
+    //填0表示：通用
+    [self.netWork asyPOSTWithAFN_url:kTehui_alist andData:@[self.hospital_id, @"0", @(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@",spellString,self.hospital_id];//post字符串
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];//加密类
-        
-        NSString *post_string             = [postEncryption stringWithPost:post_baseString];//加密下
-        
-        NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kHospital_MainUrl];//发送下
-        
-        NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if (code_error) {
             
-            if ([errorcode_string intValue] == 0) {
-                //解密
-                //12-21
-                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-                NSDictionary *get_jsonDic = [DDQPublic nullDic:get_Dic];
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+        
+            for (NSDictionary *dataDic in responseObjc) {
                 
-                self.homePageModel          = [[DDQHomePageModel alloc] init];
-                self.homePageModel.doctor   = [get_jsonDic valueForKey:@"doctor"];
-                self.homePageModel.fw       = [get_jsonDic valueForKey:@"fw"];
-                self.homePageModel.hj       = [get_jsonDic valueForKey:@"hj"];
-                self.homePageModel.Id       = [get_jsonDic valueForKey:@"id"];
-                self.homePageModel.logo     = [get_jsonDic valueForKey:@"logo"];
-                self.homePageModel.name     = [get_jsonDic valueForKey:@"name"];
-                self.homePageModel.plamount = [get_jsonDic valueForKey:@"plamount"];
-                self.homePageModel.sm       = [get_jsonDic valueForKey:@"sm"];
-                self.homePageModel.stars    = [get_jsonDic valueForKey:@"stars"];
-                self.homePageModel.pl       = [get_jsonDic valueForKey:@"pl"];
-                self.homePageModel.hp       = [get_jsonDic valueForKey:@"hp"];
+                zhutiModel *zhuti_Model = [[zhutiModel alloc] init];
+                zhuti_Model.hname       = [dataDic valueForKey:@"hname"];
+                zhuti_Model.fname       = [dataDic valueForKey:@"fname"];
+                zhuti_Model.ID          = [dataDic valueForKey:@"id"];
+                zhuti_Model.name        = [dataDic valueForKey:@"name"];
+                zhuti_Model.newval      = [dataDic valueForKey:@"newval"];
+                zhuti_Model.oldval      = [dataDic valueForKey:@"oldval"];
+                zhuti_Model.sellout     = [dataDic valueForKey:@"sellout"];
+                zhuti_Model.simg        = [dataDic valueForKey:@"simg"];
+                [self.collectionView_source addObject:zhuti_Model];
                 
-                [self.mainTableView reloadData];
+            }
+            
+            [self.hud hide:YES];
+        
+            if (self.collectionView_source.count%2 == 0) {
+                
+                self.foot_collectionView.frame = CGRectMake(0, 0, kScreenWidth, (250)*self.collectionView_source.count/2);
                 
             } else {
                 
-                [self alertController:@"系统繁忙"];
-            }
-            [self.mainTableView.header endRefreshing];
+                self.foot_collectionView.frame = CGRectMake(0, 0, kScreenWidth, (250)*self.collectionView_source.count/2 + 250);
 
-        });
-    });
-}
-static int tehui_page = 2;
--(void)asyTeHuiNetWorkWithPage:(int)page {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        NSString *spellString             = [SpellParameters getBasePostString];//八段
-        
-        NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%d*%d",spellString,self.hospital_id,0,page];//post字符串
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];//加密类
-        
-        NSString *post_string             = [postEncryption stringWithPost:post_baseString];//加密下
-        
-        NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kTehui_alist];//发送下
-        
-        NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+            }
             
-            if ([errorcode_string intValue] == 0) {
-                
-                //解密
-                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+            self.mainTableView.tableFooterView = self.foot_collectionView;
             
-                for (NSDictionary *dataDic in get_jsonDic) {
-                    zhutiModel *zhuti_Model = [[zhutiModel alloc] init];
-                    zhuti_Model.hname       = [dataDic valueForKey:@"hname"];
-                    zhuti_Model.fname       = [dataDic valueForKey:@"fname"];
-                    zhuti_Model.ID          = [dataDic valueForKey:@"id"];
-                    zhuti_Model.name        = [dataDic valueForKey:@"name"];
-                    zhuti_Model.newval      = [dataDic valueForKey:@"newval"];
-                    zhuti_Model.oldval      = [dataDic valueForKey:@"oldval"];
-                    zhuti_Model.sellout     = [dataDic valueForKey:@"sellout"];
-                    zhuti_Model.simg        = [dataDic valueForKey:@"simg"];
-                    [self.collectionView_source addObject:zhuti_Model];
-                }
-                self.foot_collectionView.frame = CGRectMake(0, 0, kScreenWidth, (250)*self.collectionView_source.count/2+(250)*self.collectionView_source.count%2 + self.collectionView_source.count * 10 + 100);
-                self.mainTableView.tableFooterView = self.foot_collectionView;
-                [self.foot_collectionView reloadData];
+            [self.foot_collectionView reloadData];
+            
+            if ([responseObjc count] == 0) {
                 
-                [self.mainTableView.footer endRefreshing];
                 self.mainTableView.footer.state = MJRefreshStateNoMoreData;
                 
             } else {
                 
-                [self alertController:@"系统繁忙"];
+                self.mainTableView.footer.state = MJRefreshStateIdle;
+                
             }
-        });
-
-    });
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 
 
 #pragma mark - 创建一个表视图和一个集合视图
 -(void)initTableView {
+    
     self.mainTableView = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStylePlain];
     [self.mainTableView setDelegate:self];
     [self.mainTableView setDataSource:self];
@@ -287,10 +300,10 @@ static int tehui_page = 2;
     if (indexPath.section == 0) {
         
         if (indexPath.row == 0) {
+            
             DDQHospitalNameCell *nameCell = [[DDQHospitalNameCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"name"];
             nameCell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             [nameCell cellWithLogo:self.homePageModel.logo andHospitalName:self.homePageModel.name];
-            nameCell.selectionStyle = UITableViewCellSelectionStyleNone;
             nameCell.selectionStyle = UITableViewCellSelectionStyleNone;
 
             return nameCell;
@@ -299,6 +312,12 @@ static int tehui_page = 2;
             
             DDQHospitalCommentCell *commentCell = [[DDQHospitalCommentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"comment"];
             [commentCell judgeStarLight:[self.homePageModel.stars intValue] goodRate:self.homePageModel.hp];
+            
+            if (self.homePageModel.plamount == nil) {
+                
+                self.homePageModel.plamount = @"";
+                
+            }
             NSString *temp_string               = [NSString stringWithFormat:@"(%@人)",self.homePageModel.plamount];//将评论人数转换下
             [commentCell layOutCommentFirstContent:self.homePageModel.sm secondContent:self.homePageModel.hj thirdContent:self.homePageModel.fw commentNum:temp_string];
             commentCell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -310,92 +329,73 @@ static int tehui_page = 2;
     } else if (indexPath.section == 1) {
         
         
-            if (indexPath.row == self.homePageModel.pl.count) {
+        if (indexPath.row == self.homePageModel.pl.count) {
+            
+            UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"moreCell"];
+            cell.backgroundColor = [UIColor backgroundColor];
+            
+            cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            
+            UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 35)];
+            tempView.backgroundColor = [UIColor whiteColor];
+            [cell.contentView addSubview:tempView];
+            
+            UILabel *label = [[UILabel alloc] init];
+            [cell.contentView addSubview:label];
+            [label mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.centerX.equalTo(tempView.mas_centerX);
+                make.centerY.equalTo(tempView.mas_centerY);
+                make.width.equalTo(cell.mas_width).multipliedBy(0.5);
+                make.height.equalTo(tempView.mas_height).offset(20);
+            }];
+            label.textAlignment = NSTextAlignmentCenter;
+            if (self.homePageModel.plamount == nil) {
                 
-                UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"moreCell"];
-                cell.backgroundColor = [UIColor backgroundColor];
+                self.homePageModel.plamount = @"";
                 
-                cell.selectionStyle = UITableViewCellSelectionStyleNone;
+            }
+            label.text = [NSString stringWithFormat:@"共%@条评论>>",self.homePageModel.plamount];
+            label.font = [UIFont systemFontOfSize:15.0f];
+            return cell;
+            
+        } else {
+            
+            if (self.homePageModel.pl.count != 0 && self.homePageModel.pl.count<=3) {
                 
-                UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 35)];
-                tempView.backgroundColor = [UIColor whiteColor];
-                [cell.contentView addSubview:tempView];
-                
-                UILabel *label = [[UILabel alloc] init];
-                [cell.contentView addSubview:label];
-                [label mas_makeConstraints:^(MASConstraintMaker *make) {
-                    make.centerX.equalTo(tempView.mas_centerX);
-                    make.centerY.equalTo(tempView.mas_centerY);
-                    make.width.equalTo(cell.mas_width).multipliedBy(0.5);
-                    make.height.equalTo(tempView.mas_height).offset(20);
-                }];
-                label.textAlignment = NSTextAlignmentCenter;
-                label.text = [NSString stringWithFormat:@"共%@条评论>>",self.homePageModel.plamount];
-                label.font = [UIFont systemFontOfSize:15.0f];
-                return cell;
-                
-            } else {
-                
-                if (self.homePageModel.pl.count != 0 && self.homePageModel.pl.count<=3) {
+                for (NSDictionary *dataDic in self.homePageModel.pl) {
                     
-                    for (NSDictionary *dataDic in self.homePageModel.pl) {
-                        DDQHospitalEvaluteModel *model = [[DDQHospitalEvaluteModel alloc] init];
-                        model.fw = dataDic[@"fw"];
-                        model.hid = dataDic[@"hid"];
-                        model.hua = dataDic[@"hua"];
-                        model.iD = dataDic[@"id"];
-                        model.orderid = dataDic[@"orderid"];
-                        model.pubtime = dataDic[@"pubtime"];
-                        model.sm = dataDic[@"sm"];
-                        model.stars = dataDic[@"stars"];
-                        model.text = dataDic[@"text"];
-                        model.userid = dataDic[@"userid"];
-                        model.username = dataDic[@"username"];
-                        [_temp_pjArray addObject:model];
-                    }
+                    DDQHospitalEvaluteModel *model = [[DDQHospitalEvaluteModel alloc] init];
+                    model.fw = dataDic[@"fw"];
+                    model.hid = dataDic[@"hid"];
+                    model.hua = dataDic[@"hua"];
+                    model.iD = dataDic[@"id"];
+                    model.orderid = dataDic[@"orderid"];
+                    model.pubtime = dataDic[@"pubtime"];
+                    model.sm = dataDic[@"sm"];
+                    model.stars = dataDic[@"stars"];
+                    model.text = dataDic[@"text"];
+                    model.userid = dataDic[@"userid"];
+                    model.username = dataDic[@"username"];
+                    [_temp_pjArray addObject:model];
+                    
                 }
-                DDQHospitalEvaluteModel *model;
-                if (_temp_pjArray.count != 0) {
-                    model = _temp_pjArray[indexPath.row];
-                }
-                DDQUserCommentCell *userCell = [[DDQUserCommentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"user"];
-                [userCell layOutViewWithNickName:model.username date:model.pubtime intro:model.text andStars:[model.stars intValue]];
-                self.rowHeight = userCell.newRect.size.height;
-                userCell.selectionStyle = UITableViewCellSelectionStyleNone;
-                return userCell;
                 
             }
             
-
-        
-//        if (self.homePageModel.pl.count > 0) {
-//            
-//                   } else {
-//        
-//            UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"moreCell"];
-//            cell.backgroundColor = [UIColor backgroundColor];
-//            
-//            cell.selectionStyle = UITableViewCellSelectionStyleNone;
-//            
-//            UIView *tempView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 35)];
-//            tempView.backgroundColor = [UIColor whiteColor];
-//            [cell.contentView addSubview:tempView];
-//            
-//            UILabel *label = [[UILabel alloc] init];
-//            [cell.contentView addSubview:label];
-//            [label mas_makeConstraints:^(MASConstraintMaker *make) {
-//                make.centerX.equalTo(tempView.mas_centerX);
-//                make.centerY.equalTo(tempView.mas_centerY);
-//                make.width.equalTo(cell.mas_width).multipliedBy(0.5);
-//                make.height.equalTo(tempView.mas_height).offset(20);
-//            }];
-//            label.textAlignment = NSTextAlignmentCenter;
-//            label.text = [NSString stringWithFormat:@"共%@条评论>>",self.homePageModel.plamount];
-//            label.font = [UIFont systemFontOfSize:15.0f];
-//            return cell;
-//
-//        }
-//        
+            DDQHospitalEvaluteModel *model;
+            if (_temp_pjArray.count > 0) {
+                
+                model = _temp_pjArray[indexPath.row];
+                
+            }
+            
+            DDQUserCommentCell *userCell = [[DDQUserCommentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"user"];
+            [userCell layOutViewWithNickName:model.username date:model.pubtime intro:model.text andStars:[model.stars intValue]];
+            self.rowHeight = userCell.newRect.size.height;
+            userCell.selectionStyle = UITableViewCellSelectionStyleNone;
+            return userCell;
+            
+        }
         
     } else  {
         
@@ -494,12 +494,18 @@ static int tehui_page = 2;
         
     } else if (indexPath.section == 1) {
         
-        DDQHospitalEvaluteModel *model;
-        if (_temp_pjArray.count != 0) {
-            model = _temp_pjArray[indexPath.row];
-        }
-        if (model != nil) {
+        if (indexPath.row == self.homePageModel.pl.count) {
+            
+            return;
+            
+        } else {
         
+            DDQHospitalEvaluteModel *model;
+            if (_temp_pjArray.count != 0) {
+                model = _temp_pjArray[indexPath.row];
+            }
+            //        if (model != nil) {
+            
             DDQHospitalEvaluateController *hospitalEvaluateVC = [[DDQHospitalEvaluateController alloc] init];
             hospitalEvaluateVC.hospitalId = model.hid;
             hospitalEvaluateVC.fw = self.homePageModel.fw;
@@ -508,6 +514,7 @@ static int tehui_page = 2;
             hospitalEvaluateVC.sm = self.homePageModel.sm;
             [self.navigationController pushViewController:hospitalEvaluateVC animated:YES];
             
+            //        }
         }
     
     }

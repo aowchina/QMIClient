@@ -14,6 +14,7 @@
 #import "DDQDiaryViewController.h"
 #import "DDQCheckControllerModel.h"
 #import "DDQItem.h"
+#import "ProjectNetWork.h"
 
 @interface DDQCheckViewController ()<UITableViewDataSource,UITableViewDelegate>
 /**
@@ -38,6 +39,9 @@
 @property (strong,nonatomic) NSMutableArray *sectionArray;
 
 @property (strong,nonatomic) MBProgressHUD *hud;
+
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
 @end
 
 @implementation DDQCheckViewController
@@ -59,8 +63,8 @@
     
     self.hud = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:self.hud];
-    [self.hud show:YES];
-    self.hud.labelText = @"加载中...";
+    self.hud.detailsLabelText = @"加载中...";
+    
     //初始化数组
     _dataArray = [NSMutableArray array];
     _isShowArray = [NSMutableArray array];
@@ -73,6 +77,10 @@
     [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     
     [self.view addSubview:self.mainTableView];
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self dataAnalysis];
 
 }
 
@@ -80,23 +88,7 @@
 
     [super viewWillAppear:YES];
     self.navigationController.navigationBar.translucent = NO;
-
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self.headerViewArray removeAllObjects];
-            [self dataAnalysis];
-            
-        } else {
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    
 }
 
 #pragma mark - reload cell 
@@ -129,48 +121,45 @@
 
 #pragma mark - netWork
 -(void)dataAnalysis {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSString *spellString = [SpellParameters getBasePostString];
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:spellString];
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kProjectListUrl andData:nil andSuccess:^(id responseObjc, NSError *code_error) {
         
-        //加密字典
-        NSMutableDictionary *post_Dic = [[PostData alloc] postData:post_String AndUrl:kProjectListUrl];
-        //11-30-15 判断是否成功
-        if([[post_Dic objectForKey:@"errorcode"]intValue]==0 && post_Dic !=nil)
-        {
-            //解密字典
-            NSDictionary *json_Dic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
+        if (code_error) {
             
-            // NSMutableArray *temp_Array = [NSMutableArray array];
-            for (NSDictionary *dic_one in json_Dic) {//获得分区标题和图片
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+        
+            for (NSDictionary *dic_one in responseObjc) {//获得分区标题和图片
+                
                 DDQCheckControllerModel *model = [[DDQCheckControllerModel alloc] init];
                 model.iconString = [dic_one valueForKey:@"icon"];
                 model.nameString = [dic_one valueForKey:@"name"];
                 [_headerViewArray addObject:model];
                 //[temp_Array addObject:[json_Dic valueForKey:@"list"]];
-                [self.sectionArray addObject:[json_Dic valueForKey:@"list"]];
+                [self.sectionArray addObject:[responseObjc valueForKey:@"list"]];
                 
             }
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self reloadTableViewCell];
-                [_hud hide:YES];
-                [self.mainTableView reloadData];
-            });
-
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-//                [self reloadTableViewCell];
-                [self.mainTableView reloadData];
-                [_hud hide:YES];
-
-                [self alertController:@"服务器繁忙"];
-            });
+            [self.hud hide:YES];
             
+            [self reloadTableViewCell];
+            [self.mainTableView reloadData];
+
         }
-    });
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+
 }
 
 #pragma mark - delegate and datasource
@@ -219,6 +208,7 @@
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     static NSString *identifier = @"cell";
     tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     DDQTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
@@ -234,18 +224,24 @@
     [cell setItemArr:sectionArray andShowAll:showAll];
     
     [cell cellBlock:^(DDQItem *item) {
+        
         if (item) {
+            
             DDQProjectViewController *projectDetail = [[DDQProjectViewController alloc] init];
 
             DDQSingleModel *singelModel = [DDQSingleModel singleModelByValue];
             singelModel.projectId = item.ID;
             [self.navigationController pushViewController:projectDetail animated:YES];
+            
         }else{
+            
             [_isShowArray replaceObjectAtIndex:indexPath.section withObject:[NSNumber numberWithBool:YES]];
             
             //            [self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             [self.mainTableView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationAutomatic];
+            
         }
+        
     }];
     
     return cell;
@@ -281,15 +277,6 @@
     }
 //    return  ((sectionArr.count/3==0 && sectionArr.count>0)?splitH :0) + splitH;
 
-}
-#pragma mark - other methods
--(void)alertController:(NSString *)message {
-    UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
-    UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
-    [userNameAlert addAction:actionOne];
-    [userNameAlert addAction:actionTwo];
-    [self presentViewController:userNameAlert animated:YES completion:nil];
 }
 
 @end

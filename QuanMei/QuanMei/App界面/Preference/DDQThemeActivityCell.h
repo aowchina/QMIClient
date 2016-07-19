@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "DDQMainViewControllerModel.h"
+#import "MainActModel.h"
 
 @interface DDQThemeActivityCell : UITableViewCell
 
@@ -30,6 +30,6 @@
 @property (strong,nonatomic) UIImageView *firstImageView;
 @property (strong,nonatomic) UIImageView *secondImageView;
 
-@property (strong,nonatomic) DDQMainViewControllerModel *mVCModel;
+@property (strong,nonatomic) MainActModel *actModel;
 
 @end

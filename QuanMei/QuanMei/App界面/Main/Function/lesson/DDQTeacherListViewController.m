@@ -10,11 +10,15 @@
 #import "DDQTeacherView.h"
 #import "DDQTeacherIntroViewController.h"
 #import "DDQTeacherlistModel.h"
+#import "ProjectNetWork.h"
+
 @interface DDQTeacherListViewController ()<TeacherViewDelegate>
 
 @property (strong,nonatomic) DDQTeacherView *teacherview;
 @property (strong,nonatomic) MBProgressHUD *hud;
 @property (strong,nonatomic) NSMutableArray *source_array;
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
 @end
 
 @implementation DDQTeacherListViewController
@@ -30,57 +34,8 @@
     
     [self.view addSubview:_teacherview];
     
-}
-
--(void)teacher_netWork {
-
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-        //拼8段
-        NSString *spellString = [SpellParameters getBasePostString];
-        //加密这个八段
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_baseString = [postEncryption stringWithPost:spellString];
-        //post一小下
-        NSMutableDictionary *get_serverDic = [[PostData alloc] postData:post_baseString AndUrl:kteacher_listUrl];
-
-        NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
-        
-        //11-06
-        //11-30-15
-        if ([errorcode_string intValue] == 0 && get_serverDic !=nil) {
-            
-            NSArray *get_json = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
-            
-            NSMutableArray *temp_array = [NSMutableArray array];
-            for (NSDictionary *dic in get_json) {
-                DDQTeacherlistModel *list_model = [DDQTeacherlistModel new];
-                list_model.iD = dic[@"id"];
-                list_model.logo = dic[@"logo"];
-                list_model.name = dic[@"name"];
-                [temp_array addObject:list_model];
-            }
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                [self.hud hide:YES];
-                [self.hud removeFromSuperViewOnHide];
-                
-                self.source_array = temp_array;
-                
-                self.teacherview.collectionview_dataSource =  temp_array;
-                [self.teacherview.teacher_collectionview reloadData];
-            });
-        } else {
-            
-            [self.hud hide:YES];
-            [self.hud removeFromSuperViewOnHide];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:YES andSetDelay:YES andCustomView:nil];
-        }
-        
-    });
 }
-
 
 - (void)viewDidLoad {
     
@@ -129,29 +84,65 @@
     title.text = @"来了,就对了!";
     title.textColor = [UIColor whiteColor];
     
-    
     self.hud = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:self.hud];
     [self.hud show:YES];
     self.hud.labelText = @"加载中...";
     
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+    self.source_array = [NSMutableArray array];
+
+    self.netWork = [ProjectNetWork sharedWork];
+
+    [self teacher_netWork];
+    
+}
+
+-(void)teacher_netWork {
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kteacher_listUrl andData:nil andSuccess:^(id responseObjc, NSError *code_error) {
         
-        if (errorDic == nil) {
-           
-            [self teacher_netWork];
+        if (code_error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
             
         } else {
+         
+            for (NSDictionary *dic in responseObjc) {
+                
+                DDQTeacherlistModel *list_model = [DDQTeacherlistModel new];
+                list_model.iD = dic[@"id"];
+                list_model.logo = dic[@"logo"];
+                list_model.name = dic[@"name"];
+                [self.source_array addObject:list_model];
+                
+            }
+            
             [self.hud hide:YES];
-            [self.hud removeFromSuperViewOnHide];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+            self.teacherview.collectionview_dataSource = self.source_array;
+            [self.teacherview.teacher_collectionview reloadData];
+            
         }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
     }];
+    
 }
+
 
 -(void)goBackMethod {
 
     [self.navigationController popViewControllerAnimated:YES];
+    
 }
 
 -(void)teacherView:(UICollectionView *)tacherView didSelectedOfViewIndexPath:(NSIndexPath *)path {
@@ -165,6 +156,7 @@
     if (listmodel == nil) {
         
         return;
+        
     } else {
         
         introVC.teacher_id = listmodel.iD;

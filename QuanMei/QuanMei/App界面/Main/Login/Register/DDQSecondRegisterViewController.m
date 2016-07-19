@@ -11,6 +11,7 @@
 #import "DDQThirdRegisterViewController.h"
 
 #import "DDQLoginSingleModel.h"
+#import "ProjectNetWork.h"
 
 @interface DDQSecondRegisterViewController ()<UITextFieldDelegate>
 
@@ -33,40 +34,28 @@
  */
 @property (strong,nonatomic) UIView *cuttingLineView;
 
-@property (copy,nonatomic) NSString *spellString;
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
+@property (nonatomic, strong) MBProgressHUD *hud;
 
 @end
 
 @implementation DDQSecondRegisterViewController
 
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
     [self.view setBackgroundColor:[UIColor myGrayColor]];
     [self layoutNavigationBar];
     [self layoutControllerView];
-    self.spellString = [SpellParameters getBasePostString];
+    
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
 }
-
--(void)viewWillAppear:(BOOL)animated {
-
-    [super viewWillAppear:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        //网络连接无错误
-        if (errorDic == nil) {
-            
-        } else {
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
-
-}
-
 
 #pragma mark - layout navigationBar controls
 -(void)layoutNavigationBar {
@@ -228,44 +217,46 @@
     BOOL yesOrNo = [self LocalValidation];
     if (yesOrNo == YES) {
         
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        [self.hud show:YES];
+        
+        DDQLoginSingleModel *model = [DDQLoginSingleModel singleModelByValue];
+        model.userPhone = _inputPhoneNumField.text;
+        model.userPassword = _inputPasswordField.text;
+        
+        [self.netWork asyPOSTWithAFN_url:kCheckPhone andData:@[_inputPhoneNumField.text] andSuccess:^(id responseObjc, NSError *code_error) {
             
-            //网络连接无错误
-            if (errorDic == nil) {
+            if (code_error) {
                 
-                DDQLoginSingleModel *model = [DDQLoginSingleModel singleModelByValue];
-                model.userPhone = _inputPhoneNumField.text;
-                model.userPassword = _inputPasswordField.text;
-                NSString *basePostString = [SpellParameters getBasePostString];
+                [self.hud hide:YES];
                 
-                NSString *poststing = [NSString stringWithFormat:@"%@*%@",basePostString,_inputPhoneNumField.text];
+                NSInteger code = code_error.code;
                 
-                DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-                NSString *postString = [post stringWithPost:poststing];
-                
-                NSDictionary *dic = [[PostData alloc] postData:postString AndUrl:kCheckPhone];
-                
-                int num = [[dic valueForKey:@"errorcode"] intValue];
-                if (num == 0) {
+                if (code == 12) {
                     
-                    [self.navigationController pushViewController:thirdRVC animated:NO];
-                } else if (num == 12) {
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号已存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
                     
-                    [self alertController:@"手机号已存在"];
                 } else {
-                    [self alertController:@"服务器繁忙"];
+                
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
                 }
                 
             } else {
-                //第一个参数:添加到谁上
-                //第二个参数:显示什么提示内容
-                //第三个参数:背景阴影
-                //第四个参数:设置是否消失
-                //第五个参数:设置自定义的view
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            }
-        }];
+            
+                [self.hud hide:YES];
+                
+                [self.navigationController pushViewController:thirdRVC animated:YES];
 
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+        }];
+        
     }
     
 }

@@ -18,8 +18,10 @@
 @property (nonatomic, copy) NSString *userid;
 @property (nonatomic, copy) NSString *star;
 @property (nonatomic, copy) NSString *sex;
-@property (strong,nonatomic) NSArray *group;
-@property (strong,nonatomic) NSString *bgimg;
+@property (strong, nonatomic) NSArray *group;
+@property (strong, nonatomic) NSString *bgimg;
+@property (strong, nonatomic) NSString *wxCode;
+
 //-(DDQMineInfoModel *)loadModelWithDictionary:(NSDictionary *)dict;
 
 @end

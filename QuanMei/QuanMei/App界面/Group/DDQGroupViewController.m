@@ -23,35 +23,40 @@
 #import "DDQHeaderSingleModel.h"
 #import "DDQGroupArticleModel.h"
 
+#import "ProjectNetWork.h"
+
 @interface DDQGroupViewController ()<UITableViewDataSource,UITableViewDelegate,UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,MBProgressHUDDelegate>
 /**
  *  主要的tableView
  */
-@property (strong,nonatomic) UITableView *mainTableView;
+@property (strong, nonatomic) UITableView *mainTableView;
 /**
  *  headerView
  */
-@property (strong,nonatomic) UICollectionView *assistantCollection;
+@property (strong, nonatomic) UICollectionView *assistantCollection;
 
+/** 传值单例 */
+@property (strong, nonatomic) DDQSingleModel *mySingle;
 
-@property (strong,nonatomic) NSString *textString;
-/**
- *  post 八段字符串
- */
-@property (copy,nonatomic) NSString *spellString;
+/** 头的数据源 */
+@property (strong, nonatomic) NSMutableArray *headerModelArray;
 
-@property (strong,nonatomic) DDQSingleModel *mySingle;
+/** 列表的数据源 */
+@property (strong, nonatomic) NSMutableArray *articleModelArray;
 
-@property (strong,nonatomic) NSMutableArray *headerModelArray;
+/** hud */
+@property (strong ,nonatomic) MBProgressHUD *hud;
 
-@property (strong,nonatomic) NSMutableArray *articleModelArray;
+/** 列表的高度 */
+@property (assign, nonatomic) CGFloat rowHeight;
 
-@property (strong,nonatomic) DDQDiaryViewCell *diaryCell;
-@property (nonatomic ,strong)MBProgressHUD *hud;
+@property (strong, nonatomic) NSDictionary *jsonDic;
 
-@property (assign,nonatomic) CGFloat rowHeight;
+/** 网络 */
+@property (strong, nonatomic) ProjectNetWork *netWork;
+/** 页码 */
+@property (assign, nonatomic) NSInteger page;
 
-@property (strong,nonatomic) NSDictionary *jsonDic;
 @end
 
 @implementation DDQGroupViewController
@@ -61,42 +66,37 @@
     
     self.navigationController.navigationBar.translucent = NO;
     
-    //设置bar相关
-    [self layoutNavigationBar];
-    
+    //设置tableView和collectionView
     [self initTableView];
     
-    _headerModelArray = [NSMutableArray array];
-    _articleModelArray = [NSMutableArray array];
-    _assistantCollection.scrollEnabled = NO;
+    //初始化网络请求
+    self.netWork = [ProjectNetWork sharedWork];
     
+    //hud
     self.hud = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:self.hud];
     [self.hud show:YES];
     self.hud.labelText = @"加载中...";
     
-    [self asyWenzhangNetWork:1 type:1];
-    [self asyNetWork];
+    //初始化数据源
+    self.headerModelArray  = [NSMutableArray array];
+    self.articleModelArray = [NSMutableArray array];
+    
+    //页码
+    self.page = 1;
+    
+    [self asyWenzhangNetWork:1 type:1 ClearContainer:NO];//列表请求
+    [self asyNetWork];//头部请求
     
     self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-            
-            if (errorDic == nil) {
-                [_articleModelArray removeAllObjects];
-                [_headerModelArray removeAllObjects];
-                [self asyWenzhangNetWork:1 type:1];
-                [self asyNetWork];
-                [self.mainTableView.header endRefreshing];
-                
-            } else {
-                
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                [self.mainTableView.header endRefreshing];
-            }
-        }];
+
+        self.page = 1;//记得将页面还原
+        [self asyWenzhangNetWork:1 type:1 ClearContainer:YES];
+        [self asyNetWork];
+        [self.mainTableView.header endRefreshing];
         
     }];
+    
 }
 
 -(void)viewWillAppear:(BOOL)animated {
@@ -104,31 +104,10 @@
     [super viewWillAppear:YES];
     self.navigationController.navigationBar.translucent = NO;
     [self layoutNavigationBar];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        
-        if (errorDic == nil) {
-        
-//            [self asyWenzhangNetWork:1 type:1];
-//            [self asyNetWork];
-            
-        } else {
-            
-            [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    
 }
 
--(void)viewDidDisappear:(BOOL)animated {
-
-    [super viewDidDisappear:YES];
-    if (_jsonDic != nil && _jsonDic.count != 0) {
-        num = 2;
-    }
-}
-
-
+/** 设置navigationBar */
 -(void)layoutNavigationBar {
     
     [self.navigationItem setTitle:@"美人圈"];
@@ -197,9 +176,12 @@
 
 #pragma mark - navigationBar item target aciton
 -(void)pushToLoginViewController {
+    
     DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
     loginVC.hidesBottomBarWhenPushed = YES;
+    
     [self.navigationController pushViewController:loginVC animated:NO];
+    
 }
 
 -(void)pushToMineViewController {
@@ -211,127 +193,122 @@
 #pragma mark - netWork
 -(void)asyNetWork {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-        //拼8段
-        NSString *spellString = [SpellParameters getBasePostString];
-        //加密这个八段
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_baseString = [postEncryption stringWithPost:spellString];
-        //post一小下
-        NSMutableDictionary *get_serverDic = [[PostData alloc] postData:post_baseString AndUrl:kGroupListUrl];
+    [self.netWork asyPOSTWithAFN_url:kGroupListUrl andData:nil andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
-        
-        //11-06
-        //11-30-15
-        if ([errorcode_string intValue] == 0 && get_serverDic !=nil) {
-            NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
-                for (NSDictionary *groupDic in get_jsonDic)
-                    
-                {//遍历数组里的字典
-                    
-                    DDQGroupHeaderModel *headerModel = [[DDQGroupHeaderModel alloc] init];
-                    
-                    //首先获得部位图片和名字
-                    
-                    headerModel.iconUrl = [groupDic valueForKey:@"icon"];
-                    
-                    headerModel.name    = [groupDic valueForKey:@"name"];
-                    
-                    //传下一个页面所需的值
-                    
-                    headerModel.groupId = [groupDic valueForKey:@"id"];
-                    
-                    
-                    [_headerModelArray addObject:headerModel];
-                    
-                }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    //头部刷新
-                    [_assistantCollection reloadData];
-
-                });
-                
-//            }
-        } else {
+        if (!code_error) {
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.hud hide:YES];
+            for (NSDictionary *groupDic in responseObjc) {
+                
+                DDQGroupHeaderModel *headerModel = [[DDQGroupHeaderModel alloc] init];
+                
+                headerModel.iconUrl = [groupDic valueForKey:@"icon"];
+                headerModel.name    = [groupDic valueForKey:@"name"];
+                headerModel.groupId = [groupDic valueForKey:@"id"];
 
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            });
-        }
-    });
-}
-
--(void)asyWenzhangNetWork:(int)page type:(int)type {
-    
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-        NSString *page_string = [NSString stringWithFormat:@"%d",page];
-        
-        //拼8段
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",spellString,[NSString stringWithFormat:@"%d",type],@"0",@"0",page_string];
-        //加密这个段数
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_string = [postEncryption stringWithPost:post_baseString];
-        //post
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_string AndUrl:kWenzhangUrl];
-        
-        //11-06
-        NSString *errorcode_string = [post_dic valueForKey:@"errorcode"];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            if ([errorcode_string intValue] == 0) {
+                [_headerModelArray addObject:headerModel];
                 
-                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-                self.jsonDic = get_jsonDic;
-                
-                if (get_jsonDic!=nil && get_jsonDic.count != 0) {
-                    
-                    //12-21
-                    for (NSDictionary *dic1 in get_jsonDic) {
-                        NSDictionary *dic = [DDQPublic nullDic:dic1];
-                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                        //精或热
-                        articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
-                        articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
-                        articleModel.articleTitle  = [dic valueForKey:@"title"];
-                        articleModel.groupName     = [dic valueForKey:@"groupname"];
-                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                        articleModel.userName      = [dic valueForKey:@"username"];
-                        articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
-                        articleModel.plTime        = [dic valueForKey:@"pubtime"];
-                        articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
-                        articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
-                        articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
-                        articleModel.introString   = [dic valueForKey:@"text"];
-                        articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                        articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
-                        [_articleModelArray addObject:articleModel];
-                    }
-                    [_mainTableView reloadData];
-                    [self.mainTableView.header endRefreshing];
-                    [self.hud hide:YES];
-                } else {
-                
-                    num = 2;
-                    [self.hud hide:YES];
-
-                }
-                
-            } else {
-                [self.mainTableView.header endRefreshing];
-                [self.hud hide:YES];
-                [self alertController:@"服务器繁忙,请稍后重试"];
             }
             
-        });
-    });
+            //跟新UI
+            [self.hud hide:YES];
+            [self.assistantCollection reloadData];
+            
+        } else {
+        
+            [self.hud hide:YES];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+
+}
+
+/**
+ *  数据请求
+ *
+ *  @param page    页码
+ *  @param type    类型
+ *  @param isClear 是否清空数据源
+ */
+-(void)asyWenzhangNetWork:(int)page type:(int)type ClearContainer:(BOOL)isClear {
+    
+    if (isClear) {
+        
+        self.headerModelArray  = nil;
+        self.articleModelArray = nil;
+        
+        self.headerModelArray  = [NSMutableArray array];
+        self.articleModelArray = [NSMutableArray array];
+        
+    }
+    
+    [self.netWork asyPOSTWithAFN_url:kWenzhangUrl andData:@[@(type).stringValue, @"0", @"0", @(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
+        
+        if (!code_error) {
+            
+            for (NSDictionary *dic in responseObjc) {
+                
+                NSDictionary *tem = [DDQPublic nullDic:dic];
+                DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                //精或热
+                articleModel.articleType   = [NSString stringWithFormat:@"%@",[tem valueForKey:@"type"]];
+                articleModel.isJing        = [NSString stringWithFormat:@"%@",[tem valueForKey:@"isjing"]];
+                articleModel.articleTitle  = [tem valueForKey:@"title"];
+                articleModel.groupName     = [tem valueForKey:@"groupname"];
+                articleModel.userHeaderImg = [tem valueForKey:@"userimg"];
+                articleModel.userName      = [tem valueForKey:@"username"];
+                articleModel.userid        = [NSString stringWithFormat:@"%@",[tem valueForKey:@"userid"]];
+                articleModel.plTime        = [tem valueForKey:@"pubtime"];
+                articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[tem valueForKey:@"zan"]];
+                articleModel.replyNum      = [NSString stringWithFormat:@"%@",[tem valueForKey:@"pl"]];
+                articleModel.articleId     = [NSString stringWithFormat:@"%@",[tem valueForKey:@"id"]];
+                articleModel.introString   = [tem valueForKey:@"text"];
+                articleModel.imgArray      = [tem valueForKey:@"imgs"];
+                articleModel.ctime         = [NSString stringWithFormat:@"%@",[tem valueForKey:@"ctime"]];
+                
+                [_articleModelArray addObject:articleModel];
+                
+            }
+            
+            if ([responseObjc count] == 0) {
+                
+                self.mainTableView.footer.state = MJRefreshStateNoMoreData;
+                
+            } else {
+                
+                self.mainTableView.footer.state = MJRefreshStateIdle;
+                
+            }
+            
+            //更新UI
+            [self.hud hide:YES];
+            [self.mainTableView reloadData];
+
+        } else {
+        
+            [self.hud hide:YES];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 
 #pragma mark - collectionView and tableView
 -(void)initTableView{
+    
     self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight - 64) style:UITableViewStyleGrouped];
     [self.mainTableView setDelegate:self];
     [self.mainTableView setDataSource:self];
@@ -339,9 +316,11 @@
     self.mainTableView.backgroundColor = [UIColor backgroundColor];
 
     self.mainTableView.tableHeaderView = [self layoutCollectionView];
+    
 }
 
 -(UICollectionView *)layoutCollectionView {
+    
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     self.assistantCollection = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height*0.4) collectionViewLayout:layout];
     [self.assistantCollection setDelegate:self];
@@ -351,7 +330,10 @@
     [self.assistantCollection registerClass:[DDQGroupHeaderViewItem class] forCellWithReuseIdentifier:@"cell"];
     [self.view addSubview:self.assistantCollection];
     
+    self.assistantCollection.scrollEnabled = NO;
+    
     return self.assistantCollection;
+    
 }
 
 #pragma mark - delegate and tableView
@@ -361,18 +343,19 @@
 }
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-//    if (section == 0) {
+
+    return _articleModelArray.count + 1;
     
-        return _articleModelArray.count + 1;
 }
+
+static NSString *identifier1 = @"diary";
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    static NSString *identifier1 = @"diary";
     tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     
-    
-    if (indexPath.row == _articleModelArray.count) {
+    if (indexPath.row == _articleModelArray.count) {//这是为了显示更多按钮
+        
         UITableViewCell *moreCell= [[UITableViewCell alloc]initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:@"morecell"];
         UILabel *moreLabel = [[UILabel alloc]init];
         
@@ -400,8 +383,11 @@
         self.rowHeight              = diaryCell.newRect.size.height;
         diaryCell.selectionStyle    = UITableViewCellSelectionStyleNone;//取消选中高亮
         diaryCell.backgroundColor   = [UIColor myGrayColor];
+        
         return diaryCell;
+        
     }
+    
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -419,7 +405,9 @@
         h = 40;
         
     }
+    
     if (indexPath.section == 0) {
+        
         if (indexPath.row == _articleModelArray.count) {
             
             return 44;
@@ -442,11 +430,11 @@
                 
                 if ([model.introString isEqualToString:@""]) {//不传图还不传字
                     
-                    return kScreenHeight *0.25-h;
+                    return kScreenHeight *0.25 - h;
                     
                 } else {//有字，那就是帖子了
                     
-                    return kScreenHeight *0.25 + self.rowHeight-h;
+                    return kScreenHeight *0.25 + self.rowHeight - h;
                     
                 }
                 
@@ -459,121 +447,146 @@
         }
         
     } else {
+        
         return kScreenHeight*0.2;
+        
     }
+    
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    
     if (section == 1) {
+        
         return 30;
+        
     } else {
+        
         return 5;
+        
     }
+    
 }
 
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
     if (section == 1) {
         
-        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 30)];
+        UIView *view   = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, 30)];
         [view setBackgroundColor:[UIColor myGrayColor]];
+        
         UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, 200, 20)];
         [label setText:@"相关特惠项目"];
         [label setTextAlignment:NSTextAlignmentLeft];
         [view addSubview:label];
+        
         return view;
         
     } else {
+        
         return nil;
+        
     }
+    
 }
 
-static int num = 2;
-
+//static int num = 1;
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    int page = num ++ ;
     //取出model类
     DDQGroupArticleModel *articleModel;
     if (indexPath.row < self.articleModelArray.count) {
+        
         articleModel = [_articleModelArray objectAtIndex:indexPath.row];
+        
     }
     
-    //创建单例用来传值
-    DDQHeaderSingleModel *headerSingle = [DDQHeaderSingleModel singleModelByValue];
     
-    if (indexPath.section == 0) {
-        if (indexPath.row == _articleModelArray.count) {
-            
-            [self asyWenzhangNetWork:page type:1];
-            
-        } else  {
-            DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
-            //赋值
-            headerSingle.ctime                      = articleModel.ctime;
-            headerSingle.articleId                  = articleModel.articleId;
-            headerSingle.userId                     = articleModel.userid;
-            commentVC.hidesBottomBarWhenPushed = YES;
-            [self.navigationController pushViewController:commentVC animated:YES];
-        }
-    } else {
-        //11-2有问题
-        DDQPreferenceDetailViewController *detailVC = [[DDQPreferenceDetailViewController alloc] init];
-        detailVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:detailVC animated:YES];
+    if (indexPath.row == _articleModelArray.count) {
+        
+        self.page = self.page + 1;
+        [self asyWenzhangNetWork:(int)self.page type:1 ClearContainer:NO];
+        
+    } else  {
+        
+        DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
+        //赋值
+        commentVC.ctime                      = articleModel.ctime;
+        commentVC.articleId                  = articleModel.articleId;
+        commentVC.userid                     = articleModel.userid;
+        
+        commentVC.hidesBottomBarWhenPushed = YES;
+        [self.navigationController pushViewController:commentVC animated:YES];
+        
     }
+        
 }
 
 //collectionView
 -(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    
     return self.headerModelArray.count;
+    
 }
 
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
     DDQGroupHeaderViewItem *headerItem = [collectionView dequeueReusableCellWithReuseIdentifier:@"cell" forIndexPath:indexPath];
     
     DDQGroupHeaderModel *headerModel = [_headerModelArray objectAtIndex:indexPath.row];
     
     headerItem.headerLabel.text = headerModel.name;
     [headerItem.headerImageView sd_setImageWithURL:[NSURL URLWithString:headerModel.iconUrl] placeholderImage:[UIImage imageNamed:@"default_pic"]];
+    
     return headerItem;
+    
 }
 
 -(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
     return CGSizeMake(self.view.bounds.size.width*0.25, self.assistantCollection.frame.size.height*0.5);
+    
 }
 
 -(CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    
     return 0;
+    
 }
 
 -(CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    
     return 0;
+    
 }
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
     DDQGroupDetailViewController *detailVC = [[DDQGroupDetailViewController alloc] init];
     DDQGroupHeaderModel *headerModel = [_headerModelArray objectAtIndex:indexPath.row];//取出model类
     
     //将数据传递到下一个页面
     DDQHeaderSingleModel *header_single = [DDQHeaderSingleModel singleModelByValue];
-    header_single.groupId = headerModel.groupId;
+    header_single.groupId     = headerModel.groupId;
     header_single.introString = headerModel.introString;
-    header_single.iconUrl = headerModel.iconUrl;
-    header_single.name = headerModel.name;
-    header_single.tagId = headerModel.tagId;
+    header_single.iconUrl     = headerModel.iconUrl;
+    header_single.name        = headerModel.name;
+    header_single.tagId       = headerModel.tagId;
     detailVC.hidesBottomBarWhenPushed = YES;
     [self.navigationController pushViewController:detailVC animated:YES];
+    
 }
 
 #pragma mark - other methods
 -(void)alertController:(NSString *)message {
+    
     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
     UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     [userNameAlert addAction:actionOne];
     [userNameAlert addAction:actionTwo];
     [self presentViewController:userNameAlert animated:YES completion:nil];
+    
 }
 @end
 

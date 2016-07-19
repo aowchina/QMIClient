@@ -41,7 +41,7 @@
         _imageH = 50;
     }
     
-    UIImageView *imageView        = [[UIImageView alloc] initWithFrame:CGRectMake(5, 10, _imageW, _imageH)];
+    UIImageView *imageView        = [[UIImageView alloc] initWithFrame:CGRectMake(15, 10, _imageW, _imageH)];
     imageView.layer.cornerRadius  = _imageH/2;
     imageView.layer.masksToBounds = YES;
     imageView.tag = 1;

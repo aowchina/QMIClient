@@ -25,6 +25,7 @@
 #import "DDQUserInfoModel.h"
 
 #import "DDQPOSTEncryption.h"
+#import "ProjectNetWork.h"
 
 typedef void(^popToMainViewController)();
 
@@ -83,6 +84,7 @@ typedef void(^popToMainViewController)();
 @property (strong,nonatomic) MBProgressHUD *hud;
 
 @property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
+@property (nonatomic, strong) ProjectNetWork *netWork;
 @end
 
 @implementation DDQLoginViewController
@@ -97,6 +99,12 @@ typedef void(^popToMainViewController)();
     DDQResetViewController *resetVC = [DDQResetViewController new];
     resetVC.delegate = self;
     self.baseTabBarC = [DDQBaseTabBarController sharedController];
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    self.hud = [[MBProgressHUD alloc] initWithView:self.view];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
     
 }
 
@@ -353,104 +361,74 @@ typedef void(^popToMainViewController)();
         }
         
     } else {
-
-        self.hud = [[MBProgressHUD alloc] initWithView:self.view];
-        [self.view addSubview:self.hud];
+        
         [self.hud show:YES];
-        self.hud.detailsLabelText = @"请稍等...";
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-                   
-           //网络连接无错误
-           if (errorDic == nil) {
-               
-               dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                   
-                   //八段
-                   NSString *spellString = [SpellParameters getBasePostString];
 
-                   //参数
-                   NSString *postString = [NSString stringWithFormat:@"%@*%@*%@",spellString,_inputPhoneNumField.text,_inputPasswordField.text];
-                   
-                   //加密解密类
-                   DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                   
-                   //加密
-                   NSString *encryption = [postEncryption stringWithPost:postString];
-                   //post一小下
-                   NSMutableDictionary *get_serverDic = [[PostData alloc] postData:encryption AndUrl:kLoginUrl];
+        [self.netWork asyPOSTWithAFN_url:kLoginUrl andData:@[_inputPhoneNumField.text,_inputPasswordField.text] andSuccess:^(id responseObjc, NSError *code_error) {
+            
+            if (code_error) {
+                
+                [self.hud hide:YES];
+                
+                NSInteger code = code_error.code;
+                
+                if (code == 10 || code == 11 || code == 13 || code == 14) {
+                    
+                    switch (code) {
+                            
+                        case 10:
+                            
+                            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号不符合要求" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                            break;
+                            
+                        case 11:
+                            
+                            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"密码不符合要求" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                            break;
+                            
+                        case 13:
+                            
+                            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                            break;
+                            
+                        case 14:
+                            
+                            [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"密码错误" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                    
+                } else {
+                
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
 
-                   dispatch_async(dispatch_get_main_queue(), ^{
-                       
-                       if (get_serverDic != nil) {
-                           
-                           [self.hud hide:YES];
-                           NSString *errorcode_string = [get_serverDic valueForKey:@"errorcode"];
-                           
-                           //11-06
-                           //11-30-15
-                           int num = [errorcode_string intValue];
-                           if (num == 0){
-                               //判断是否加密解密
-                               NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:get_serverDic];
-                               NSDictionary *dic = [DDQPublic nullDic:get_jsonDic];//判断是否为空
-                               //单例传值即可
-                               DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-                               infoModel.userimg         = [dic valueForKey:@"userimg"];
-                               [[NSUserDefaults standardUserDefaults] setValue:[dic valueForKey:@"userid"] forKey:@"userId"];
-                               infoModel.isLogin           = YES;
-                               self.baseTabBarC.selectedIndex = 0;
-                               [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
-                               
-                           } else if (num == 10) {
-                               
-                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号不符合要求" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                }
+                
+            } else {
+                
+                NSDictionary *dic = [DDQPublic nullDic:responseObjc];//判断是否为空
+                //单例传值即可
+                DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+                infoModel.userimg         = [dic valueForKey:@"userimg"];
+                [[NSUserDefaults standardUserDefaults] setValue:[dic valueForKey:@"userid"] forKey:@"userId"];
+                infoModel.isLogin           = YES;
+                self.baseTabBarC.selectedIndex = 0;
+                [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
+                
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
 
-                           } else if (num == 11) {
-                               
-                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"密码不符合要求" andShowDim:NO andSetDelay:YES andCustomView:nil];
-
-                           } else if (num == 13) {
-                               
-                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
-
-                           } else if (num == 14){
-                               
-                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"密码错误" andShowDim:NO andSetDelay:YES andCustomView:nil];
-                               
-
-                           } else {
-                               
-                               [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-
-                           }
-                           
-                       } else {
-                           
-                           [self.hud hide:YES];
-                           
-                           [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                           
-                       }
-
-                   });
-                   
-               });
-               
-               
-               
-           } else {
-               
-               [self.hud hide:YES];
-               //第一个参数:添加到谁上
-               //第二个参数:显示什么提示内容
-               //第三个参数:背景阴影
-               //第四个参数:设置是否消失
-               //第五个参数:设置自定义的view
-               [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-           }
-       }];
-
+        }];
+    
     }
+    
 }
 
 
@@ -501,16 +479,16 @@ typedef void(^popToMainViewController)();
 
 #pragma mark - tencent delegate
 - (void)tencentDidLogin {
+    
     [_tencentOAuth getUserInfo];
     self.openId = _tencentOAuth.openId;
-    self.hud = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
-    self.hud.detailsLabelText = @"请稍候...";
-}
 
+}
 
 -(void)getUserInfoResponse:(APIResponse *)response {
 
     [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+        
         if (errorDic) {
             
             [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
@@ -526,8 +504,6 @@ typedef void(^popToMainViewController)();
                 infoModel.userimg = userImage;
                 infoModel.isLogin = 1;
                 
-                
-                //
                 NSString *string = [SpellParameters getBasePostString];//八段字符串
                 //转换过后的昵称
                 NSData *data = [nickName dataUsingEncoding:NSUTF8StringEncoding];
@@ -628,8 +604,6 @@ typedef void(^popToMainViewController)();
     
 }
 
-
-
 #pragma mark - other methods
 -(void)alertController:(NSString *)message {
     
@@ -639,6 +613,7 @@ typedef void(^popToMainViewController)();
     [userNameAlert addAction:actionOne];
     [userNameAlert addAction:actionTwo];
     [self presentViewController:userNameAlert animated:YES completion:nil];
+    
 }
 
 @end

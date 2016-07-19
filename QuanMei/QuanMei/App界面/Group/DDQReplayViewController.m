@@ -9,13 +9,11 @@
 #import "DDQReplayViewController.h"
 
 #import "Header.h"
-
 //user
 #import "DDQUserInfoModel.h"
+#import "ProjectNetWork.h"
 
-
-
-@interface DDQReplayViewController ()<UITextFieldDelegate,UITextViewDelegate,UINavigationControllerDelegate>
+@interface DDQReplayViewController ()<UITextFieldDelegate,UITextViewDelegate,UINavigationControllerDelegate,MBProgressHUDDelegate>
 
 @property (nonatomic ,strong)UITextView *textView;
 @property (nonatomic ,strong)UILabel *alabel;
@@ -25,6 +23,8 @@
 @property (nonatomic ,strong)UIView *showView;
 
 @property (nonatomic ,strong)NSString *contetSTring;//内容
+@property (nonatomic, strong) ProjectNetWork *netWork;
+@property (nonatomic, strong) MBProgressHUD *hud;
 
 @end
 
@@ -43,89 +43,68 @@
     
     
     self.navigationItem.rightBarButtonItem = bar;
-}
-
--(void)viewWillAppear:(BOOL)animated {
-
-    [super viewWillAppear:YES];
     
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    self.hud = [[MBProgressHUD alloc] init];
+    [self.view addSubview:self.hud];
+    self.hud.detailsLabelText = @"请稍等...";
+    
 }
+
 
 - (void)replayRep {
 
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        
-        if (errorDic == nil) {
-            
-            [self replayAsyNetWork];
-            
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    [self replayAsyNetWork];
+   
 }
 
 -(void)replayAsyNetWork {
 
-    //
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //调用点赞接口
-        //八段
-        NSString *spellString = [SpellParameters getBasePostString];
-        
-        NSData *data = [_textView.text dataUsingEncoding:NSUTF8StringEncoding];
-        Byte *byteArray = (Byte *)[data bytes];
-        NSMutableString *str = [[NSMutableString alloc] init];
-        for(int i=0;i<[data length];i++) {
-            [str appendFormat:@"%d#",byteArray[i]];
-        }
-        
-        //自己回复自己
-        if ([self.beiPLUserId isEqualToString:[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]]) {
-            self.beiPLUserId = @"0";
-        }
-        
-        //拼参数
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.beiPLUserId,self.wenzhangId,self.fathPLId,str];
-        
-        
-        //加密
-        DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-        NSString *post_encryption = [post stringWithPost:post_baseString];
-        
-        //传
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kPl_add];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            int num = [post_dic[@"errorcode"] intValue];
-            
-            
-            if (num == 0) {
-                //                [self alertController:@"发布成功"];
-                [self.navigationController popViewControllerAnimated:YES];
-            } else if (num == 16) {
-                
-                [self alertController:@"您还未登录，无法评价"];
-            } else if (num == 17) {
-                
-            } else {
-                [self alertController:@"系统繁忙"];
-            }
-        });
-    });
+    [self.hud show:YES];
+    
+    NSData *data = [_textView.text dataUsingEncoding:NSUTF8StringEncoding];
+    Byte *byteArray = (Byte *)[data bytes];
+    NSMutableString *str = [[NSMutableString alloc] init];
+    for(int i=0;i<[data length];i++) {
+        [str appendFormat:@"%d#",byteArray[i]];
+    }
+    
+    //自己回复自己
+    if ([self.beiPLUserId isEqualToString:[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]]) {
+        self.beiPLUserId = @"0";
+    }
 
+    [self.netWork asyPOSTWithAFN_url:kPl_add andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.beiPLUserId,self.wenzhangId,self.fathPLId,str] andSuccess:^(id responseObjc, NSError *code_error) {
+        
+        if (code_error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+        
+            self.hud.detailsLabelText = @"发布成功";
+            [self.hud hide:YES afterDelay:1.5];
+            self.hud.delegate = self;
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+
+}
+
+- (void)hudWasHidden:(MBProgressHUD *)hud {
+
+    [self.navigationController popViewControllerAnimated:YES];
+    
 }
 
 #pragma  mark - 构建页面

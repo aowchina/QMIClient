@@ -21,8 +21,8 @@
             //data不为空
             if (dic[@"data"] != nil && ![dic[@"data"] isKindOfClass:[NSNull class]]) {
                 NSString *string = dic[@"data"];
-                NSDictionary *dic = [[[SBJsonParser alloc] init] objectWithString:string];
-                return dic;
+                id objc = [[[SBJsonParser alloc] init] objectWithString:string];
+                return objc;
                 
             } else {
                 return nil;
@@ -40,9 +40,9 @@
                 //转换
                 NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
                 
-                NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+                id objc = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
                 
-                return dic;
+                return objc;
                 
             } else {
                 return nil;

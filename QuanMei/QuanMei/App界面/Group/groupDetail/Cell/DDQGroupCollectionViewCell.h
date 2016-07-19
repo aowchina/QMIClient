@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface DDQGroupCollectionViewCell : UICollectionViewCell
+
 @property (nonatomic ,strong)UILabel *title;
-@property (assign,nonatomic) BOOL isChange;
+
 @end

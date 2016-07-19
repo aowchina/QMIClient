@@ -53,6 +53,7 @@
 - (void)newPayC_netWork {
 
     [self.wait_hud show:YES];
+    
     [self.net_work asy_netWithUrlString:kWaiDetailUrl ParamArray:@[self.userid,self.orderid] Success:^(id source, NSError *analysis_error) {
     
         if (analysis_error) {
@@ -73,13 +74,17 @@
                                @"point_to_one":dic[@"point_to_one"],
                                @"wk_money":dic[@"wk_money"],
                                @"chatime":dic[@"chatime"]};
+            
             self.temp_dic = source;
+            
             self.pay_view.param_dic = self.param_dic;
+            
             if (self.pay_type) {
                 
                 self.pay_view.pay_type = self.pay_type;
 
             }
+            
             self.pay_view.what_pay = self.what_pay;
             
         }

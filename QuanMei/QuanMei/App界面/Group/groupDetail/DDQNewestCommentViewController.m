@@ -20,6 +20,7 @@
 
 #import "DDQGroupCollectionViewCell.h"
 
+#import "ProjectNetWork.h"
 
 @interface DDQNewestCommentViewController ()<UITableViewDataSource,UITableViewDelegate,MBProgressHUDDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout,UIGestureRecognizerDelegate>
 {
@@ -50,281 +51,227 @@
 
 @property (strong,nonatomic) UITableViewCell *temp_cell;
 
-@property (strong,nonatomic) UICollectionViewCell *temp_item;
+/** 记录我上一个点击的cell */
+@property (strong,nonatomic) DDQGroupCollectionViewCell *temp_item;
 
 @property (strong,nonatomic) UICollectionView *collectionView;
+
+@property (strong, nonatomic) ProjectNetWork *netWork;
+/** 页码 */
+@property (assign, nonatomic) int page;
+
 @end
 
 @implementation DDQNewestCommentViewController
 
--(NSMutableArray *)groupHeaderArray {
-    if (!_groupHeaderArray) {
-        _groupHeaderArray = [NSMutableArray array];
-    }
-    return _groupHeaderArray;
-}
 
 - (void)viewDidLoad {
     
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor whiteColor];
     
-    //12-09
-    tagString = @"0";
-    self.tagArray = [NSMutableArray array];
-    isClick = NO;
+    self.view.backgroundColor = [UIColor whiteColor];
+    //这个单例里有上个页面的值
     _header_single = [DDQHeaderSingleModel singleModelByValue];
+    
+    tagString = @"0";
+    self.tagArray          = [NSMutableArray array];
+    self.articleModelArray = [NSMutableArray array];
+    self.groupHeaderArray  = [NSMutableArray array];
+    
+    //初始化表示图
     [self initTableView];
+    
+    isClick = NO;
     self.temp_cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
     
     self.hud = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:self.hud];
-    
     self.hud.detailsLabelText = @"请稍候...";
+    
+    //网路
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    //页码
+    self.page = 1;
+    
 }
-//12-03
-- (void)refresh
-{
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        if (!errorDic) {
-            // 下拉刷新
-            self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-                //再次请求接口先判断数组是否为nil
-                [_articleModelArray removeAllObjects];
-                //
-                [self asyArticleListWithPage:1];
-                // 结束刷新
-                [self.mainTableView.header endRefreshing];
-                [self.hud hide:YES];
-            }];
-            
-            // 下拉刷新
-            self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-                //再次请求接口先判断数组是否为nil
-                int num = Page ++;
-                [self asyArticleListWithPage:num];
-                // 结束刷新
-                [self.mainTableView.footer endRefreshing];
-                self.mainTableView.footer.state = MJRefreshStateNoMoreData;
-                [self.hud hide:YES];
-                
-            }];
-        } else {
+
+//刷新
+- (void)refresh {
+    
+    // 下拉刷新
+    self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
+        self.page = 1;
+        [self asyArticleListWithPage:1 ClearContainer:YES];
+        [self.mainTableView.header endRefreshing];
+        
     }];
+    
+    self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        self.page = self.page + 1;
+        [self asyArticleListWithPage:self.page ClearContainer:NO];
+        [self.mainTableView.footer endRefreshing];
+        
+    }];
+    
 }
--(void)viewWillAppear:(BOOL)animated
-{
+
+-(void)viewWillAppear:(BOOL)animated {
+    
     [super viewWillAppear:YES];
     self.navigationController.navigationBar.translucent = NO;
-    //12-03
-    _articleModelArray = [NSMutableArray array];
     
-    [self.hud show:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        [self.hud hide:YES];
-        if (!errorDic) {
-            
-            [self getGroupDetail];
-            
-            [self asyArticleListWithPage:1];
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    [self getGroupDetail];
+    [self asyArticleListWithPage:1 ClearContainer:YES];
+    
 }
 
 //10-23
-- (void)postingButtonClicked
-{
-    DDQPostingViewController *postingVC  = [DDQPostingViewController new];
+- (void)postingButtonClicked {
     
+    DDQPostingViewController *postingVC  = [DDQPostingViewController new];
     postingVC.hidesBottomBarWhenPushed = YES;
 
     postingVC.PstringTagArray = self.tagArray;
     [self.navigationController pushViewController:postingVC animated:YES];
+    
 }
 
-
-
-//12-02
-- (void)getGroupDetail
-{
+#pragma mark - asy net work
+/** 请求头视图 */
+- (void)getGroupDetail{
+    
     DDQHeaderSingleModel *groupHeader_single = [DDQHeaderSingleModel singleModelByValue];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSString *spellString = [SpellParameters getBasePostString];
+    
+    [self.netWork asyPOSTWithAFN_url:kGroup_detail andData:@[groupHeader_single.groupId, [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@",spellString,groupHeader_single.groupId,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:post_baseString];
-        
-        NSMutableDictionary *post_Dic = [[PostData alloc] postData:post_String AndUrl:kGroup_detail];
-        
-        //11-05
-        if ([[post_Dic objectForKey:@"errorcode"]intValue]==0) {
+        if (!code_error) {
             
-            NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
+            //每次请求成功就删除标签数组的全部内容
+            [self.tagArray removeAllObjects];//不然会有重复数据
             
-            
-            self.groupHeaderArray = [NSMutableArray arrayWithCapacity:0];
-            //            for (NSDictionary *dic in get_jsonDic[@"group"]) {
             DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc]init];
             
-            articleModel.amount = [get_jsonDic valueForKey:@"amount"];//人数
-            
-            articleModel.intro = [get_jsonDic valueForKey:@"intro"];//简介
-            
-            NSArray *temp_array = get_jsonDic[@"tag"];
-            [self.tagArray removeAllObjects];
-            for (NSDictionary *dic in temp_array) {
-                DDQTagModel *model = [[DDQTagModel alloc] init];
-                model.iD = dic[@"id"];
-                model.gid = dic[@"gid"];
-                model.intime = dic[@"intime"];
-                model.name = dic[@"name"];
-                [self.tagArray addObject:model];
-            }
-            
-            articleModel.isin =  [get_jsonDic valueForKey:@"isin"];
+            articleModel.amount = [responseObjc valueForKey:@"amount"];//人数
+            articleModel.intro  = [responseObjc valueForKey:@"intro"];//简介
             articleModel.isTemp = NO;
+            articleModel.isin   = [responseObjc valueForKey:@"isin"];
+            
             [_groupHeaderArray addObject:articleModel];
             
-            dispatch_async(dispatch_get_main_queue(), ^{
+            NSArray *temp_array = responseObjc[@"tag"];
+            for (NSDictionary *dic in temp_array) {
                 
+                DDQTagModel *model = [[DDQTagModel alloc] init];
+                model.iD           = dic[@"id"];
+                model.gid          = dic[@"gid"];
+                model.intime       = dic[@"intime"];
+                model.name         = dic[@"name"];
                 
-                    [self creatView];
-                    self.mainTableView.tableHeaderView = self.headerView;
-                    
-                [self.hud hide:YES];
+                [self.tagArray addObject:model];
                 
-            });
+            }
+            
+            //更新UI
+            [self.hud hide:YES];
+            [self creatView];
+            self.mainTableView.tableHeaderView = self.headerView;
+            
+        } else {
+            
+            [self.hud hide:YES];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
         }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                [self.hud hide:YES];
-                
-                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message: @"服务器繁忙"  delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                [alertView show];
-            });
-        }
-        //11-05
         
-    });
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 
-
-//12-04
-static int tiezicount = 0,rijicount =0;
-#pragma mark - asy net work
-static int Page = 2;
--(void)asyArticleListWithPage:(int)page {
-    rijicount = 0;
-    tiezicount = 0;
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSString *spellString = [SpellParameters getBasePostString];
+//static int Page = 1;
+-(void)asyArticleListWithPage:(int)page ClearContainer:(BOOL)isClear{
+    
+    [self.hud show:YES];//显示hud
+    
+    if (isClear) {//是否清楚数据源
         
-        //12-09
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",spellString,@"1",_header_single.groupId,tagString,[NSString stringWithFormat:@"%d",page]];
+        self.articleModelArray = nil;
+        self.articleModelArray = [NSMutableArray array];
         
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:post_baseString];
+    }
+    
+    [self.netWork asyPOSTWithAFN_url:kWenzhangUrl andData:@[@"1", _header_single.groupId, tagString, @(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSMutableDictionary *post_Dic = [[PostData alloc] postData:post_String AndUrl:kWenzhangUrl];
-        
-        //11-05
-        if ([[post_Dic objectForKey:@"errorcode"]intValue] ==0) {
+        if (!code_error) {
             
-            //解密
-            NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_Dic];
+            for (NSDictionary *dic in responseObjc) {
+                
+                NSDictionary *tem = [DDQPublic nullDic:dic];
+                DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                //精或热
+                articleModel.isJing        = [tem valueForKey:@"isjing"];//1是精,0不是
+                articleModel.articleTitle  = [tem valueForKey:@"title"];
+                articleModel.articleType   = [tem valueForKey:@"type"];
+                articleModel.introString   = [tem valueForKey:@"text"];
+                articleModel.replyNum      = [tem valueForKey:@"pl"];
+                articleModel.thumbNum      = [tem valueForKey:@"zan"];
+                
+                articleModel.groupName     = [tem valueForKey:@"groupname"];
+                articleModel.imgArray      = [tem valueForKey:@"imgs"];
+                articleModel.userHeaderImg = [tem valueForKey:@"userimg"];
+                articleModel.userid        = [tem valueForKey:@"userid"];
+                articleModel.userName      = [tem valueForKey:@"username"];
+                articleModel.plTime        = [tem valueForKey:@"pubtime"];
+                
+                articleModel.ctime         = tem[@"ctime"];
+                articleModel.articleId     = tem[@"id"];
+                
+                [_articleModelArray addObject:articleModel];
+                
+            }
             
-            dispatch_async(dispatch_get_main_queue(), ^{
+            if ([responseObjc count] == 0) {
                 
-                if (get_jsonDic != nil && get_jsonDic.count > 0) {
-                    
-                    //10-30
-                    //12-21
-                    for (NSDictionary *dic1 in get_jsonDic) {
-                        
-                        NSDictionary *dic = [DDQPublic nullDic:dic1];
-                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                        //精或热
-                        articleModel.isJing = [dic valueForKey:@"isjing"];//1是精,0不是
-                        articleModel.articleTitle = [dic valueForKey:@"title"];
-                        //                articleModel.groupName = [dic valueForKey:@"gname"];
-                        articleModel.articleType = [dic valueForKey:@"type"];
-                        //                articleModel.imgArray = [dic valueForKey:@"img"];
-                        articleModel.introString = [dic valueForKey:@"text"];
-                        //                articleModel.userHeaderImg = [dic valueForKey:@"pluserimg"];
-                        //                articleModel.userName = [dic valueForKey:@"plusername"];
-                        //12-14
-                        articleModel.replyNum = [dic valueForKey:@"pl"];
-                        articleModel.thumbNum = [dic valueForKey:@"zan"];
-                        //                articleModel.plTime = [dic valueForKey:@"pltime"];
-                        
-                        //10-30
-                        articleModel.groupName = [dic valueForKey:@"groupname"];
-                        articleModel.imgArray = [dic valueForKey:@"imgs"];
-                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                        articleModel.userid = [dic valueForKey:@"userid"];
-                        articleModel.userName = [dic valueForKey:@"username"];
-                        articleModel.plTime = [dic valueForKey:@"pubtime"];
-                        
-                        articleModel.ctime = dic[@"ctime"];
-                        articleModel.articleId = dic[@"id"];
-                        [_articleModelArray addObject:articleModel];
-                        
-                        //12-04
-                        if ([articleModel.articleType isEqualToString:@"1"]) {
-                            rijicount++;
-                        }
-                        else
-                            if ([articleModel.articleType isEqualToString:@"2"]) {
-                                tiezicount++;
-                            }
-                    }
-                    [_mainTableView reloadData];
-                    
-                    [self.hud hide:YES];
-
-                } else {
-                    [self.hud hide:YES];
-
-                    UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"暂无更多数据" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                    [alertView show];
-                    [_mainTableView reloadData];
-
-                }
+                self.mainTableView.footer.state = MJRefreshStateNoMoreData;
                 
+            } else {
                 
-            });
+                self.mainTableView.footer.state = MJRefreshStateIdle;
+                
+            }
+            
+            [self.hud hide:YES];
+            [self.mainTableView reloadData];
+            
+        } else {
+            
+            [self.hud hide:YES];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
         }
-        else
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                [self.hud hide:YES];
-                
-                UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                [alertView show];
-            });
-        }
-        //11-05
         
-    });
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        [self.mainTableView reloadData];
+        
+    }];
+    
 }
 
 #pragma mark - tableView and headerView
 -(void)initTableView {
     //10-30
     
-    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kScreenHeight-64) style:UITableViewStyleGrouped];
+    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kScreenHeight-64) style:UITableViewStylePlain];
     [self.mainTableView setDelegate:self];
     [self.mainTableView setDataSource:self];
     
@@ -514,9 +461,9 @@ static int Page = 2;
 
 //10-30
 #pragma  mark -
-
-- (void)tagButtonClicked
-{
+/** 插入cell */
+- (void)tagButtonClicked {
+    
     if (isClick == NO) {
         
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
@@ -545,204 +492,122 @@ static int Page = 2;
         [self.collectionView registerClass:[DDQGroupCollectionViewCell class] forCellWithReuseIdentifier:@"collectionCell"];
         
         [self.temp_cell.contentView addSubview:self.collectionView];
+        
     } else {
     
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+        
         [self.mainTableView beginUpdates];
         [_articleModelArray removeObjectAtIndex:0];
         [self.mainTableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
         [self.collectionView removeFromSuperview];
-        
         [self.mainTableView endUpdates];
         [self.mainTableView reloadData];
         isClick = NO;
     }
 }
 
-//12-02
-- (void)isjoinButtonClicked:(UIButton *)btn
-{
-    //
-    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] !=nil && ![DDQPublic isBlankString:[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]]) {
+//点击加入或退出按钮
+- (void)isjoinButtonClicked:(UIButton *)btn {
+    
+    [self.hud show:YES];
+    
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]) {
         
-        if (_isjoinGroup == NO) {
+        if (self.isjoinGroup == NO) {
             
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                NSString *spellString = [SpellParameters getBasePostString];
+            [self.netWork asyPOSTWithAFN_url:kGroup_join andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], _header_single.groupId] andSuccess:^(id responseObjc, NSError *code_error) {
                 
-                NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],_header_single.groupId];
-                
-                DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                NSString *post_String = [postEncryption stringWithPost:post_baseString];
-                
-                NSMutableDictionary *post_Dic = [[PostData alloc] postData:post_String AndUrl:kGroup_join];
-                
-                switch ([[post_Dic objectForKey:@"errorcode"]intValue]) {
-                    case 0:
-                    {
+                if (!code_error) {
+                    
+                    [self.hud hide:YES];
+
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"加入小组成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
+                    [btn setTitle:@"退出" forState:(UIControlStateNormal)];
+                    [btn setTitleColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5] forState:(UIControlStateNormal)];
+                    [btn.layer setBorderColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5].CGColor];
+                    
+                    self.isjoinGroup = YES;
+                    
+                } else {
+                    
+                    [self.hud hide:YES];
+                    
+                    NSInteger code = code_error.code;
+                    if (code == 50) {
                         
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示"
-                                                                                message:@"加入小组成功"
-                                                                               delegate:self
-                                                                      cancelButtonTitle:@"确定"
-                                                                      otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            [btn setTitle:@"退出" forState:(UIControlStateNormal)];
-                            
-                            [btn setTitleColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5] forState:(UIControlStateNormal)];
-                            
-                            [btn.layer setBorderColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5].CGColor];
-                            
-                            _isjoinGroup = YES;
-                        });
-                        break;
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"您已加入本小组" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        
+                    } else {
+                        
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        
                     }
-                    case 50:
-                    {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示"
-                                                                                message:@"您已在本小组"
-                                                                               delegate:self
-                                                                      cancelButtonTitle:@"确定"
-                                                                      otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            [btn setTitle:@"退出" forState:(UIControlStateNormal)];
-                            
-                            [btn setTitleColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5] forState:(UIControlStateNormal)];
-                            
-                            [btn.layer setBorderColor:[UIColor colorWithRed:147.0/255.0 green:147.0/255.0 blue:147.0/255.0 alpha:0.5].CGColor];
-                            
-                            _isjoinGroup = YES;
-                        });
-                        
-                        
-                        break;
-                    }
-                    default:
-                    {
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"加入小组失败"
-                                                                                message:@"服务器繁忙,请稍后重试"
-                                                                               delegate:self
-                                                                      cancelButtonTitle:@"确定"
-                                                                      otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            _isjoinGroup = NO;
-                        });
-                        
-                        break;
-                    }
+                    
                 }
                 
-            });
+            } andFailure:^(NSError *error) {
+                
+                [self.hud hide:YES];
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }];
             
+        } else {
             
-        }else{
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                NSString *spellString = [SpellParameters getBasePostString];
+            [self.netWork asyPOSTWithAFN_url:kGroup_exit andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], _header_single.groupId] andSuccess:^(id responseObjc, NSError *code_error) {
                 
-                NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],_header_single.groupId];
-                
-                DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                NSString *post_String = [postEncryption stringWithPost:post_baseString];
-                
-                NSMutableDictionary *post_Dic = [[PostData alloc] postData:post_String AndUrl:kGroup_exit];
-                
-                switch ([[post_Dic objectForKey:@"errorcode"]intValue]) {
-                    case 0:
-                    {
+                if (!code_error) {
+                    
+                    [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"退出小组成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
+                    [btn setTitle:@"加入" forState:(UIControlStateNormal)];
+                    [btn setTitleColor:[UIColor meiHongSe] forState:(UIControlStateNormal)];
+                    [btn.layer setBorderColor:[UIColor meiHongSe].CGColor];
+                    
+                    self.isjoinGroup = NO;
+                    
+                    [self.hud hide:YES];
+                    
+                } else {
+                    
+                    [self.hud hide:YES];
+                    
+                    NSInteger code = code_error.code;
+                    if (code == 51) {
                         
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示"
-                                                                                message:@"退出小组成功"
-                                                                               delegate:self
-                                                                      cancelButtonTitle:@"确定"
-                                                                      otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            [btn setTitle:@"加入" forState:(UIControlStateNormal)];
-                            [btn setTitleColor:[UIColor meiHongSe] forState:(UIControlStateNormal)];
-                            
-                            [btn.layer setBorderColor:[UIColor meiHongSe].CGColor];
-                            
-                            _isjoinGroup = NO;
-                        });
-                        break;
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"您尚未加入小组" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        
+                    } else {
+                        
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        
                     }
-                    case 51:
-                    {
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示"
-                                                                                message: @"您尚未加入小组"
-                                                                               delegate:self
-                                                                      cancelButtonTitle:@"确定"
-                                                                      otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            [btn setTitle:@"加入" forState:(UIControlStateNormal)];
-                            [btn setTitleColor:[UIColor meiHongSe] forState:(UIControlStateNormal)];
-                            
-                            [btn.layer setBorderColor:[UIColor meiHongSe].CGColor];
-                            
-                            _isjoinGroup = NO;
-                        });
-                        
-                        
-                        break;
-                    }
-                    default:
-                    {
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"退出小组失败"
-                                                                                message:@"服务器繁忙,请稍后重试"
-                                                                               delegate:self
-                                                                      cancelButtonTitle:@"确定"
-                                                                      otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            _isjoinGroup = YES;
-                        });
-                        
-                        break;
-                    }
+                    
                 }
                 
-            });
+            } andFailure:^(NSError *error) {
+                
+                [self.hud hide:YES];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }];
             
-            
-            _isjoinGroup = NO;
         }
         
-    }else
-    {
-        UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示"
-                                                            message:@"请先登录..."
-                                                           delegate:self
-                                                  cancelButtonTitle:@"确定"
-                                                  otherButtonTitles:nil, nil];
-        
-        [alertView show];
     }
+    
 }
 
 #pragma mark - collectionView
-
-//12-04
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     
     //10-29
     DDQGroupCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"collectionCell" forIndexPath:indexPath];
     
     DDQTagModel *model = self.tagArray[indexPath.row];
-    
     
     NSString *str = model.name;
     cell.title.text = str;
@@ -752,6 +617,7 @@ static int Page = 2;
     cell.layer.borderColor = [UIColor colorWithRed:227.0f/255.0f green:226.0f/255.0f blue:226.0f/255.0f alpha:1.0f].CGColor;
     
     if (model.isChange == YES) {
+        
         cell.layer.borderColor = [UIColor meiHongSe].CGColor;
         cell.title.textColor = [UIColor meiHongSe];
 
@@ -763,31 +629,48 @@ static int Page = 2;
     return cell;
 }
 
-//12-04有问题
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    //当前cell
+    DDQGroupCollectionViewCell *currentItem = [collectionView cellForItemAtIndexPath:indexPath];
+    
+    //点击了同一个cell
+    if (self.temp_item == currentItem) return;
+    
+    //取出model类
     DDQTagModel *model = [_tagArray objectAtIndex:indexPath.row];
     tagString =  model.iD;
     if (model.isChange == NO) {
         
+        //先让所有的选中都变为未选中
         for (DDQTagModel *model in _tagArray) {
             model.isChange = NO;
         }
+        //在改变这个model的选中状态
         model.isChange = YES;
         
-        DDQGroupCollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
-        cell.title.textColor = [UIColor meiHongSe];
-        cell.layer.borderColor = [UIColor meiHongSe].CGColor;
+        //UI改变
+        currentItem.title.textColor = [UIColor meiHongSe];
+        currentItem.layer.borderColor = [UIColor meiHongSe].CGColor;
+        
+        self.temp_item.title.textColor = kTextColor;
+        self.temp_item.layer.borderColor = [UIColor colorWithRed:227.0f/255.0f green:226.0f/255.0f blue:226.0f/255.0f alpha:1.0f].CGColor;
+        
+        //重新赋值
+        self.temp_item = currentItem;
+        
+        //这是标签是否被点击了
+        isClick = NO;
+        [self asyArticleListWithPage:1 ClearContainer:YES];
 
     } else {
-        model.isChange = NO;
+        
+        return;
+        
     }
-    //重新加载tableView
-    [_articleModelArray removeAllObjects];
-    isClick = NO;
-    [self.hud show:YES];
-    [self asyArticleListWithPage:1];
+    
 }
+
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
     return self.tagArray.count;
@@ -805,11 +688,12 @@ static int Page = 2;
 
 #pragma mark - tableView Delegate And DataSource
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-        return _articleModelArray.count;
+    
+    return _articleModelArray.count;
     
 }
-static NSString *identifier = @"cell";
 
+static NSString *identifier = @"cell";
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
@@ -837,10 +721,8 @@ static NSString *identifier = @"cell";
                 return self.temp_cell;
             }
 
-           
-        }
-        else
-        {
+        } else {
+            
             DDQDiaryViewCell *diaryCell = [[DDQDiaryViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
             
             //10-30
@@ -849,8 +731,9 @@ static NSString *identifier = @"cell";
             diaryCell.selectionStyle = UITableViewCellSelectionStyleNone;
             diaryCell.backgroundColor = [UIColor backgroundColor];
             return diaryCell;
+            
         }
-        //12-09
+    
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
@@ -864,14 +747,12 @@ static NSString *identifier = @"cell";
 
     return 10;
 }
+
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForFooterInSection:(NSInteger)section {
 
     return 0;
 }
 
-//10-30已跪
-//12-03
-//12-04
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     CGFloat h;
@@ -922,15 +803,16 @@ static NSString *identifier = @"cell";
     //取出model类
     DDQGroupArticleModel *model = self.articleModelArray[indexPath.row];
 
-    //赋值
-    DDQHeaderSingleModel *headerSingle = [DDQHeaderSingleModel singleModelByValue];
-
-    headerSingle.ctime                      = model.ctime;
-    headerSingle.articleId                  = model.articleId;
-    headerSingle.userId                     = model.userid;
+    commentVC.ctime                      = model.ctime;
+    commentVC.articleId                  = model.articleId;
+    commentVC.userid                     = model.userid;
     commentVC.hidesBottomBarWhenPushed = YES;
+    
     if (model.isTemp == NO) {
+        
         [self.navigationController pushViewController:commentVC animated:YES];
+        
     }
+    
 }
 @end

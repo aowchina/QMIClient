@@ -51,10 +51,14 @@
                 if(timeout<=0){ //倒计时结束，关闭
                     dispatch_source_cancel(_timer);
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        _sendCodeButton.titleLabel.text = @"重新获取";
+                        
+                        [_sendCodeButton setTitle:@"重新获取" forState:UIControlStateNormal];
                         _sendCodeButton.titleLabel.textAlignment = NSTextAlignmentCenter;
                         _sendCodeButton.userInteractionEnabled = YES;
+                        _sendCodeButton.backgroundColor = [UIColor orangeColor];
+                        
                     });
+                    
                 }else{
                     int seconds = timeout % 60;
                     NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
@@ -74,7 +78,7 @@
             dispatch_resume(_timer);
         } else {
             UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
-                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
+                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"commitVerificationCode"]]
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];
@@ -105,7 +109,7 @@
         } else {
             [hud hide:YES];
             UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
-                                                            message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"getVerificationCode"]]
+                                                            message:[NSString stringWithFormat:@"错误描述：%@",error.userInfo[@"commitVerificationCode"]]
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];

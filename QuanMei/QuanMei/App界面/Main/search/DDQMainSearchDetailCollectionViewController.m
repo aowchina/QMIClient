@@ -15,21 +15,19 @@
 #import "zhutiModel.h"//数据
 
 #import "Header.h"
+#import "ProjectNetWork.h"
 
 @interface DDQMainSearchDetailCollectionViewController ()<UICollectionViewDataSource,UICollectionViewDelegate>
-{
-    //页码
-    NSString * page_id;
 
-}
-@property (nonatomic ,strong)UICollectionView *collectionView;
+@property (nonatomic ,strong) UICollectionView *collectionView;
 
-@property (nonatomic ,strong)UIScrollView * mainScrollView;
+@property (nonatomic ,strong) UIScrollView * mainScrollView;
 
-@property (nonatomic ,strong)NSMutableArray * godsArray;
+@property (nonatomic ,strong) NSMutableArray * godsArray;
 
-
-@property ( strong, nonatomic) MBProgressHUD *hud;
+@property (nonatomic, strong) MBProgressHUD *hud;
+@property (nonatomic, strong) ProjectNetWork *netWork;
+@property (nonatomic, assign) int page;
 
 @end
 
@@ -40,18 +38,12 @@
 
     self.view.backgroundColor = [UIColor backgroundColor];
     
-    page_id = @"1";
     
     _godsArray = [[NSMutableArray alloc]init];
     
     self.hud = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:self.hud];
     self.hud.detailsLabelText = @"请稍等...";
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:YES];
     
     //背景
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bar"] forBarMetrics:UIBarMetricsDefault];
@@ -60,33 +52,26 @@
     self.navigationController.navigationBar.translucent = NO;
     
     //title 颜色
-    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+    self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor meiHongSe]};
     
     //返回颜色
-    self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
+    self.navigationController.navigationBar.tintColor = [UIColor meiHongSe];
     
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic) {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            
-        } else {
-            
-        
-            [self.hud show:YES];
-            [self asyncListForSearchDetailVC];
-        }
-        
-    }];
+    self.netWork = [ProjectNetWork sharedWork];
     
+    self.page = 1;
+    
+    [self asyncListForSearchDetailVCWithPage:self.page];
+    
+
 }
 
-- (void)asyncListForSearchDetailVC
-{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+- (void)asyncListForSearchDetailVCWithPage:(int)page {
+  
+    if (![_searchTehuiText isEqualToString:@""] || _searchTehuiText != nil) {
         
-        //
+        [self.hud show:YES];
+
         NSData *data1 = [_searchTehuiText dataUsingEncoding:NSUTF8StringEncoding];
         Byte *byteArray1 = (Byte *)[data1 bytes];
         NSMutableString *searchtext = [[NSMutableString alloc] init];
@@ -95,30 +80,17 @@
             [searchtext appendFormat:@"%d#",byteArray1[i]];
         }
         
-        
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
-        
-        //加密
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],searchtext,page_id];
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:post_baseString];
-        
-        
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kSearchTehuiUrl];
-        
-        
-        if (get_postDic[@"errorcode"] == 0) {
-            //10-19
-            //10-30
-            NSDictionary * get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
-
-            if (![get_JsonDic isKindOfClass:[NSNull class]] && get_JsonDic!=nil) {
+        [self.netWork asyPOSTWithAFN_url:kSearchTehuiUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],searchtext,@(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
+            
+            if (code_error) {
                 
-                //12-21
-                for (NSDictionary *dic1 in get_JsonDic) {
+                [self.hud hide:YES];
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            } else {
+                
+                for (NSDictionary *dic1 in responseObjc) {
                     
                     NSDictionary * dic = [DDQPublic nullDic:dic1];
                     
@@ -135,29 +107,39 @@
                     [_godsArray addObject:thmodel];
                     
                 }
-            }
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
+                
                 [self.hud hide:YES];
                 [self crratSearchCollectionView];
-            });
-            
-        } else {
-        
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.hud hide:YES];
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
-            });
-            
-        }
-        
-        
-    });
+                
+                if ([responseObjc count] > 0) {
+                    
+                    self.mainScrollView.footer.state = MJRefreshStateNoMoreData;
+                    
+                } else {
+                
+                    self.mainScrollView.footer.state = MJRefreshStateIdle;
 
-}
-- (void)crratSearchCollectionView
-{
+                }
+                
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }];
+
+    } else {
     
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"请输入搜索内容" andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+    }
+  
+}
+
+- (void)crratSearchCollectionView {
     
     _mainScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight-64)];
     
@@ -166,24 +148,19 @@
     //加载
     [self loading];
     
-    
-    
     UICollectionViewFlowLayout *flowlayout = [[UICollectionViewFlowLayout alloc]init];
 
     if (_godsArray.count%2 == 0) {
-        _mainScrollView.contentSize = CGSizeMake(kScreenWidth, (_godsArray.count/2)*kScreenHeight*0.4);
-        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, kScreenWidth, (_godsArray.count/2)*kScreenHeight*0.4) collectionViewLayout:flowlayout];
+        
+        _mainScrollView.contentSize = CGSizeMake(kScreenWidth, (_godsArray.count/2)*250);
+        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, kScreenWidth, (_godsArray.count/2)*250) collectionViewLayout:flowlayout];
 
-    }else
-    {
-        _mainScrollView.contentSize = CGSizeMake(0, (_godsArray.count+1)/2 *kScreenHeight*0.4);
-        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, kScreenWidth, (_godsArray.count+1)/2 *kScreenHeight*0.4) collectionViewLayout:flowlayout];
+    } else {
+        
+        _mainScrollView.contentSize = CGSizeMake(0, (_godsArray.count+1)/2 *250);
+        _collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, kScreenWidth, (_godsArray.count+1)/2 *250) collectionViewLayout:flowlayout];
 
     }
-    
-    //collection
-    
-    
     _collectionView.backgroundColor = [UIColor backgroundColor];
     //11-05
     _collectionView.delegate =self;
@@ -193,6 +170,7 @@
     [_collectionView registerClass:[DDQThemeActivityItem class] forCellWithReuseIdentifier:@"collcell"];
     
     [_mainScrollView addSubview: _collectionView];
+    
 }
 #pragma mark - delegate for collection
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
@@ -229,7 +207,7 @@
 }
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return CGSizeMake(kScreenWidth*0.5-10, kScreenHeight*0.4);
+    return CGSizeMake(kScreenWidth*0.5-10, 250);
 }
 //加载
 -(void)loading
@@ -240,24 +218,16 @@
     
     // 上拉刷新
     self.mainScrollView.footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
-        int count = 1;
-        count++;
-        page_id = [NSString stringWithFormat:@"%d",count];
+        
+        self.page = self.page + 1;
         [_mainScrollView removeFromSuperview];
-        [self asyncListForSearchDetailVC];
+        [self asyncListForSearchDetailVCWithPage:self.page];
         
         // 结束刷新
         [self.mainScrollView.footer endRefreshing];
+        
     }];
 }
-/*
-#pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

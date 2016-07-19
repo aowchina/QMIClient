@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9532" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9530"/>
@@ -97,7 +97,7 @@
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                 </view>
                 <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KN7-PV-eut">
-                    <rect key="frame" x="519" y="44" width="42" height="41"/>
+                    <rect key="frame" x="514" y="44" width="52" height="41"/>
                     <state key="normal" backgroundImage="img_My-order"/>
                     <connections>
                         <action selector="differentButtonSelectedMethod:" destination="-1" eventType="touchUpInside" id="xZV-aU-cVH"/>
@@ -134,7 +134,7 @@
     <resources>
         <image name="img_For-service" width="31" height="41"/>
         <image name="img_Has-been-cancelled" width="31" height="41"/>
-        <image name="img_My-order" width="42" height="41"/>
+        <image name="img_My-order" width="52" height="41"/>
         <image name="img_To-be-paidL" width="31" height="41"/>
         <image name="img_To-evaluate" width="31" height="41"/>
     </resources>

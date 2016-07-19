@@ -9,5 +9,9 @@
 #import <UIKit/UIKit.h>
 
 @interface DDQUserCommentViewController : UIViewController
-@property (strong,nonatomic) NSString *userid;
+
+@property (nonatomic, strong) NSString *userid;
+@property (nonatomic, strong) NSString *ctime;
+@property (nonatomic, strong) NSString *articleId;
+
 @end

@@ -11,87 +11,82 @@
 #import "DDQMyCommentCell.h"
 
 #import "DDQUserCommentViewController.h"
-#import "DDQHeaderSingleModel.h"
+#import "ProjectNetWork.h"
 
 @interface DDQFirstDiaryChildController ()<UITableViewDataSource,UITableViewDelegate,MyCommentCellDelegate>
 
 /**
  *  主tableView
  */
-@property (strong,nonatomic) UITableView *mainTableView;
+@property (strong, nonatomic) UITableView *mainTableView;
 /**
  *  接受cell的新的高度
  */
-@property (assign,nonatomic) CGFloat new_cellHeight;
+@property (assign, nonatomic) CGFloat new_cellHeight;
 
 
-@property (strong,nonatomic) NSMutableArray *articleModelArray;
-@property (strong,nonatomic) DDQHeaderSingleModel *singleModel;
+@property (strong, nonatomic) NSMutableArray *articleModelArray;
+
+@property (strong, nonatomic) ProjectNetWork *netWork;
+/** 页码 */
+@property (assign, nonatomic) int page;
+/** hud */
+@property (strong, nonatomic) MBProgressHUD *hud;
 
 @end
 
 @implementation DDQFirstDiaryChildController
-static int num = 2;
+
+//static int num = 2;
+
+- (MBProgressHUD *)hud {
+
+    if (!_hud) {
+        
+        _hud = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:_hud];
+        _hud.detailsLabelText = @"请稍等...";
+        
+    }
+    
+    return _hud;
+    
+}
+
 - (void)viewDidLoad {
     
     [super viewDidLoad];
-    //1
+    
     self.view.backgroundColor = [UIColor whiteColor];
     [self initMainTabelView];
-    self.singleModel       = [DDQHeaderSingleModel singleModelByValue];
+    
+    
+    self.netWork = [ProjectNetWork sharedWork];
 
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
+    self.page = 1;
+    
+    [self requestDataWith:1 url:kMyDiaryUrl];
+    
+    self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
-        //网络连接无错误
-        if (errorDic == nil) {
-            
-            [self requestDataWith:1 url:kMyDiaryUrl];
-            
-            self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-                
-                //确保网络连接无错误,防止别人手贱
-                if (errorDic == nil) {
-                    [self.articleModelArray removeAllObjects];
-                    [self requestDataWith:1 url:kMyDiaryUrl];
-                    [self.mainTableView.header endRefreshing];
-
-                }
-                
-            }];
-            
-            self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-                
-                [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-                    
-                    if (errorDic == nil) {
-                        
-                        int page = num ++;
-                        [self requestDataWith:page url:kMyDiaryUrl];
-                        [self.mainTableView.footer endRefreshing];
-                        self.mainTableView.footer.state = MJRefreshStateNoMoreData;
-
-                    } else {
-                        
-                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                        [self.mainTableView.footer endRefreshing];
-                    }
-                }];
-            }];
-            
-            
-        } else {
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
+        self.page = 1;
+        [self.articleModelArray removeAllObjects];
+        [self requestDataWith:self.page url:kMyDiaryUrl];
+        [self.mainTableView.header endRefreshing];
+        
     }];
+    
+    self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        self.page = self.page + 1;
+        [self requestDataWith:self.page url:kMyDiaryUrl];
+        [self.mainTableView.footer endRefreshing];
+
+    }];
+
     self.articleModelArray = [NSMutableArray array];
+    
 }
-
-
 
 -(void)initMainTabelView {
     
@@ -113,14 +108,8 @@ static int num = 2;
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-//    if (self.new_cellHeight != 0) {
-    
-        return  self.new_cellHeight;
-        
-//    } else {
-        
-//        return kScreenHeight * 0.5;
-//    }
+    return  self.new_cellHeight;
+
 }
 
 static NSString *identifier = @"cell";
@@ -128,11 +117,19 @@ static NSString *identifier = @"cell";
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     DDQMyCommentCell *myCommentCell = [tableView dequeueReusableCellWithIdentifier:identifier];
+    
+//    if (myCommentCell == nil) {
+    
+        myCommentCell = [[DDQMyCommentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+
+//    }
+    
     DDQGroupArticleModel *model;
     if (self.articleModelArray.count != 0) {
+        
         model = self.articleModelArray[indexPath.row];
+        
     }
-    myCommentCell = [[DDQMyCommentCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     
     myCommentCell.articleModel = model;
     
@@ -153,28 +150,39 @@ static NSString *identifier = @"cell";
     
     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        //八段
-        NSString *spellString = [SpellParameters getBasePostString];
+        [self.hud show:YES];
         
-        //拼参数
-        NSString *post_string = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],iD];
-        
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_encryptionString = [postEncryption stringWithPost:post_string];
-        
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryptionString AndUrl:kDel_wenzhangUrl];
-        
-        if ([post_dic[@"errorcode"] intValue] == 0) {
-            [self.articleModelArray removeAllObjects];
-            [self requestDataWith:1 url:kMyDiaryUrl];
-        }
+        [self.netWork asyPOSTWithAFN_url:kDel_wenzhangUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], iD] andSuccess:^(id responseObjc, NSError *code_error) {
+            
+            [self.view bringSubviewToFront:self.hud];
+
+            [self.hud hide:YES];
+            
+            if (code_error) {
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            } else {
+            
+                [self.articleModelArray removeAllObjects];
+                [self requestDataWith:1 url:kMyDiaryUrl];
+                
+            }
+            
+        } andFailure:^(NSError *error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }];
         
     }];
     
     UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
         [self dismissViewControllerAnimated:alertController completion:nil];
+        
     }];
     [alertController addAction:actionOne];
     [alertController addAction:actionTwo];
@@ -185,13 +193,16 @@ static NSString *identifier = @"cell";
 
     DDQGroupArticleModel *articleModel;
     if (self.articleModelArray.count != 0 && self.articleModelArray != nil) {
+        
         articleModel = self.articleModelArray[indexPath.row];
+        
     }
     DDQUserCommentViewController *userCommentVC = [[DDQUserCommentViewController alloc] init];
-    self.singleModel.ctime                      = articleModel.ctime;
-    self.singleModel.articleId                  = articleModel.articleId;
-    self.singleModel.userId                     = articleModel.userid;
+    userCommentVC.ctime                      = articleModel.ctime;
+    userCommentVC.articleId                  = articleModel.articleId;
+    userCommentVC.userid                     = articleModel.userid;
     [self.navigationController pushViewController:userCommentVC animated:YES];
+    
 }
 
 /**
@@ -202,99 +213,104 @@ static NSString *identifier = @"cell";
  * @ func   调用接口解析数据
  */
 - (void)requestDataWith:(NSInteger )page url:(NSString *)url{
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        
-        //调用点赞接口
-        //八段
-        NSString *spellString = [SpellParameters getBasePostString];
-        NSInteger type = 1;
-        //拼参数
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%lu*%lu",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],type,page];
-        
-        //加密
-        DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-        NSString *post_encryption = [post stringWithPost:post_baseString];
-        
-        //传
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:url];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            //判断errorcode
-            NSString *errorcode = post_dic[@"errorcode"];
-            int num = [errorcode intValue];
-            if (num == 0) {
-                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-                
-                for (NSDictionary *dic in get_jsonDic) {
-                    DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                    //精或热
-                    articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
-                    articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
-                    articleModel.articleTitle  = [dic valueForKey:@"title"];
-                    articleModel.groupName     = [dic valueForKey:@"groupname"];
-                    articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                    articleModel.userName      = [dic valueForKey:@"username"];
-                    articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
-                    articleModel.plTime        = [dic valueForKey:@"pubtime"];
-                    articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
-                    articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
-                    articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
-                    articleModel.introString   = [dic valueForKey:@"text"];
-                    articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                    articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
-                    [_articleModelArray addObject:articleModel];
-                }
-                if (get_jsonDic.count == 0) {
-                    
-                    [self.mainTableView reloadData];
+    
+    [self.view bringSubviewToFront:self.hud];
 
-                    if (self.articleModelArray.count == 0) {
-                        UIImageView *temp_img = [[UIImageView alloc] init];
-                        [self.view addSubview:temp_img];
-                        [temp_img mas_makeConstraints:^(MASConstraintMaker *make) {
-                            make.centerX.equalTo(self.view.mas_centerX);
-                            make.centerY.equalTo(self.view.mas_centerY);
-                            make.width.offset(70);
-                            make.height.offset(70);
-                        }];
-                        temp_img.image = [UIImage imageNamed:@"default_pic"];
-                        
-                        UILabel *tip_onelabel = [[UILabel alloc] init];
-                        [self.view addSubview:tip_onelabel];
-                        [tip_onelabel mas_makeConstraints:^(MASConstraintMaker *make) {
-                            make.top.equalTo(temp_img.mas_bottom).offset(10);
-                            make.centerX.equalTo(temp_img.mas_centerX);
-                            make.height.offset(20);
-                        }];
-                        tip_onelabel.text = @"暂无日记";
-                        tip_onelabel.textAlignment = NSTextAlignmentCenter;
-                        tip_onelabel.font = [UIFont systemFontOfSize:16.0f];
-                        
-                        UILabel *tip_twolabel = [[UILabel alloc] init];
-                        [self.view addSubview:tip_twolabel];
-                        [tip_twolabel mas_makeConstraints:^(MASConstraintMaker *make) {
-                            make.top.equalTo(tip_onelabel.mas_bottom).offset(10);
-                            make.centerX.equalTo(tip_onelabel.mas_centerX);
-                            make.height.offset(15);
-                        }];
-                        tip_twolabel.text = @"快去发表日记吧";
-                        tip_twolabel.textAlignment = NSTextAlignmentCenter;
-                        tip_twolabel.font = [UIFont systemFontOfSize:13.0f];
-
-                    }
-                    
-                } else {
-                    
-                    [self.mainTableView reloadData];
-                    [self.mainTableView.header endRefreshing];
-                }
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:url andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"1", @(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
+        
+        if (code_error) {
+            
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+        
+            for (NSDictionary *dic in responseObjc) {
                 
-            }else {
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                //精或热
+                articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
+                articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
+                articleModel.articleTitle  = [dic valueForKey:@"title"];
+                articleModel.groupName     = [dic valueForKey:@"groupname"];
+                articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
+                articleModel.userName      = [dic valueForKey:@"username"];
+                articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
+                articleModel.plTime        = [dic valueForKey:@"pubtime"];
+                articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
+                articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
+                articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
+                articleModel.introString   = [dic valueForKey:@"text"];
+                articleModel.imgArray      = [dic valueForKey:@"imgs"];
+                articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
+                [self.articleModelArray addObject:articleModel];
+
             }
             
+            //数据源呢没数据，请求呢也没数据，那么提示他空空如也
+            if (self.articleModelArray.count == 0 && [responseObjc count] == 0) {
+                
+                UIImageView *temp_img = [[UIImageView alloc] init];
+                [self.view addSubview:temp_img];
+                [temp_img mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.centerX.equalTo(self.view.mas_centerX);
+                    make.centerY.equalTo(self.view.mas_centerY);
+                    make.width.offset(70);
+                    make.height.offset(70);
+                }];
+                temp_img.image = [UIImage imageNamed:@"default_pic"];
+                
+                UILabel *tip_onelabel = [[UILabel alloc] init];
+                [self.view addSubview:tip_onelabel];
+                [tip_onelabel mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.top.equalTo(temp_img.mas_bottom).offset(10);
+                    make.centerX.equalTo(temp_img.mas_centerX);
+                    make.height.offset(20);
+                }];
+                tip_onelabel.text = @"暂无日记";
+                tip_onelabel.textAlignment = NSTextAlignmentCenter;
+                tip_onelabel.font = [UIFont systemFontOfSize:16.0f];
+                
+                UILabel *tip_twolabel = [[UILabel alloc] init];
+                [self.view addSubview:tip_twolabel];
+                [tip_twolabel mas_makeConstraints:^(MASConstraintMaker *make) {
+                    make.top.equalTo(tip_onelabel.mas_bottom).offset(10);
+                    make.centerX.equalTo(tip_onelabel.mas_centerX);
+                    make.height.offset(15);
+                }];
+                tip_twolabel.text = @"快去发表日记吧";
+                tip_twolabel.textAlignment = NSTextAlignmentCenter;
+                tip_twolabel.font = [UIFont systemFontOfSize:13.0f];
+                
+            }
             
-        });
-    });
+            [self.mainTableView reloadData];
+            
+            [self.hud hide:YES];
+            
+            if ([responseObjc count] == 0) {
+                
+                self.mainTableView.footer.state = MJRefreshStateNoMoreData;
+                
+            } else {
+            
+                self.mainTableView.footer.state = MJRefreshStateIdle;
+                
+            }
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 
 -(void)alertController:(NSString *)message {

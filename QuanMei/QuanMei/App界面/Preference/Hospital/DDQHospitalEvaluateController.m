@@ -15,6 +15,8 @@
 #import "DDQCircleView.h"
 
 #import "DDQHospitalEvaluteModel.h"
+#import "ProjectNetWork.h"
+#import "MJExtension.h"
 
 @interface DDQHospitalEvaluateController ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -32,9 +34,26 @@
 
 @property (strong,nonatomic) UIButton *temp_button;
 
+@property (nonatomic, strong) MBProgressHUD *hud;
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
 @end
 
 @implementation DDQHospitalEvaluateController
+
+- (MBProgressHUD *)hud {
+    
+    if (!_hud) {
+        
+        _hud = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:_hud];
+        _hud.detailsLabelText = @"请稍等...";
+        
+    }
+    
+    return _hud;
+    
+}
 
 - (void)viewDidLoad {
     
@@ -43,80 +62,51 @@
     
     self.he_dataArray = [NSMutableArray array];
     
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self asyHospitalPjNetWorkWithType:@"1"];
+    
     self.navigationItem.title = @"医院评价";
+    
 }
-
--(void)viewWillAppear:(BOOL)animated {
-
-    [super viewWillAppear:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            [self asyHospitalPjNetWorkWithType:@"1"];
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
-}
-
 
 -(void)asyHospitalPjNetWorkWithType:(NSString *)type {
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kHospital_pjUrl andData:@[self.hospitalId,type] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        //网络解析一小下
-        NSString *spellString             = [SpellParameters getBasePostString];//八段
-        
-        NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,self.hospitalId,type];//post字符串
-        
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];//加密类
-        
-        NSString *post_string             = [postEncryption stringWithPost:post_baseString];//加密下
-        
-        NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kHospital_pjUrl];//发送下
-        
-        NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
+        if (code_error) {
             
-            if ([errorcode_string intValue] == 0) {
-                //12-21
-                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:post_dic];
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        } else {
+        
+            for (NSDictionary *dataDic in responseObjc) {
                 
-                for (NSDictionary *dataDic in get_Dic) {
-                    
-                    NSDictionary *get_jsonDic = [DDQPublic nullDic:dataDic];
-                    DDQHospitalEvaluteModel *model = [[DDQHospitalEvaluteModel alloc] init];
-                    model.fw = get_jsonDic[@"fw"];
-                    model.hid = get_jsonDic[@"hid"];
-                    model.hua = get_jsonDic[@"hua"];
-                    model.iD = get_jsonDic[@"id"];
-                    model.orderid = get_jsonDic[@"orderid"];
-                    model.pubtime = get_jsonDic[@"pubtime"];
-                    model.sm = get_jsonDic[@"sm"];
-                    model.stars = get_jsonDic[@"stars"];
-                    model.text = get_jsonDic[@"text"];
-                    model.userid = get_jsonDic[@"userid"];
-                    model.username = get_jsonDic[@"username"];
-                    model.simg = get_jsonDic[@"simg"];
-                    model.userimg = get_jsonDic[@"userimg"];
-                    [self.he_dataArray addObject:model];
-                }
-                [self.mainTableView reloadData];
-            } else {
-                
-//                [self alertController:@"系统繁忙"];
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                NSDictionary *get_jsonDic = [DDQPublic nullDic:dataDic];
+                DDQHospitalEvaluteModel *model = [DDQHospitalEvaluteModel mj_objectWithKeyValues:get_jsonDic];
+                [self.he_dataArray addObject:model];
                 
             }
             
-        });
-    });
+            [self.hud hide:YES];
+            
+            [self.mainTableView reloadData];
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
 
 }
-
 
 -(void)initTableView {
     
@@ -142,7 +132,7 @@
     NSString *string = [self.hp substringToIndex:self.hp.length - 1];
     CGFloat arcW ;
     
-    arcW = 8.0f;
+    arcW = 10.0f;
     
     DDQCircleView *circleView = [[DDQCircleView alloc] initWithFrame:CGRectMake(10, 0, topView.frame.size.height, topView.frame.size.height) arcWidth:arcW current:[string floatValue] total:100.0f];
     circleView.backgroundColor = [UIColor whiteColor];
@@ -290,7 +280,7 @@
         make.right.equalTo(firstView.mas_right);
         make.width.offset(1);
         make.centerY.equalTo(firstView.mas_centerY);
-        make.height.equalTo(firstView.mas_height).multipliedBy(1).offset(-10);
+        make.height.equalTo(firstView.mas_height).offset(-20);
     }];
     first_line.backgroundColor = kLeftColor;
     
@@ -319,7 +309,7 @@
         make.right.equalTo(secondView.mas_right);
         make.width.offset(1);
         make.centerY.equalTo(secondView.mas_centerY);
-        make.height.equalTo(secondView.mas_height).multipliedBy(1).offset(-10);
+        make.height.equalTo(secondView.mas_height).offset(-20);
     }];
     second_line.backgroundColor = kLeftColor;
 
@@ -349,7 +339,7 @@
         make.right.equalTo(thirdView.mas_right);
         make.width.offset(1);
         make.centerY.equalTo(thirdView.mas_centerY);
-        make.height.equalTo(thirdView.mas_height).multipliedBy(1).offset(-10);
+        make.height.equalTo(thirdView.mas_height).offset(-20);
     }];
     third_line.backgroundColor = kLeftColor;
 

@@ -175,26 +175,24 @@
             self.deleteImage = [[UIImageView alloc] init];
             [temp_view addSubview:self.deleteImage];
             [self.deleteImage mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.equalTo(tempView.mas_centerX).with.offset(kScreenWidth * 0.25);
-                make.centerY.equalTo(tempView.mas_centerY);
+                make.left.equalTo(temp_view.mas_left);
+                make.centerY.equalTo(temp_view.mas_centerY);
                 make.width.equalTo(self.user_headerImg.mas_width).with.multipliedBy(0.5);
                 make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
             }];
             self.deleteImage.image = [UIImage imageNamed:@"topic_delete"];
             
             //点赞人数
-            self.deleteLabel = [[UILabel alloc] init];
-            [temp_view addSubview:self.deleteLabel];
-            [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            self.deleteButton = [UIButton buttonWithType:0];
+            [temp_view addSubview:self.deleteButton];
+            [self.deleteButton mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
             }];
-            self.deleteLabel.text = @"删除";
-            self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];
-            
-            
-            UITapGestureRecognizer *view_tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewClickedMethod:)];
-            [temp_view addGestureRecognizer:view_tap];
+            [self.deleteButton setTitle:@"删除" forState:UIControlStateNormal];
+            self.deleteButton.titleLabel.font = [UIFont systemFontOfSize:13.0f];
+            [self.deleteButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            [self.deleteButton addTarget:self action:@selector(viewClickedMethod:) forControlEvents:UIControlEventTouchUpInside];
             
             if (kScreenHeight == 480) {
                 self.cell_height = titleRect.size.height + 10 + self.newRect.size.height + 10 + 30 +10;
@@ -355,26 +353,23 @@
             self.deleteImage = [[UIImageView alloc] init];
             [temp_view addSubview:self.deleteImage];
             [self.deleteImage mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.equalTo(tempView.mas_centerX).with.offset(kScreenWidth * 0.25);
-                make.centerY.equalTo(tempView.mas_centerY);
+                make.left.equalTo(temp_view.mas_left);
+                make.centerY.equalTo(temp_view.mas_centerY);
                 make.width.equalTo(self.user_headerImg.mas_width).with.multipliedBy(0.5);
                 make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
             }];
             self.deleteImage.image = [UIImage imageNamed:@"topic_delete"];
             
-            //点赞人数
-            self.deleteLabel = [[UILabel alloc] init];
-            [temp_view addSubview:self.deleteLabel];
-            [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            self.deleteButton = [UIButton buttonWithType:0];
+            [temp_view addSubview:self.deleteButton];
+            [self.deleteButton mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
-                make.height.equalTo(self.deleteImage.mas_height);
             }];
-            self.deleteLabel.text = @"删除";
-            self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];
-
-            UITapGestureRecognizer *view_tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewClickedMethod:)];
-            [temp_view addGestureRecognizer:view_tap];
+            [self.deleteButton setTitle:@"删除" forState:UIControlStateNormal];
+            self.deleteButton.titleLabel.font = [UIFont systemFontOfSize:13.0f];
+            [self.deleteButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            [self.deleteButton addTarget:self action:@selector(viewClickedMethod:) forControlEvents:UIControlEventTouchUpInside];
 
             if (kScreenHeight == 480) {
                 self.cell_height = titleRect.size.height + 10 + self.newRect.size.height + 10 + 30 +10;
@@ -549,26 +544,24 @@
             self.deleteImage = [[UIImageView alloc] init];
             [temp_view addSubview:self.deleteImage];
             [self.deleteImage mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.equalTo(tempView.mas_centerX).with.offset(kScreenWidth * 0.25);
-                make.centerY.equalTo(tempView.mas_centerY);
+                make.left.equalTo(temp_view.mas_left);
+                make.centerY.equalTo(temp_view.mas_centerY);
                 make.width.equalTo(self.user_headerImg.mas_width).with.multipliedBy(0.5);
                 make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
             }];
             self.deleteImage.image = [UIImage imageNamed:@"topic_delete"];
             
             //点赞人数
-            self.deleteLabel = [[UILabel alloc] init];
-            [temp_view addSubview:self.deleteLabel];
-            [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            self.deleteButton = [UIButton buttonWithType:0];
+            [temp_view addSubview:self.deleteButton];
+            [self.deleteButton mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
-                make.height.equalTo(self.deleteImage.mas_height);
             }];
-            self.deleteLabel.text = @"删除";
-            self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];
-
-            UITapGestureRecognizer *view_tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewClickedMethod:)];
-            [temp_view addGestureRecognizer:view_tap];
+            [self.deleteButton setTitle:@"删除" forState:UIControlStateNormal];
+            self.deleteButton.titleLabel.font = [UIFont systemFontOfSize:13.0f];
+            [self.deleteButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            [self.deleteButton addTarget:self action:@selector(viewClickedMethod:) forControlEvents:UIControlEventTouchUpInside];
 
             if (kScreenHeight == 480) {
                 self.cell_height = titleRect.size.height + 10 + kScreenWidth*0.5 + 10 + 30 +10;
@@ -713,26 +706,24 @@
             self.deleteImage = [[UIImageView alloc] init];
             [temp_view addSubview:self.deleteImage];
             [self.deleteImage mas_makeConstraints:^(MASConstraintMaker *make) {
-                make.left.equalTo(tempView.mas_centerX).with.offset(kScreenWidth * 0.25);
-                make.centerY.equalTo(tempView.mas_centerY);
+                make.left.equalTo(temp_view.mas_left);
+                make.centerY.equalTo(temp_view.mas_centerY);
                 make.width.equalTo(self.user_headerImg.mas_width);
                 make.height.equalTo(self.user_headerImg.mas_height).with.multipliedBy(0.5);
             }];
             self.deleteImage.image = [UIImage imageNamed:@"topic_delete"];
             
             //点赞人数
-            self.deleteLabel = [[UILabel alloc] init];
-            [temp_view addSubview:self.deleteLabel];
-            [self.deleteLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            self.deleteButton = [UIButton buttonWithType:0];
+            [temp_view addSubview:self.deleteButton];
+            [self.deleteButton mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.left.equalTo(self.deleteImage.mas_right);
                 make.centerY.equalTo(self.deleteImage.mas_centerY);
-                make.height.equalTo(self.deleteImage.mas_height);
             }];
-            self.deleteLabel.text = @"删除";
-            self.deleteLabel.font = [UIFont systemFontOfSize:13.0f];
-
-            UITapGestureRecognizer *view_tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(viewClickedMethod:)];
-            [temp_view addGestureRecognizer:view_tap];
+            [self.deleteButton setTitle:@"删除" forState:UIControlStateNormal];
+            self.deleteButton.titleLabel.font = [UIFont systemFontOfSize:13.0f];
+            [self.deleteButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            [self.deleteButton addTarget:self action:@selector(viewClickedMethod:) forControlEvents:UIControlEventTouchUpInside];
             
             if (kScreenHeight == 480) {
                 self.cell_height = titleRect.size.height + 10 + kScreenWidth*0.5 + 10 + 30 +10;
@@ -747,11 +738,14 @@
   }
 }
 #pragma mark - tap click method
--(void)viewClickedMethod:(UITapGestureRecognizer *)tap {
+-(void)viewClickedMethod:(UIButton *)button {
 
     if (self.delegate != nil && [self.delegate respondsToSelector:@selector(myCommentCellDelegateWithTapMethodAndWenzhangId:)]) {
+        
         [self.delegate myCommentCellDelegateWithTapMethodAndWenzhangId:self.wenzhangId];
+        
     }
+    
 }
 
 

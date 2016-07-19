@@ -6,7 +6,6 @@
 //  Copyright (c) 2015年 min-fo. All rights reserved.
 //
 
-#import "AppDelegate.h"
 #import "DDQMainViewController.h"
 #import "DDQLoginViewController.h"
 #import "DDQCheckViewController.h"
@@ -31,51 +30,49 @@
 #import "DDQGroupArticleModel.h"//riji
 #import "DDQMainHotProjectTableViewCell.h"
 #import "DDQMyWalletViewController.h"
-//10-30
 #import "DDQLoopView.h"
 #import "DDQSearchBar.h"
-//11-06
 #import "DDQMainSearchViewController.h"
 #import "DDQBaoXianViewController.h"
-#import "DDQLunBoModel.h"
-#import "ProjectNetWork.h"
 #import "DDQThirdRegisterViewController.h"
 #import "DDQQiandaoView.h"
+#import "MJExtension.h"
+#import "ProjectNetWork.h"
+
+//model类
+#import "MainTehuiModel.h"
+#import "MainActModel.h"
+#import "MainGoodsModel.h"
+#import "MainProjectModel.h"
+#import "DDQLunBoModel.h"
+
 @interface DDQMainViewController ()<UITableViewDelegate,UITableViewDataSource,MBProgressHUDDelegate,UISearchBarDelegate,UIScrollViewDelegate,DDQLoopViewDelegate,SearchDelegate,QiandaoDelegate>
 /**
  *  headerView
  */
-@property (strong,nonatomic) UIView *headerView;
+@property (strong, nonatomic) UIView *headerView;
 /**
  *  tableView
  */
-@property (strong,nonatomic) UITableView *mainTableView;
+@property (strong, nonatomic) UITableView *mainTableView;
 /**
  *  载体view
  */
-@property (strong,nonatomic) UIView *currentView;
-/**
- *  四个功能按钮
- */
-@property (strong,nonatomic) UIButton *neihanButton;
-@property (strong,nonatomic) UIButton *jinpinButton;
-@property (strong,nonatomic) UIButton *zhengrongButton;
-@property (strong,nonatomic) UIButton *chaButton;
-@property (strong,nonatomic) UIButton *qiandao_button;
+@property (strong, nonatomic) UIView *currentView;
+/** 内涵美 */
+@property (strong, nonatomic) UIButton *neihanButton;
+/** 精品日记 */
+@property (strong, nonatomic) UIButton *jinpinButton;
+/** 整容宝 */
+@property (strong, nonatomic) UIButton *zhengrongButton;
+/** 查询 */
+@property (strong, nonatomic) UIButton *chaButton;
+
 /**
  *  作为下部view布局的约束标准
  */
 @property (strong,nonatomic) UILabel *firstLabel;
-/**
- *  评论cell对应的数组
- */
-@property (strong,nonatomic) NSMutableArray *commentArray;
-@property (strong,nonatomic) NSMutableArray *commentAllDataArray;
-/**
- *  读取本地文件
- */
-@property (strong,nonatomic) NSDictionary *CSDic;
-@property (strong,nonatomic) NSDictionary *SFDic;
+
 //特惠
 @property (nonatomic ,strong)NSMutableArray *tehuiArray;
 
@@ -94,26 +91,27 @@
 //lunbo
 @property (nonatomic ,strong)NSMutableArray *lunbo_Array;
 
-
-@property (nonatomic ,strong)UIImage *image1;
-//头
-@property (nonatomic ,strong)UIImageView *linshiimageView;
-
-@property (nonatomic,strong)UIAlertView *alertView;
-
+/** hud */
 @property (nonatomic ,strong)MBProgressHUD *hud;
 
-//10-30
-@property (nonatomic ,assign)CGFloat rowHeight;//日记cell高度
+/** 记录返回高度 */
+@property (nonatomic, assign)CGFloat rowHeight;//日记cell高度
 
-@property (strong,nonatomic) UIBarButtonItem *rightItem;
-@property (assign,nonatomic) int zan_count;
-@property (assign,nonatomic) int reply_count;
+/** 自定义的又按钮 */
+@property (nonatomic, strong) UIBarButtonItem *rightItem;//用来提示有评论了或者有赞了
 
+/** 记录赞的个数 */
+@property (nonatomic, assign) int zan_count;
 
-@property (strong,nonatomic) DDQLoopView *mainScrollView;
-@property (strong,nonatomic) UIPageControl *scroll_page;
-@property (strong,nonatomic) NSTimer *scroll_timer;
+/** 记录评论的个数 */
+@property (nonatomic, assign) int reply_count;
+
+/** 首页轮播图 */
+@property (nonatomic, strong) DDQLoopView *mainScrollView;
+
+/** 网络请求 */
+@property (nonatomic, strong) ProjectNetWork *netWork;
+
 @end
 
 @implementation DDQMainViewController
@@ -121,11 +119,14 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    //网络请求
+    self.netWork = [ProjectNetWork sharedWork];
+    
     self.view.backgroundColor = [UIColor whiteColor];
     self.edgesForExtendedLayout = UIRectEdgeNone;
     
-    //10-19
-    [self layoutNavigationBar];
+    //设置搜索框
     DDQSearchBar *searchBar = [[DDQSearchBar alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth * 0.5, 30)];
     searchBar.layer.cornerRadius = 15.0f;
     self.navigationItem.titleView = searchBar;
@@ -134,85 +135,68 @@
     searchBar.layer.borderColor = [UIColor backgroundColor].CGColor;
     searchBar.layer.masksToBounds = YES;
     searchBar.delegate = self;
-    
     searchBar.attributeHolder = [[NSAttributedString alloc] initWithString:@"搜索项目,日记,特惠" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14.0f],NSForegroundColorAttributeName:[UIColor lightGrayColor]}];
     
+    //设置个表示图
     [self initMainTableView];
+    
+    //设置四个功能按钮的位置
     [self layoutFunctionButton];
     
+    //设置hud
     self.hud = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:self.hud];
-    [self.hud show:YES];
     self.hud.labelText = @"加载中...";
 
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (!errorDic) {
-            
-            [self qiandao];
-            [self asyProductList];
-            
-        }
-        
-    }];
+    [self qiandao];//签到
+    [self asyProductList];//请求页面数据
     
+    //这是注册了通知，检测网络变化
     [[NSNotificationCenter defaultCenter] addObserverForName:@"changeNet" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
         
         Reachability *reach = note.object;
-        if ([reach isReachable] == YES) {
+        if ([reach isReachable] == YES) {//当前有网络连接
             
             [self qiandao];
             
         } else {
         
             [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
         }
         
     }];
 
     self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-            
-            if (errorDic == nil) {
-                //移除数组中的数据
-                [self.tehuiArray removeAllObjects];
-                [self.diaryArray removeAllObjects];
-                [self.goodsArray removeAllObjects];
-                [self.projectArray removeAllObjects];
-                
-                //重新添加数据
-                [self asyProductList];
-                [self.mainTableView.header endRefreshing];
-            } else {
-                
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                [self.mainTableView.header endRefreshing];
-            }
-        }];
+
+        //重新添加数据
+        [self asyProductList];
+        [self.mainTableView.header endRefreshing];
+
     }];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeReplyImage:) name:@"image" object:nil];
     
 }
 
-
-#pragma  mark --gcd
-
+#pragma mark - 自动签到相关
 - (void)qiandao {
     
-    ProjectNetWork *net = [ProjectNetWork sharedWork];
+    [self.hud show:YES];
+
     /**
      *  先判断签没签到
      */
-    [net asy_netWithUrlString:kCheck_QDUrl ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] Success:^(id source, NSError *analysis_error) {
+    [self.netWork asy_netWithUrlString:kCheck_QDUrl ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] Success:^(id source, NSError *analysis_error) {
+        
+        [self.hud hide:YES];
         
         if (!analysis_error) {
             
             /**
              *  再去签到
-             *
              */
-            [net asy_netWithUrlString:kQD_Url ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] Success:^(id source, NSError *analysis_error) {
+            [self.netWork asy_netWithUrlString:kQD_Url ParamArray:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] Success:^(id source, NSError *analysis_error) {
                 
                 if (!analysis_error) {
                     
@@ -234,11 +218,14 @@
         
     } Failure:^(NSError *net_error) {
         
+        [self.hud hide:YES];
+        
         [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         
     }];
+    
 }
-
+/** 以下两个方法是签到view的代理 */
 - (void)qiandao_view:(DDQQiandaoView *)view  {
     
     [view removeFromSuperview];
@@ -252,188 +239,161 @@
     myWallet.hidesBottomBarWhenPushed = YES;
     [self.navigationController pushViewController:myWallet animated:YES];
     
-    
 }
 
-static BOOL isHidden = NO;
+/** 网络请求 */
+#pragma  mark - 网络相关
 -(void)asyProductList {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
+    //置空
+    _tehuiArray   = nil;
+    _actArray     = nil;
+    _goodsArray   = nil;
+    _projectArray = nil;
+    _lunbo_Array  = nil;
+    _diaryArray   = nil;
+    
+    //重赋
+    _tehuiArray   = [NSMutableArray array];
+    _actArray     = [NSMutableArray array];
+    _goodsArray   = [NSMutableArray array];
+    _projectArray = [NSMutableArray array];
+    _lunbo_Array  = [NSMutableArray array];
+    _diaryArray   = [NSMutableArray array];
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kMainUrl andData:nil andSuccess:^(id responseObjc, NSError *code_error) {
         
-        //加密
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:spellString];
-        
-        
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kMainUrl];
-        if ([get_postDic[@"active"] intValue] == 2) {
-            //转换
-            NSDictionary *get_JsonDic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
+        //error为空
+        if (!code_error) {
             
-            if (![get_JsonDic isKindOfClass:[NSNull class]]) {
+            //获取特惠数据
+            for (NSDictionary *dic in [responseObjc objectForKey:@"tehui"]) {
                 
-                _tehuiArray = [[NSMutableArray alloc]init];
-                _actArray   = [[NSMutableArray alloc]init];
-                _goodsArray = [[NSMutableArray alloc]init];
+                //这是为了避免出现null类型的情况
+                NSDictionary * tem = [DDQPublic nullDic:dic];
                 
-                _projectArray =  [[NSMutableArray alloc]init];
-                _lunbo_Array = [NSMutableArray array];
-                _diaryArray = [[NSMutableArray alloc]init];
-                //12-21
-                for (NSDictionary*dic1 in [get_JsonDic objectForKey:@"tehui"]) {
-                    
-                    NSDictionary * tem = [DDQPublic nullDic:dic1];
-                    
-                    
-                    //12-15
-                    DDQMainViewControllerModel *model = [DDQMainViewControllerModel new];
-                    
-                    model.IdString = [tem objectForKey:@"id"];
-                    
-                    model.newvalString = [tem objectForKey:@"newval"];
-                    model.oldvalString = [tem objectForKey:@"oldval"];
-                    model.simgString = [tem objectForKey:@"simg"];
-                    
-                    model.fnameString = [tem objectForKey:@"fname"];
-                    model.nameString = [tem objectForKey:@"name"];
-                    
-                    model.sellout = [tem objectForKey:@"sellout"];
-                    
-                    [_tehuiArray addObject:model];
-                    
-                    
-                }
-                //12-21
-                for (NSDictionary *dic in [get_JsonDic objectForKey:@"act"]) {
-                    NSDictionary * tem = [DDQPublic nullDic:dic];
-                    DDQMainViewControllerModel *model = [[DDQMainViewControllerModel alloc]init];
-                    
-                    model.bimgString = [tem objectForKey:@"bimg"];
-                    model.fnameString = [tem objectForKey:@"fname"];
-                    model.nameString = [tem objectForKey:@"name"];
-                    model.amount = [tem objectForKey:@"amount"];
-                    model.IdString = [tem objectForKey:@"id"];
-                    
-                    //10-19
-                    model.pid = [tem objectForKey:@"pid"];
-                    model.hid = [tem objectForKey:@"hid"];
-                    
-                    //10-30
-                    model.yyuserDic = [tem objectForKey:@"yyuser"];
-                    
-                    
-                    [_actArray addObject:model];
-                }
-                //12-21
-                for (NSDictionary *dic1  in [get_JsonDic objectForKey:@"diary"]) {
-                    NSDictionary * dic = [DDQPublic nullDic:dic1];
-                    
-                    
-                    DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                    //精或热
-                    articleModel.isJing        = [dic valueForKey:@"isjing"];//1是精,0不是
-                    articleModel.articleTitle  = [dic valueForKey:@"title"];
-                    articleModel.articleType   = [dic valueForKey:@"type"];
-                    articleModel.introString   = [dic valueForKey:@"text"];
-                    articleModel.replyNum      = [dic valueForKey:@"pl"];
-                    articleModel.thumbNum      = [dic valueForKey:@"zan"];
-                    
-                    //10-30
-                    articleModel.groupName     = [dic valueForKey:@"groupname"];
-                    articleModel.articleId     = dic[@"id"];
-                    articleModel.userid = [dic valueForKey:@"userid"];
-                    articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                    articleModel.userName      = [dic valueForKey:@"username"];
-                    articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                    articleModel.ctime         = [dic valueForKey:@"ctime"];
-                    articleModel.plTime        = [dic valueForKey:@"pubtime"];
-                    
-                    [_diaryArray addObject:articleModel];
-                    
-                }
+                MainTehuiModel *model = [MainTehuiModel mj_objectWithKeyValues:tem];
                 
-                //12-21
-                for (NSDictionary *dic1 in [get_JsonDic objectForKey:@"goods" ]) {
-                    NSDictionary * tem = [DDQPublic nullDic:dic1];
-                    DDQMainViewControllerModel *model = [[DDQMainViewControllerModel alloc]init];
-                    
-                    model.IdString = [tem objectForKey:@"id"];
-                    
-                    model.newvalString = [tem objectForKey:@"newval"];
-                    
-                    model.oldvalString = [tem objectForKey:@"oldval"];
-                    
-                    model.simgString = [tem objectForKey:@"simg"];
-                    
-                    model.fnameString = [tem objectForKey:@"fname"];
-                    
-                    model.sellout = [tem objectForKey:@"sellout"];
-                    
-                    model.nameString = [tem objectForKey:@"name"];
-                    model.hname = [tem objectForKey:@"hname"];
-                    [_goodsArray addObject:model];
-                }
-                //12-21
-                for (NSDictionary *dic1 in [get_JsonDic objectForKey:@"project"]) {
-                    NSDictionary * tem = [DDQPublic nullDic:dic1];
-                    DDQMainViewControllerModel *model = [[DDQMainViewControllerModel alloc]init];
-                    
-                    
-                    model.IdString = [tem objectForKey:@"id"];
-                    model.nameString = [tem objectForKey:@"name"];
-                    
-                    [_projectArray addObject:model];
-                }
+                [_tehuiArray addObject:model];
                 
-                //2-1
-                for (NSDictionary *dic in get_JsonDic[@"lunbo"]) {
-                    NSDictionary *temp_dic = [DDQPublic nullDic:dic];
-                    DDQLunBoModel *model = [DDQLunBoModel new];
-                    model.hid = temp_dic[@"hid"];
-                    model.iD = temp_dic[@"id"];
-                    model.img = temp_dic[@"img"];
-                    model.pid = temp_dic[@"pid"];
-                    model.type = temp_dic[@"type"];
-                    [self.lunbo_Array addObject:model];
-                }
             }
             
-        }
-        dispatch_async(dispatch_get_main_queue(), ^{
+            //获取活动数据
+            for (NSDictionary *dic in [responseObjc objectForKey:@"act"]) {
+                
+                NSDictionary * tem = [DDQPublic nullDic:dic];
+                
+                MainActModel *model = [MainActModel mj_objectWithKeyValues:tem];
+                
+                [_actArray addObject:model];
+                
+            }
             
+            //获取日记数据
+            for (NSDictionary *dic  in [responseObjc objectForKey:@"diary"]) {
+                
+                NSDictionary * tem = [DDQPublic nullDic:dic];
+                
+                DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                //精或热
+                articleModel.isJing        = [tem valueForKey:@"isjing"];//1是精,0不是
+                articleModel.articleTitle  = [tem valueForKey:@"title"];
+                articleModel.articleType   = [tem valueForKey:@"type"];
+                articleModel.introString   = [tem valueForKey:@"text"];
+                articleModel.replyNum      = [tem valueForKey:@"pl"];
+                articleModel.thumbNum      = [tem valueForKey:@"zan"];
+                
+                //10-30
+                articleModel.groupName     = [tem valueForKey:@"groupname"];
+                articleModel.articleId     = [tem valueForKey:@"id"];
+                articleModel.userid        = [tem valueForKey:@"userid"];
+                articleModel.userHeaderImg = [tem valueForKey:@"userimg"];
+                articleModel.userName      = [tem valueForKey:@"username"];
+                articleModel.imgArray      = [tem valueForKey:@"imgs"];
+                articleModel.ctime         = [tem valueForKey:@"ctime"];
+                articleModel.plTime        = [tem valueForKey:@"pubtime"];
+                
+                [_diaryArray addObject:articleModel];
+                
+            }
+            
+            //获取商品数据
+            for (NSDictionary *dic in [responseObjc objectForKey:@"goods"]) {
+                
+                NSDictionary * tem = [DDQPublic nullDic:dic];
+                
+                MainGoodsModel *model = [MainGoodsModel mj_objectWithKeyValues:tem];
+                
+                [_goodsArray addObject:model];
+                
+            }
+            
+            //获得特惠数据
+            for (NSDictionary *dic in [responseObjc objectForKey:@"project"]) {
+                
+                NSDictionary * tem = [DDQPublic nullDic:dic];
+                
+                MainProjectModel *model = [MainProjectModel mj_objectWithKeyValues:tem];
+                
+                [_projectArray addObject:model];
+                
+            }
+            
+            //获得轮播数据
+            for (NSDictionary *dic in responseObjc[@"lunbo"]) {
+                
+                NSDictionary *temp_dic = [DDQPublic nullDic:dic];
+                
+                DDQLunBoModel *model = [DDQLunBoModel mj_objectWithKeyValues:temp_dic];
+                
+                [self.lunbo_Array addObject:model];
+                
+            }
+            
+            //UI跟新
             [self.hud hide:YES];
-
             [self.mainTableView reloadData];
-            [self.mainTableView.header endRefreshing];
             
             NSMutableArray *array = [NSMutableArray array];
+            //获得model类对应的图片
             for (DDQLunBoModel *model in self.lunbo_Array) {
                 [array addObject:model.img];
             }
+            
             if (self.lunbo_Array.count > 0) {
                 
-                /**
-                 *  这是为了防止轮播图定时器的重复添加
-                 */
+                /** 轮播图的属性设置 */
                 [self.mainScrollView stop];
                 self.mainScrollView.source_array = array;
                 [self.mainScrollView.loop_collection reloadData];
                 [self.mainScrollView star];
-
+                
+                /** pagecontroll */
                 self.mainScrollView.page_control.numberOfPages = array.count;
                 
                 self.mainScrollView.backgroundColor = [UIColor whiteColor];
                 [self.mainScrollView.loop_collection setBackgroundColor:[UIColor whiteColor]];
+                
             }
-            
-        });
+
+        } else {
         
-    });
+            [self.hud hide:YES];
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+    }];
     
 }
+
 /**
  *  轮播图的点击事件
  *
@@ -445,11 +405,11 @@ static BOOL isHidden = NO;
         DDQThemeActivityViewController *themeActivityVC = [[DDQThemeActivityViewController alloc] init];
         themeActivityVC.hidesBottomBarWhenPushed = YES;
 
-        DDQMainViewControllerModel *model =  _actArray[count];
-
+        MainActModel *model =  _actArray[count];
         themeActivityVC.pid = model.pid;
         themeActivityVC.hid = model.hid;
-        themeActivityVC.ImgURL = model.bimgString;
+        themeActivityVC.ImgURL = model.bimg;
+        
         [self.navigationController pushViewController:themeActivityVC animated:YES];
 
     } else if (count == 3) {
@@ -471,26 +431,21 @@ static BOOL isHidden = NO;
 
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    
     [self.view endEditing:YES];
+    
 }
 
 -(void)viewWillAppear:(BOOL)animated {
+    
     [super viewWillAppear:YES];
     [self.hud hide:YES];
 
     //首页必须设置image，tintColor和textAttribute
     [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
+    
     [self layoutNavigationBar];
-
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic != nil) {
-            [self.hud hide:YES];
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-        
-    }];
     
 }
 
@@ -512,7 +467,9 @@ static BOOL isHidden = NO;
 
 #pragma mark - delegate and datasource
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    
     return 4;
+    
 }
 
 //12-01,判断空
@@ -521,33 +478,42 @@ static BOOL isHidden = NO;
     if (section == 0) {
         
         return 1;
+        
     } else if (section == 1) {
+        
         return _actArray.count;
         
     } else if (section == 2){
+        
         if (_diaryArray.count ==0) {
             
             return 1;
+            
         } else {
+            
             return _diaryArray.count +1;
+            
         }
+        
     } else {
         
         if(_goodsArray.count ==0 ) {
+            
             return 1;
             
         } else {
+            
             return _goodsArray.count+1;
+            
         }
+        
     }
 }
-#pragma mark - ----
+#pragma mark - tableView的代理
 static NSString *identifier = @"cell";
-
 static NSString *identifier1 = @"theme";
 static NSString *identifier2 = @"diary";
 static NSString *identifier3 = @"hot";
-
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     //10-30
     
@@ -559,167 +525,52 @@ static NSString *identifier3 = @"hot";
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
         cell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中高亮
         
-        if (![_tehuiArray isEqual:@""] &&_tehuiArray!=nil && _tehuiArray.count!=0)
-        {
+        if (self.tehuiArray != nil && self.tehuiArray.count > 0) {
             
-            
-            switch (_tehuiArray.count)
-            {
-                case 1:
-                {
-                    //12-21
-                    DDQMainViewControllerModel *model_first  = [_tehuiArray objectAtIndex:0];
-                    
-                    NSString *image1 = model_first.simgString;
-                    
-                    NSAttributedString *string1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model_first.oldvalString]  attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)}];
-                    
-                    UIView *view1 = [self createViewWithSaleNum:[NSString stringWithFormat:@"已售%@", model_first.sellout] image:image1 title:model_first.fnameString newPrice:[NSString stringWithFormat:@"￥%@", model_first.newvalString] oldPrice:string1 rect:CGRectMake(0,0,self.view.bounds.size.width*0.333,kScreenHeight*0.25) onView:cell.contentView];
-                    
-                    view1.tag  = 101;
-                    
-                    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToPreferenceDetailViewController:)];
-                    
-                    [view1 addGestureRecognizer:tap1];
-                    
-                    
-                    [cell.contentView addSubview:view1];
-                    
-                    break;
-                }
-                case 2:
-                {
-                    DDQMainViewControllerModel *model_first  = [_tehuiArray objectAtIndex:0];
-                    DDQMainViewControllerModel *model_second = [_tehuiArray objectAtIndex:1];
-                    
-                    NSString *image1 = model_first.simgString;
-                    
-                    NSAttributedString *string1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model_first.oldvalString]  attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)}];
-                    
-                    UIView *view1 = [self createViewWithSaleNum:[NSString stringWithFormat:@"已售%@", model_first.sellout]
-                                                          image:image1
-                                                          title:model_first.fnameString
-                                                       newPrice:[NSString stringWithFormat:@"￥%@", model_first.newvalString]
-                                                       oldPrice:string1
-                                                           rect:CGRectMake(0,0,self.view.bounds.size.width*0.333,kScreenHeight*0.25) onView:cell.contentView];
-                    view1.tag  = 101;
-                    
-                    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToPreferenceDetailViewController:)];
-                    
-                    [view1 addGestureRecognizer:tap1];
-                    
-                    
-                    [cell.contentView addSubview:view1];
-                    
-                    NSString *image2 = model_second.simgString;
-                    
-                    NSAttributedString *string2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model_second.oldvalString]
-                                                                                  attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)}];
-                    
-                    UIView *view2 = [self createViewWithSaleNum:[NSString stringWithFormat:@"已售%@", model_second.sellout]
-                                                          image:image2
-                                                          title:model_second.fnameString
-                                                       newPrice:[NSString stringWithFormat:@"￥%@", model_second.newvalString]
-                                                       oldPrice:string2
-                                                           rect:CGRectMake(view1.frame.size.width+view1.frame.origin.x,
-                                                                           0,
-                                                                           self.view.bounds.size.width*0.333,
-                                                                           kScreenHeight*0.25) onView:cell.contentView];
-                    view2.tag = 102;
-                    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToPreferenceDetailViewController:)];
-                    
-                    [view2 addGestureRecognizer:tap2];
-                    [cell.contentView addSubview:view2];
-                    
-                    break;
-                }
-                case 3:
-                {
-                    DDQMainViewControllerModel *model_first  = [_tehuiArray objectAtIndex:0];
-                    DDQMainViewControllerModel *model_second = [_tehuiArray objectAtIndex:1];
-                    DDQMainViewControllerModel *model_third  = [_tehuiArray objectAtIndex:2];
-                    
-
-                    NSString *image1 = model_first.simgString;
-                    
-                    NSAttributedString *string1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model_first.oldvalString]  attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)}];
-                    
-                    UIView *view1 = [self createViewWithSaleNum:[NSString stringWithFormat:@"已售%@", model_first.sellout]
-                                                          image:image1
-                                                          title:model_first.fnameString
-                                                       newPrice:[NSString stringWithFormat:@"￥%@", model_first.newvalString]
-                                                       oldPrice:string1
-                                                           rect:CGRectMake(0,0,self.view.bounds.size.width*0.333,kScreenHeight*0.25) onView:cell.contentView];
-                    view1.tag  = 101;
-                    
-                    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToPreferenceDetailViewController:)];
-                    
-                    [view1 addGestureRecognizer:tap1];
-                    
-                    
-                    [cell.contentView addSubview:view1];
-
-                    NSString *image2 = model_second.simgString;
-                    
-                    NSAttributedString *string2 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model_second.oldvalString]
-                                                                                  attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)}];
-                    
-                    UIView *view2 = [self createViewWithSaleNum:[NSString stringWithFormat:@"已售%@", model_second.sellout]
-                                                          image:image2
-                                                          title:model_second.fnameString
-                                                       newPrice:[NSString stringWithFormat:@"￥%@", model_second.newvalString]
-                                                       oldPrice:string2
-                                                           rect:CGRectMake(view1.frame.size.width+view1.frame.origin.x,
-                                                                           0,
-                                                                           self.view.bounds.size.width*0.333,
-                                                                           kScreenHeight*0.25) onView:cell.contentView];
-                    view2.tag = 102;
-                    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToPreferenceDetailViewController:)];
-                    
-                    [view2 addGestureRecognizer:tap2];
-                    [cell.contentView addSubview:view2];
-
-                    NSString *image3 = model_third.simgString;
-                    
-                    NSAttributedString *string3 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model_third.oldvalString] attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)}];
-                    
-                    UIView *view3 = [self createViewWithSaleNum:[NSString stringWithFormat:@"已售%@", model_third.sellout]
-                                                          image:image3
-                                                          title:model_third.fnameString
-                                                       newPrice:[NSString stringWithFormat:@"￥%@", model_third.newvalString]
-                                                       oldPrice:string3
-                                                           rect:CGRectMake(view2.frame.size.width +view2.frame.origin.x,
-                                                                           0,
-                                                                           self.view.bounds.size.width*0.333,
-                                                                           kScreenHeight*0.25)
-                                                         onView:cell.contentView];
-                    view3.tag = 103;
-                    
-                    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToPreferenceDetailViewController:)];
-                    
-                    [view3 addGestureRecognizer:tap3];
-                    
-                    [cell.contentView addSubview:view3];
-                    break;
-                }
-                default:
-                    break;
+            //视图宽
+            CGFloat viewW = self.view.bounds.size.width*0.333;
+            for (int i = 0; i < self.tehuiArray.count; i++) {
+                
+                MainTehuiModel *model = self.tehuiArray[i];
+                
+                NSString *image1 = model.simg;
+                
+                NSAttributedString *string1 = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model.oldval]  attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)}];
+                
+                UIView *view = [self createViewWithSaleNum:[NSString stringWithFormat:@"已售%@", model.sellout]
+                                                     image:image1
+                                                     title:model.fname
+                                                  newPrice:[NSString stringWithFormat:@"￥%@", model.newval]
+                                                  oldPrice:string1
+                                                      rect:CGRectMake(viewW*i + 5*i, 0, viewW, kScreenHeight*0.25)
+                                                    onView:cell.contentView];
+                
+                view.tag  = i + 1;
+                
+                UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushToPreferenceDetailViewController:)];
+                
+                [view addGestureRecognizer:tap];
+                
+                
+                [cell.contentView addSubview:view];
             }
+
         }
         return cell;
         
     } else if (indexPath.section == 1) {
+        
         DDQThemeActivityCell *themeCell = [tableView dequeueReusableCellWithIdentifier:@"theme"];
         if (!themeCell) {
             themeCell = [[DDQThemeActivityCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier1];
         }
         themeCell.backgroundColor = [UIColor myGrayColor];
         
-        DDQMainViewControllerModel *model = _actArray[indexPath.row];
-        themeCell.mVCModel = model;
+        MainActModel *model = _actArray[indexPath.row];
+        themeCell.actModel = model;
         themeCell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中高亮
+        
         return themeCell;
-        //               return nil;
         
     } else if(indexPath.section ==2) {
         
@@ -760,8 +611,10 @@ static NSString *identifier3 = @"hot";
         
     } else {
         
-        if ([indexPath row] ==_goodsArray.count) {
+        if ([indexPath row] == _goodsArray.count) {
+            
             UITableViewCell *moreCell= [[UITableViewCell alloc]initWithStyle:(UITableViewCellStyleDefault) reuseIdentifier:@"morecell"];
+            
             UILabel *moreLabel = [[UILabel alloc]init];
             
             moreLabel.frame = CGRectMake(kScreenWidth/2-70 ,0, 150, 44);
@@ -779,43 +632,56 @@ static NSString *identifier3 = @"hot";
             return moreCell;
             
         } else {
+            
             DDQMainHotProjectTableViewCell *hotCell = [tableView dequeueReusableCellWithIdentifier:identifier3];
             if (!hotCell) {
+                
                 hotCell = [[DDQMainHotProjectTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier3];
+                
             }
+            
             hotCell.selectionStyle = UITableViewCellSelectionStyleNone;//取消选中高亮
             [hotCell setBackgroundColor:[UIColor myGrayColor]];
             
-            DDQMainViewControllerModel *model1;
+            MainGoodsModel *model;
             if (self.goodsArray.count != 0) {
-                model1 = _goodsArray[indexPath.row];
-            }
-            //10-30
-            NSURL *url = [NSURL URLWithString:model1.simgString];
-            
-            [hotCell.modelImageView sd_setImageWithURL:url];
-            //12-09
-            hotCell.projectIntro.text = [NSString stringWithFormat:@"【%@】%@",model1.fnameString,model1.nameString];
-            
-            BOOL a = [DDQPublic isBlankString:model1.hname];
-            if (a) {
-                hotCell.projectHospital.text = @"暂无";
-            } else {
-                hotCell.projectHospital.text = model1.hname;
+                
+                model = _goodsArray[indexPath.row];
                 
             }
             //10-30
+            NSURL *url = [NSURL URLWithString:model.simg];
             
-            hotCell.sellNum.text = [NSString stringWithFormat:@"已售:%@", model1.sellout];
-            hotCell.projectPrice.text =[NSString stringWithFormat:@"￥%@", model1.newvalString];
+            [hotCell.modelImageView sd_setImageWithURL:url];
+            //12-09
+            hotCell.projectIntro.text = [NSString stringWithFormat:@"【%@】%@",model.fname,model.name];
             
-            NSAttributedString *string = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model1.oldvalString] attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle),NSFontAttributeName:[UIFont systemFontOfSize:13.0f]}];
+            BOOL a = [DDQPublic isBlankString:model.hname];
+            if (a) {
+                
+                hotCell.projectHospital.text = @"暂无";
+                
+            } else {
+                
+                hotCell.projectHospital.text = model.hname;
+                
+
+            }
+            //10-30
+            
+            hotCell.sellNum.text = [NSString stringWithFormat:@"已售:%@", model.sellout];
+            hotCell.projectPrice.text =[NSString stringWithFormat:@"￥%@", model.newval];
+            
+            NSAttributedString *string = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model.oldval] attributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle),NSFontAttributeName:[UIFont systemFontOfSize:13.0f]}];
             
             hotCell.oldPrice.attributedText = string;
             
             return hotCell;
+            
         }
+        
     }
+    
 }
 
 //10-30
@@ -891,30 +757,39 @@ static NSString *identifier3 = @"hot";
         
     } else {
         
-        if (indexPath.row ==_goodsArray.count) {
+        if (indexPath.row == _goodsArray.count) {
             
             return 44;
+            
         } else {
             
             return kScreenHeight*0.2;
+            
         }
         
     }
     
 }
-//10-30
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    
     if (section == 3) {
+        
         return 70;
+        
     } else {
+        
         return 30;
+        
     }
+    
 }
 
 -(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
+    
     UIView *sectionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 30)];
     sectionView.backgroundColor = [UIColor myGrayColor];
+    
     if (section == 0) {
         
         self.firstLabel = [[UILabel alloc] init];
@@ -949,9 +824,9 @@ static NSString *identifier3 = @"hot";
             make.centerY.equalTo(sectionView.mas_centerY);
             
         }];
+        
         [label setText:@"热门活动"];
         [label setFont:[UIFont systemFontOfSize:15.0f]];
-        
         
     } else if (section == 2) {
         
@@ -963,6 +838,7 @@ static NSString *identifier3 = @"hot";
             make.centerY.equalTo(sectionView.mas_centerY);
             
         }];
+        
         [label setText:@"日记精选"];
         [label setFont:[UIFont systemFontOfSize:15.0f]];
         
@@ -976,6 +852,7 @@ static NSString *identifier3 = @"hot";
             make.bottom.equalTo(sectionView.mas_bottom).with.offset(-40);
             make.width.equalTo(sectionView.mas_width).with.multipliedBy(0.2);
         }];
+        
         [label setText:@"热门项目"];
         [label setFont:[UIFont systemFontOfSize:15.0f]];
         
@@ -985,15 +862,13 @@ static NSString *identifier3 = @"hot";
         [scrollView setBackgroundColor:[UIColor whiteColor]];
         scrollView.showsHorizontalScrollIndicator = NO;
         
-        
         for(int i =0; i<_projectArray.count;i++) {
             
-            
             UILabel *labelView = [[UILabel alloc ] init];
-            DDQMainViewControllerModel *model = _projectArray[i];
+            MainProjectModel *model = _projectArray[i];
             
             //为button显示赋值
-            labelView.text = model.nameString;
+            labelView.text = model.name;
             labelView.textColor = [UIColor whiteColor];
             labelView.textAlignment = 1;
             //设置button的大小
@@ -1003,6 +878,7 @@ static NSString *identifier3 = @"hot";
             scrollView.contentSize = CGSizeMake(100*i+100, 40);
             
         }
+        
         UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(gesturePushToPreferenceViewController)];
         [scrollView addGestureRecognizer:tapGesture];
         
@@ -1010,76 +886,83 @@ static NSString *identifier3 = @"hot";
     return sectionView;
 }
 
-//10-30
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    //这个单利是为了传值
     DDQHeaderSingleModel *headerSingle = [DDQHeaderSingleModel singleModelByValue];
+    
     if (indexPath.section == 1) {
+        
         DDQThemeActivityViewController *themeActivityVC = [[DDQThemeActivityViewController alloc] init];
         themeActivityVC.hidesBottomBarWhenPushed = YES;
         //10-19
-        DDQMainViewControllerModel *model = _actArray[indexPath.row];
+        MainActModel *model = _actArray[indexPath.row];
         themeActivityVC.pid = model.pid;
         themeActivityVC.hid = model.hid;
-        themeActivityVC.ImgURL = model.bimgString;
+        themeActivityVC.ImgURL = model.bimg;
         
         [self.navigationController pushViewController:themeActivityVC animated:YES];
-    } else
-        //12-01,判断是否空
-        if (indexPath.section == 2) {
+        
+    } else if (indexPath.section == 2) {
             
-            if ([_diaryArray count]== 0 ) {
-                [self pushToGroupViewController];
-            }
-            else{
+        if ([_diaryArray count]== 0 ) {
+            
+            [self pushToGroupViewController];
+            
+        } else {
+        
+            if (indexPath.row ==_diaryArray.count) {
                 
-                if (indexPath.row ==_diaryArray.count) {
-                    
-                    [self pushToGroupViewController];
-                }
-                else{
-                    DDQGroupArticleModel *articleModel = [self.diaryArray objectAtIndex:indexPath.row];
-                    
-                    DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
-                    commentVC.hidesBottomBarWhenPushed = YES;
-                    //赋值
-                    headerSingle.ctime                      = articleModel.ctime;
-                    headerSingle.articleId                  = articleModel.articleId;
-                    headerSingle.userId                     = articleModel.userid;
-                    [self.navigationController pushViewController:commentVC animated:YES];
-                }
+                [self pushToGroupViewController];
+                
+            } else {
+                
+                DDQGroupArticleModel *articleModel = [self.diaryArray objectAtIndex:indexPath.row];
+                
+                DDQUserCommentViewController *commentVC = [[DDQUserCommentViewController alloc] init];
+                commentVC.hidesBottomBarWhenPushed = YES;
+                //赋值
+                commentVC.ctime                      = articleModel.ctime;
+                commentVC.articleId                  = articleModel.articleId;
+                commentVC.userid                     = articleModel.userid;
+                [self.navigationController pushViewController:commentVC animated:YES];
+                
             }
-            //12-01
+            
+        }
+        
+    } else if (indexPath.section ==3) {
+            
+        if (_goodsArray.count == 0) {
+            
+            [self pushToPreferenceViewController];
+            
+         } else {
+            
+            if (indexPath.row ==_goodsArray.count) {
+                
+                [self pushToPreferenceViewController];
+                
+            } else {
+                
+                MainGoodsModel *model = _goodsArray[indexPath.row];
+                
+                DDQPreferenceDetailViewController *detailVC = [[DDQPreferenceDetailViewController alloc] initWithActivityID:model.id];
+                //10-30
+                detailVC.hidesBottomBarWhenPushed = YES;
+                
+                [self.navigationController pushViewController:detailVC animated:YES];
+                
+            }
+             
         }
     
-    //12-01,判断是否空
-        else
-            if (indexPath.section ==3)
-            {
-                if (_goodsArray.count == 0) {
-                    [self pushToPreferenceViewController];
-                }else
-                {
-                    
-                    if (indexPath.row ==_goodsArray.count) {
-                        [self pushToPreferenceViewController];
-                    }
-                    else{
-                        
-                        DDQMainViewControllerModel *model = _goodsArray[indexPath.row];
-                        
-                        DDQPreferenceDetailViewController *detailVC = [[DDQPreferenceDetailViewController alloc] initWithActivityID:model.IdString];
-                        //10-30
-                        detailVC.hidesBottomBarWhenPushed = YES;
-                        
-                        [self.navigationController pushViewController:detailVC animated:YES];
-                    }
-                }
-            }
+    }
     
 }
-//10-30
 
 #pragma mark - layout headerView functionButton
+/** 设置navigationBar */
 -(void)layoutNavigationBar {
     
     //拿到单例model
@@ -1135,7 +1018,7 @@ static NSString *identifier3 = @"hot";
     
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 28)];
     [button setBackgroundImage:[UIImage imageNamed:@"xiao-xi"] forState:UIControlStateNormal];
-    [button addTarget:self action:@selector(scanQRCode:) forControlEvents:UIControlEventTouchUpInside];
+    [button addTarget:self action:@selector(checkMessage:) forControlEvents:UIControlEventTouchUpInside];
     
     //判断显不显示小椭圆
     if ([[NSUserDefaults standardUserDefaults] valueForKey:@"zanData"] || [[NSUserDefaults standardUserDefaults] valueForKey:@"replyData"]) {
@@ -1148,23 +1031,11 @@ static NSString *identifier3 = @"hot";
     
     self.navigationItem.rightBarButtonItem = self.rightItem;
     
-    
-     //10-16
-//    [searchBar setImage:[UIImage imageNamed:@"chat_group_iconserch"] forSearchBarIcon:(UISearchBarIconSearch) state:(UIControlStateNormal)];
-//    
-//    searchBar.backgroundColor = [UIColor clearColor];
-//    searchBar.searchBarStyle=UISearchBarStyleMinimal;
-    
-    //11-06
-
-    
-//    UITextField *textfield = [searchBar valueForKey:@"_searchField"];
-//    [textfield setValue:[UIColor lightGrayColor] forKeyPath:@"_placeholderLabel.textColor"];
-    
     self.navigationController.navigationBar.shadowImage = [[UIImage alloc] init];
+    
 }
 
-//DDQ:12-21
+//有赞或评论
 -(void)changeReplyImage:(NSNotification *)notification {
 
     UIButton *button = self.rightItem.customView;
@@ -1177,10 +1048,11 @@ static NSString *identifier3 = @"hot";
         make.width.offset(5);
         make.height.offset(5);
     }];
+    
     cicrle_view.image = [UIImage imageNamed:@"椭圆"];
 }
 
-
+/** 设置轮播图下的那几个功能按钮 */
 -(void)layoutFunctionButton {
     
     self.currentView = [[UIView alloc] init];
@@ -1290,30 +1162,6 @@ static NSString *identifier3 = @"hot";
     [jinpinLabel setFont:[UIFont systemFontOfSize:13.0f]];
     [jinpinLabel setTextAlignment:NSTextAlignmentCenter];
     
-    
-    /**
-     签到
-     */
-//    UIView *temp_viewthree = [[UIView alloc] init];
-//    [self.currentView addSubview:temp_viewthree];
-//    [temp_viewthree mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.width.equalTo(temp_viewtwo.mas_width);
-//        make.left.equalTo(temp_viewtwo.mas_right);
-//        make.height.equalTo(self.currentView.mas_height);
-//        make.top.equalTo(self.currentView.mas_top);
-//    }];
-//    
-//    self.qiandao_button = [[UIButton alloc] init];
-//    [temp_viewthree addSubview:self.qiandao_button];
-//    [self.qiandao_button mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.centerX.equalTo(temp_viewthree.mas_centerX);
-//        make.centerY.equalTo(temp_viewthree.mas_centerY);
-//        make.height.offset(imgW);
-//        make.width.offset(imgW);
-//    }];
-//    //10-19
-//    [self.qiandao_button addTarget:self action:@selector(qiandaoMethod) forControlEvents:(UIControlEventTouchUpInside)];
-    
     /**
      整容宝
     */
@@ -1340,10 +1188,11 @@ static NSString *identifier3 = @"hot";
     UILabel *find_label = [[UILabel alloc] init];//创建一个label显示这个button的作用
     [self.currentView addSubview:find_label];
     [find_label mas_makeConstraints:^(MASConstraintMaker *make) {
+        
         make.centerX.equalTo(self.zhengrongButton.mas_centerX);
-        //        make.width.equalTo(self.zhengrongButton.mas_width).with.offset(20);//w
         make.top.equalTo(self.zhengrongButton.mas_bottom).offset(5);//y
         make.height.offset(20);//h
+        
     }];//加约束
     [find_label setText:@"整容宝"];
     [find_label setFont:[UIFont systemFontOfSize:13.0f]];
@@ -1356,19 +1205,23 @@ static NSString *identifier3 = @"hot";
     UIView *temp_viewfive = [[UIView alloc] init];
     [self.currentView addSubview:temp_viewfive];
     [temp_viewfive mas_makeConstraints:^(MASConstraintMaker *make) {
+        
         make.width.equalTo(temp_viewfour.mas_width);
         make.left.equalTo(temp_viewfour.mas_right);
         make.height.equalTo(self.currentView.mas_height);
         make.top.equalTo(self.currentView.mas_top);
+        
     }];
 
     self.chaButton = [[UIButton alloc] init];
     [temp_viewfive addSubview:self.chaButton];
     [self.chaButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        
         make.centerX.equalTo(temp_viewfive.mas_centerX);
         make.top.equalTo(temp_viewfive.mas_top).offset(5);
         make.height.offset(imgW);
         make.width.offset(imgW);
+        
     }];
     [self.chaButton setImage:[UIImage imageNamed:@"search"] forState:UIControlStateNormal];
     [self.chaButton addTarget:self action:@selector(pushToCheckViewController) forControlEvents:(UIControlEventTouchUpInside)];
@@ -1376,144 +1229,156 @@ static NSString *identifier3 = @"hot";
     UILabel *lesson_label = [[UILabel alloc] init];//创建一个label显示这个button的作用
     [self.currentView addSubview:lesson_label];
     [lesson_label mas_makeConstraints:^(MASConstraintMaker *make) {
+        
         make.centerX.equalTo(self.chaButton.mas_centerX);
         make.top.equalTo(self.chaButton.mas_bottom).offset(5);//y
         make.height.offset(20);//h
+        
     }];//加约束
     [lesson_label setText:@"查项目"];
     [lesson_label setFont:[UIFont systemFontOfSize:13.0f]];
     [lesson_label setTextAlignment:NSTextAlignmentCenter];
-}
--(void)viewDidDisappear:(BOOL)animated {
-
-    [super viewDidDisappear:animated];
-    isHidden = NO;
+    
 }
 
--(void)goTeacherListVCMethod:(UIButton *)button {
-
-    DDQTeacherListViewController *listVC = [DDQTeacherListViewController new];
-    listVC.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:listVC animated:NO];
-}
-
-//11-06
 #pragma mark - searchbar for delegate
 - (void)searchBarBegainEditing:(NSString *)text {
 
     DDQMainSearchViewController *detailView = [[DDQMainSearchViewController alloc]init];
-    
     detailView.hidesBottomBarWhenPushed = YES;
-    //12-04
+    
     [self.navigationController pushViewController:detailView animated:NO];
     
 }
 
-#pragma mark - button and gesture target action
-
--(void)pushToCheckViewController {
-    DDQCheckViewController *checkVC = [[DDQCheckViewController alloc] init];
-    checkVC.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:checkVC animated:YES];
-}
-
+#pragma mark - 控制器推送的通知
+//下面三个通知是实现切换tabbar的选中控制器
 -(void)pushToPreferenceViewController {
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"change" object:nil userInfo:@{@"firstname":@"more1"}];
+    
 }
 
 -(void)gesturePushToPreferenceViewController {
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"change1" object:nil userInfo:@{@"secondname":@"more2"}];
-}
--(void)pushToGroupViewController
-{
-    [[NSNotificationCenter defaultCenter]postNotificationName:@"changeGroup" object:nil userInfo:@{@"beautiful":@"morebeautiful"}];
-}
--(void)pushToZRBViewController {
-    DDQZRBViewController *ZRBVC = [[DDQZRBViewController alloc] init];
-    ZRBVC.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:ZRBVC animated:YES];
+    
 }
 
+-(void)pushToGroupViewController {
+    
+    [[NSNotificationCenter defaultCenter]postNotificationName:@"changeGroup" object:nil userInfo:@{@"beautiful":@"morebeautiful"}];
+    
+}
+
+/** 跳转到我的中心页面 */
+-(void)pushToMineViewController {
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
+    
+}
+
+#pragma mark - 控制器的跳转方法
+/** 显示登陆页 */
+-(void)pushToLoginViewController {
+    
+    //个人中心
+    DDQLoginViewController *loginVC  = [[DDQLoginViewController alloc] init];
+    [[UIApplication sharedApplication].keyWindow setRootViewController:[[UINavigationController alloc] initWithRootViewController:loginVC]];
+    
+}
+
+/** 跳转到整容宝 */
+-(void)pushToZRBViewController {
+    
+    DDQZRBViewController *ZRBVC = [[DDQZRBViewController alloc] init];
+    ZRBVC.hidesBottomBarWhenPushed = YES;
+    
+    [self.navigationController pushViewController:ZRBVC animated:YES];
+    
+}
+
+/** 跳转到日记 */
 -(void)pushToJinDiaryVC {
 
     DDQJinDiaryViewController *jin_diaryVC = [DDQJinDiaryViewController new];
     jin_diaryVC.hidesBottomBarWhenPushed = YES;
 
     [self.navigationController pushViewController:jin_diaryVC animated:YES];
+    
 }
-//10-19
-//10-30
-//gesture
-#pragma mark - 限时特惠点击
--(void)pushToPreferenceDetailViewController:(id)sender
-{
+
+/** 跳转到详情页 */
+-(void)pushToCheckViewController {
+    
+    DDQCheckViewController *checkVC = [[DDQCheckViewController alloc] init];
+    checkVC.hidesBottomBarWhenPushed = YES;
+    
+    [self.navigationController pushViewController:checkVC animated:YES];
+    
+}
+
+/** 跳转到老师页 */
+-(void)goTeacherListVCMethod:(UIButton *)button {
+    
+    DDQTeacherListViewController *listVC = [DDQTeacherListViewController new];
+    listVC.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:listVC animated:NO];
+    
+}
+
+/** 跳转到特惠详情 */
+-(void)pushToPreferenceDetailViewController:(id)sender {
+    
     UITapGestureRecognizer *singleTap = (UITapGestureRecognizer *)sender;
     
     NSString *pid = [[NSString alloc]init];
     
     switch ([singleTap view].tag) {
-        case 101:
-        {
-            DDQMainViewControllerModel *model = [[DDQMainViewControllerModel alloc]init];
             
-            model = [_tehuiArray objectAtIndex:0];
-            
-            pid= model.IdString;
-            
+        case 1:{
+        
+            MainTehuiModel *model = [_tehuiArray objectAtIndex:0];
+            pid = model.id;
             break;
-        }
-        case 102:{
-            DDQMainViewControllerModel *model = [[DDQMainViewControllerModel alloc]init];
             
-            model = [_tehuiArray objectAtIndex:1];
-            
-            pid = model.IdString;
-            
-            
-            break;
-        }
-        case 103:
-        {
-            DDQMainViewControllerModel *model = [[DDQMainViewControllerModel alloc]init];
-            
-            model = [_tehuiArray objectAtIndex:2];
-            
-            pid = model.IdString;
-            
-            break;
         }
             
+        case 2:{
+        
+            MainTehuiModel *model = [_tehuiArray objectAtIndex:1];
+            pid = model.id;
+            break;
+    
+        }
+            
+        case 3: {
+        
+            MainTehuiModel *model = [_tehuiArray objectAtIndex:2];
+            pid = model.id;
+            break;
+
+        }
             
         default:
-            
-            
             break;
+            
     }
+    
     DDQPreferenceDetailViewController *preferenceDetailVC = [[DDQPreferenceDetailViewController alloc] initWithActivityID:pid];
     
     preferenceDetailVC.hidesBottomBarWhenPushed = YES;
     [self.navigationController pushViewController:preferenceDetailVC animated:NO];
-}
-#pragma mark - navigationBar item target aciton
--(void)pushToLoginViewController {
-    //个人中心
     
-    DDQLoginViewController *loginVC  = [[DDQLoginViewController alloc] init];
-    loginVC.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:loginVC animated:NO];
 }
 
--(void)pushToMineViewController {
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"minechange" object:nil userInfo:@{@"mine":@"mine"}];
-
-}
-
-//10-19聊天
--(void)scanQRCode:(UIButton *)button {
+/** 查看点赞评论 */
+-(void)checkMessage:(UIButton *)button {
     
     for (UIView *view in button.subviews) {
+        
         [view removeFromSuperview];
+        
     }
     
     DDQMessageViewController *message_vc = [[DDQMessageViewController alloc] init];
@@ -1524,14 +1389,17 @@ static NSString *identifier3 = @"hot";
 
 #pragma mark - other methods
 -(void)alertController:(NSString *)message {
+    
     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
     UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     [userNameAlert addAction:actionOne];
     [userNameAlert addAction:actionTwo];
     [self presentViewController:userNameAlert animated:YES completion:nil];
+    
 }
-//12-21
+
+//显示再cell上的自定义view
 -(UIView *)createViewWithSaleNum:(NSString *)cellNum image:(NSString *)image title:(NSString *)title newPrice:(NSString *)newPrice oldPrice:(NSAttributedString *)oldPrice rect:(CGRect)rect onView:(UIView *)view{
     
     //设一个载体view
@@ -1605,6 +1473,8 @@ static NSString *identifier3 = @"hot";
     [oldLabel setAttributedText:oldPrice];
     [oldLabel setTextAlignment:NSTextAlignmentLeft];
     [oldLabel setFont:[UIFont systemFontOfSize:11.0f]];
+    
     return supportView;
+    
 }
 @end

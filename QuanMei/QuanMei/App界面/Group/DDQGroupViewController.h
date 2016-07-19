@@ -10,6 +10,4 @@
 
 @interface DDQGroupViewController : UIViewController
 
--(void)asyWenzhangNetWork:(int)page type:(int)type;
--(void)layoutNavigationBar;
 @end

@@ -36,27 +36,7 @@
     self.baseTabBarC = [DDQBaseTabBarController sharedController];
   
     self.view.backgroundColor = [UIColor myGrayColor];
-}
-
--(void)viewWillAppear:(BOOL)animated {
-
-    [super viewWillAppear:YES];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        //网络连接无错误
-        if (errorDic == nil) {
-            
-            
-            
-        } else {
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
+    
 }
 
 #pragma mark - layout navigationBar controllerView
@@ -84,7 +64,7 @@
         }
         make.left.equalTo(self.view.mas_left).with.offset(self.view.frame.size.width*0.05);
         make.width.equalTo(self.view.mas_width).with.multipliedBy(0.50);
-        make.height.equalTo(self.view.mas_height).with.multipliedBy(0.08);
+        make.height.mas_equalTo(40.0);
     }];
     [self.messageCodeField setBorderStyle:UITextBorderStyleRoundedRect];
     [self.messageCodeField setPlaceholder:@"请输入验证码"];
@@ -94,7 +74,7 @@
     [self.sendMessageButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.messageCodeField.mas_right).with.offset(self.view.frame.size.width*0.05);
         make.top.equalTo(self.messageCodeField.mas_top);
-        make.height.equalTo(self.messageCodeField.mas_height);
+        make.height.mas_equalTo(40.0);
         make.width.equalTo(self.view.mas_width).with.multipliedBy(0.35);
     }];
     [self.sendMessageButton.titleLabel setFont:[UIFont systemFontOfSize:15.0f]];
@@ -108,7 +88,7 @@
     [self.sureButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.messageCodeField.mas_left);
         make.right.equalTo(self.sendMessageButton.mas_right);
-        make.height.equalTo(self.sendMessageButton.mas_height).with.multipliedBy(0.8);
+        make.height.mas_equalTo(35.0);
         make.top.equalTo(self.sendMessageButton.mas_bottom).with.offset(self.view.bounds.size.height*0.05);
     }];
     [self.sureButton setBackgroundColor:[UIColor meiHongSe]];
@@ -136,14 +116,17 @@
                 if(timeout<=0){ //倒计时结束，关闭
                     dispatch_source_cancel(_timer);
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        _sendMessageButton.titleLabel.text = @"重新获取";
+                        [_sendMessageButton setTitle:@"重新获取" forState:UIControlStateNormal];
                         _sendMessageButton.titleLabel.textAlignment = NSTextAlignmentCenter;
                         _sendMessageButton.userInteractionEnabled = YES;
+                        _sendMessageButton.backgroundColor = [UIColor orangeColor];
+                        
                     });
                 }else{
                     int seconds = timeout % 60;
                     NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
                     dispatch_async(dispatch_get_main_queue(), ^{
+                        
                         //设置界面的按钮显示 根据自己需求设置
                         [UIView beginAnimations:nil context:nil];
                         [UIView setAnimationDuration:1];
@@ -156,15 +139,15 @@
                     timeout--;
                 }
             });
+            
             dispatch_resume(_timer);
+            
         } else {
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
-                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
-                                                           delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"确定", nil)
-                                                  otherButtonTitles:nil, nil];
-            [alert show];
+            
+            [self alertController:error.userInfo[@"commitVerificationCode"]];
+            
         }
+        
     }];
     
 }
@@ -179,13 +162,16 @@
     hud.detailsLabelText = @"请稍候...";
 
     [SMSSDK commitVerificationCode:self.messageCodeField.text phoneNumber:model.userPhone zone:@"86" result:^(NSError *error) {
+        
         if (!error) {
+            
             [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
                 
                 //网络连接无错误
                 if (errorDic == nil) {
                     
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                        
                         DDQLoginSingleModel *model = [DDQLoginSingleModel singleModelByValue];
                         
                         NSString *basePostString = [SpellParameters getBasePostString];
@@ -197,7 +183,7 @@
                             [str appendFormat:@"%d#",byteArray[i]];
                         }
                         
-                        NSString *poststing = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",basePostString,str,model.userBorn,model.userPhone,model.userPassword];
+                        NSString *poststing = [NSString stringWithFormat:@"%@*%@*%@*%@*%@",basePostString, str, model.userBorn, model.userPhone, model.userPassword];
                         
                         DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
                         NSString *postString = [postEncryption stringWithPost:poststing];
@@ -230,49 +216,49 @@
                                 } else {
                                     
                                     [hud hide:YES];
-                                    [self alertController:@"系统繁忙"];
+                                    [self alertController:kServerDes];
                                     
                                 }
 
                             } else {
                             
-                                [self alertController:@"系统繁忙"];
+                                [self alertController:kServerDes];
 
                             }
                             
                         });
+                        
                     });
                     
                 } else {
-                    //第一个参数:添加到谁上
-                    //第二个参数:显示什么提示内容
-                    //第三个参数:背景阴影
-                    //第四个参数:设置是否消失
-                    //第五个参数:设置自定义的view
+                    
                     [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                    
                 }
+                
             }];
+            
         } else {
             
             [hud hide:YES];
-            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
-                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
-                                                           delegate:self
-                                                  cancelButtonTitle:NSLocalizedString(@"确定", nil)
-                                                  otherButtonTitles:nil, nil];
-            [alert show];
+            
+            [self alertController:[NSString stringWithFormat:@"%@",error.userInfo[@"commitVerificationCode"]]];
+            
         }
+        
     }];
     
 }
 
 #pragma mark - other method
 -(void)alertController:(NSString *)message {
+    
     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
     UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     [userNameAlert addAction:actionOne];
     [userNameAlert addAction:actionTwo];
     [self presentViewController:userNameAlert animated:YES completion:nil];
+    
 }
 @end

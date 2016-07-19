@@ -7,13 +7,17 @@
 //
 
 #import "DDQBoundTelViewController.h"
-#import "DDQOrderDetailViewController.h"
-@interface DDQBoundTelViewController ()
+
+#import "ProjectNetWork.h"
+
+@interface DDQBoundTelViewController ()<MBProgressHUDDelegate>
 @property (weak, nonatomic) IBOutlet UITextField *bt_phoneField;
 @property (weak, nonatomic) IBOutlet UIView *bt_phoneview;
 @property (weak, nonatomic) IBOutlet UITextField *bt_messageCodeField;
 @property (weak, nonatomic) IBOutlet UIButton *bt_sendMessageButton;
 @property (weak, nonatomic) IBOutlet UIButton *bt_OkButton;
+
+@property (nonatomic, strong) ProjectNetWork *netWork;
 
 @end
 
@@ -28,11 +32,15 @@
     self.bt_OkButton.backgroundColor = [UIColor redColor];
     
     self.bt_OkButton.layer.cornerRadius = 5.0f;
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
 }
 
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
 
     [self.view endEditing:YES];
+    
 }
 
 - (IBAction)bt_sendMessageButtonMethod:(id)sender {
@@ -48,10 +56,14 @@
                 if(timeout<=0){ //倒计时结束，关闭
                     dispatch_source_cancel(_timer);
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        self.bt_sendMessageButton.titleLabel.text = @"重新获取";
+            
+                        [self.bt_sendMessageButton setTitle:@"重新获取" forState:UIControlStateNormal];
                         self.bt_sendMessageButton.titleLabel.textAlignment = NSTextAlignmentCenter;
                         self.bt_sendMessageButton.userInteractionEnabled = YES;
+                        self.bt_sendMessageButton.backgroundColor = [UIColor orangeColor];
+                        
                     });
+                    
                 }else{
                     int seconds = timeout % 60;
                     NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
@@ -71,7 +83,7 @@
             dispatch_resume(_timer);
         } else {
             UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
-                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
+                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"commitVerificationCode"]]
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];
@@ -88,89 +100,67 @@
     [self.view addSubview:hud];
     [hud show:YES];
     hud.detailsLabelText = @"请稍候...";
+    
     [SMSSDK commitVerificationCode:self.bt_messageCodeField.text phoneNumber:self.bt_phoneField.text zone:@"86" result:^(NSError *error) {
+        
         if (!error) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
-                NSString *spellString             = [SpellParameters getBasePostString];//八段
-
-                NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.bt_phoneField.text];//post字符串
-
-                DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];//加密类
-
-                NSString *post_string             = [postEncryption stringWithPost:post_baseString];//加密下
-
-                NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kBand_telUrl];//发送下
-
-                dispatch_async(dispatch_get_main_queue(), ^{
-
-                    switch ([[post_dic objectForKey:@"errorcode"]intValue]) {
-                        case 0:
-                        {
-                            [hud hide:YES];
-                            NSString *spellString             = [SpellParameters getBasePostString];
-                            NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], _tid];
-                            DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                            NSString *post_string             = [postEncryption stringWithPost:post_baseString];
-                            NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kOrder_addUrl];
-
-
-                            if (self.type == 1) {
-                                DDQOrderDetailViewController * detailVC = [[DDQOrderDetailViewController alloc]init];
-                                
-                                NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-                                
-                                detailVC.dj = _dj;
-                                
-                                detailVC.name = _name;
-                                
-                                detailVC.tel = get_jsonDic[@"tel"];
-                                
-                                detailVC.orderid = get_jsonDic[@"orderid"];
-                                
-                                self.navigationController.hidesBottomBarWhenPushed = YES;
-                                
-                                [self.navigationController pushViewController:detailVC animated:YES];
-                            } else {
-                            
-                                [self.navigationController popViewControllerAnimated:YES];
-                            }
-
-                            break;
-                        }
-                        case 14:
-                        {
-                            [hud hide:YES];
-
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"该手机号已被占用" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                            [alertView show];
-                            break;
-                        }
-                        default:
-                        {
-                            [hud hide:YES];
-
-                            UIAlertView * alertView = [[UIAlertView alloc]initWithTitle:@"提示" message:@"服务器繁忙" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-                            [alertView show];
-                            
-                            break;
-                        }
-                    }
-
-                });
-                
-            });
-        } else {
             
+            [self.netWork asyPOSTWithAFN_url:kBand_telUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],self.bt_phoneField.text] andSuccess:^(id responseObjc, NSError *code_error) {
+                
+                if (code_error) {
+                    
+                    [hud hide:YES];
+                    
+                    NSInteger code = code_error.code;
+                    
+                    if (code == 14) {
+                        
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号已被注册" andShowDim:NO andSetDelay:YES andCustomView:nil];
+                        
+                    } else {
+                    
+                        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+                    }
+                    
+                } else {
+                
+                    hud.detailsLabelText = @"绑定手机号成功";
+                    [hud hide:YES afterDelay:1.5];
+                    hud.delegate = self;
+                    
+                }
+                
+            } andFailure:^(NSError *error) {
+                
+                [hud hide:YES];
+                
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+            }];
+        
+        } else {
+        
             [hud hide:YES];
             UIAlertView* alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"提示", nil)
-                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"getVerificationCode"]]
+                                                            message:[NSString stringWithFormat:@"%@",error.userInfo[@"commitVerificationCode"]]
                                                            delegate:self
                                                   cancelButtonTitle:NSLocalizedString(@"确定", nil)
                                                   otherButtonTitles:nil, nil];
             [alert show];
+            
         }
+        
     }];
+    
+}
+/** hud的代理 */
+- (void)hudWasHidden:(MBProgressHUD *)hud {
+
+    [hud hide:YES];
+    
+    [self.navigationController popViewControllerAnimated:YES];
+    
 }
 
 #pragma mark - other method

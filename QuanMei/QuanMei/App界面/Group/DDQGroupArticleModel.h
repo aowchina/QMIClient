@@ -77,6 +77,8 @@
 @property (nonatomic ,strong)NSString *ht;
 
 @property (nonatomic ,strong)NSString *intro;
+
+
 @property (nonatomic ,assign)BOOL isTemp;
 @property (assign,nonatomic) BOOL isChange;
 

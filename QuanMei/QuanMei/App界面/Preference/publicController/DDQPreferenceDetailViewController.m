@@ -58,15 +58,15 @@ NS_INLINE NSArray *SLGetCellCongfig() {
 
 @property (nonatomic, strong) NSArray *cellCongigAry;
 @property (nonatomic, strong) SLActivityModel *dataSource;
-@property (nonatomic ,strong)UIButton *yuyueButton;
+@property (nonatomic ,strong) UIButton *yuyueButton;
 
-@property (nonatomic ,strong)NSMutableArray * preferenceDataArray;
+@property (nonatomic ,strong) UIView *aview;
 
-@property (nonatomic ,strong)UIView *aview;
+@property (nonatomic, strong) NSString *dj_string;
 
-@property (strong,nonatomic) NSString *dj_string;
+@property (nonatomic, strong) MBProgressHUD *hud;
 
-@property (strong,nonatomic) MBProgressHUD *hud;
+@property (nonatomic, strong) ProjectNetWork *netWork;
 @end
 
 @implementation DDQPreferenceDetailViewController
@@ -85,17 +85,12 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     //    如果activityID为空，就会崩溃
     NSParameterAssert(activityID);
     if (self = [super init]) {
-        
-        
+
         self.activityID = activityID;
         self.cellCongigAry = SLGetCellCongfig();
+        
     }
     return self;
-}
-
-- (void)loadView {
-    [super loadView];
-    
 }
 
 - (void)viewDidLoad {
@@ -119,46 +114,26 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     
     //10-30
     self.navigationItem.title = @"特惠详情";
-    //11-06
-    _preferenceDataArray = [[NSMutableArray alloc]init];
     
     self.hud = [[MBProgressHUD alloc]initWithView:self.view];
     [self.view addSubview:self.hud];
-    [self.hud show:YES];
     self.hud.labelText = @"加载中...";
     
+    //网络请求
+    self.netWork = [ProjectNetWork sharedWork];
     [self asyPreference];
-
-    self.tableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-            
-            if (errorDic == nil) {
-                
-                [self asyPreference];
-                [self.tableView.header endRefreshing];
-                
-            } else {
-                
-                [self.hud hide:YES];
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                [self.tableView.header endRefreshing];
-            }
-        }];
-        
-    }];
-    
-
     
 }
+
+/** 点击更多 */
 -(void)showMoreFunction {
     
     UIAlertController *more_alert = [UIAlertController alertControllerWithTitle:@"更多" message:@"" preferredStyle:UIAlertControllerStyleActionSheet];
     
     UIAlertAction *first_action = [UIAlertAction actionWithTitle:@"分享" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        
         [self layoutSharedView];
+        
     }];
     
     UIAlertAction *third_action = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
@@ -169,7 +144,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     [self presentViewController:more_alert animated:YES completion:nil];
     
 }
-
+/** 布局分享页面 */
 -(void)layoutSharedView {
     
     UIView *temp_view = [[UIView alloc] init];
@@ -392,44 +367,13 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     }
 }
 
-
-
-- (void)viewWillAppear:(BOOL)animated
-{
+- (void)viewWillAppear:(BOOL)animated{
+    
     [super viewWillAppear:YES];
     self.navigationController.navigationBar.translucent = NO;
-
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        
-        if (errorDic == nil) {
-            
-            
-        } else {
-            [self.hud hide:YES];
-            
-            //第一个参数:添加到谁上
-            //第二个参数:显示什么提示内容
-            //第三个参数:背景阴影
-            //第四个参数:设置是否消失
-            //第五个参数:设置自定义的view
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-        }
-    }];
     
 }
 
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
-    
-//    self.tableView.frame = CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height-50);
-//    _aview.frame =CGRectMake(0, self.view.bounds.size.height-50, self.view.bounds.size.width, 50);
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-}
-
-//11-06
 #pragma mark - Builder
 - (void)buildTableView {
     
@@ -449,11 +393,9 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     _aview = [[UIView alloc]initWithFrame:CGRectMake(0, self.view.bounds.size.height-35, self.view.bounds.size.width, 35)];
     
     _aview.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.65f];
-    //    view.alpha = 0.5;
     
     [self.view addSubview:_aview];
     
-    //12-22
     
     UIButton *yuyueButton = [UIButton buttonWithType:(UIButtonTypeSystem)];
     
@@ -461,7 +403,14 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     
     [yuyueButton setTintColor:[UIColor whiteColor]];
     _yuyueButton = yuyueButton;
-    //11-06
+    
+    //不要null
+    if (self.dj_string == nil) {
+        
+        self.dj_string = @"";
+        
+    }
+    
     NSString *djString = [NSString stringWithFormat:@"预约(定金%@元)",self.dj_string];
     [yuyueButton setTitle:djString forState:(UIControlStateNormal)];
     
@@ -472,7 +421,9 @@ NS_INLINE NSArray *SLGetCellCongfig() {
 
 #pragma mark - UITableViewDataSource
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
     return self.cellCongigAry.count;
+    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -480,9 +431,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     NSString *cellName = self.cellCongigAry[indexPath.row];
     [tableView registerClass:NSClassFromString(cellName) forCellReuseIdentifier:cellName];
     SLActivityDetailBaseCell *cell = [tableView dequeueReusableCellWithIdentifier:cellName forIndexPath:indexPath];
-    SLActivityModel *model = [[SLActivityModel alloc] init];
-    model = self.preferenceDataArray.lastObject;
-    [cell reloadWithActivityModel:model];
+    [cell reloadWithActivityModel:self.dataSource];
     cell.delegate = self;
     return cell;
     
@@ -492,183 +441,169 @@ NS_INLINE NSArray *SLGetCellCongfig() {
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     NSString *cellName = self.cellCongigAry[indexPath.row];
-    SLActivityModel *model = [[SLActivityModel alloc] init];
-    model = self.preferenceDataArray.lastObject;
-    return [NSClassFromString(cellName) heightWithActivityModel:model];
+    return [NSClassFromString(cellName) heightWithActivityModel:self.dataSource];
     
 }
 
 #pragma mark - ActivityDetailCellDelegate
-
-- (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedFriendID:(NSString *)friendID {
-    //   进入猫友页面--- %@ ---",friendID);
-}
-
 - (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedHospitalID:(NSString *)hospitalID HospitalName:(NSString *)name {
-    
-    SLActivityModel *model = [[SLActivityModel alloc] init];
-    model = self.preferenceDataArray.lastObject;
-
+ 
     DDQHospitalHomePageController *pageController = [[DDQHospitalHomePageController alloc] init];
     pageController.hospital_id = hospitalID;
     pageController.hospital_name = name;
     [self.navigationController pushViewController:pageController animated:YES];
+    
 }
 
 - (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedID:(NSString *)priceID {
+    
     [self alipaySignForPre];
+    
 }
--(void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell webDidFinshWithError:(NSError *)error {
-    //   webView加载完毕");
+
+- (void)didSelectedRemakeButtonInCell:(SLActivityDetailBaseCell *)cell {
+
+    if (self.dataSource.isClicked) {
+        
+        self.dataSource.isClicked = NO;
+        [self.tableView reloadData];
+        
+    } else {
+    
+        self.dataSource.isClicked = YES;
+        [self.tableView reloadData];
+        
+    }
+    
 }
+
 #pragma mark - GCD
-//10-28
-//12-17
+
 -(void)asyPreference {
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        //请求特惠列表
-        NSString *spellString = [SpellParameters getBasePostString];
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kTehui_detail andData:@[_activityID] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        //加密
+        if (!code_error) {
+            
+            NSDictionary * get_jsonDic = [DDQPublic nullDic:responseObjc];
+            
+            self.dataSource = [SLActivityModel mj_objectWithKeyValues:get_jsonDic];
+            
+            self.dataSource.isClicked = NO;
+            
+            self.dj_string = self.dataSource.dj;
+            
+            [self buildTableView];
+            
+            [_yuyueButton setTitle:[NSString stringWithFormat:@"预约(定金%@元)",self.dataSource.dj]  forState:(UIControlStateNormal)];
+            
+            [self.hud hide:YES];
+
+        } else {
         
-        DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-        NSString *post_String = [postEncryption stringWithPost:[NSString stringWithFormat:@"%@*%@",spellString,_activityID]];
-        
-        
-        //接受字典
-        NSMutableDictionary *get_postDic = [[PostData alloc] postData:post_String AndUrl:kTehui_detail];
-        
-        if ([[get_postDic objectForKey:@"errorcode"]intValue] == 11)
-        {
-            UILabel *label =[[UILabel alloc]initWithFrame:CGRectMake(0, 200, kScreenWidth, 30)];
+            [self.hud hide:YES];
             
-            label.text = @"暂无活动.....";
-            
-            label.textAlignment = 1 ;
-            
-            label.textColor = [UIColor colorWithRed:149.0/255.0 green:149.0/255.0 blue:149.0/255.0 alpha:1];
-            
-            [self.view addSubview:label];
-            
-            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:@"活动已结束" preferredStyle:0];
-            
-            UIAlertAction *action = [UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            NSInteger code = [code_error code];
+            if (code == 11) {
                 
-                [self.navigationController popViewControllerAnimated:YES];
+                [self alertController:@"当前活动已结束"];
                 
-            }];
+            } else {
             
-            [alertController addAction: action];
-            [self presentViewController:alertController animated:YES completion:nil];
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }
             
         }
-        else
-            if([[get_postDic objectForKey:@"errorcode"]intValue] == 0)
-            {
-                //解密
-                NSDictionary *get_Dic = [DDQPOSTEncryption judgePOSTDic:get_postDic];
-                
-                //12-21
-                NSDictionary * get_jsonDic = [DDQPublic nullDic:get_Dic];
-                
-                _preferenceDataArray = [[NSMutableArray alloc]init];
-                SLActivityModel *model = [[SLActivityModel alloc]init];
-                
-                model.bimg   = [get_jsonDic objectForKey:@"bimg"];
-                model.newval = [get_jsonDic objectForKey:@"newval"];
-                model.oldval = [get_jsonDic objectForKey:@"oldval"];
-                model.IdString = [get_jsonDic objectForKey:@"id"];
-                model.hid    = [get_jsonDic objectForKey:@"hid"];
-                model.hname  = [get_jsonDic objectForKey:@"hname"];
-                model.himg   = [get_jsonDic objectForKey:@"himg"];
-                model.dj     = [get_jsonDic objectForKey:@"dj"];
-                self.dj_string = model.dj;
-                model.intro  = [get_jsonDic objectForKey:@"intro"];
-                
-                //11-06
-                //项目介绍html
-                model.detail = [get_jsonDic objectForKey:@"detail"];
-                model.width = get_jsonDic[@"img_width"];
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
 
-                model.height = get_jsonDic[@"img_height"];
-                //流程
-                model.lc     = [get_jsonDic objectForKey:@"lc"];
-                model.lcnote = [get_jsonDic objectForKey:@"lcnote"];
-                model.users  = [get_jsonDic objectForKey:@"users"];
-                //12-13
-                model.name  = [get_jsonDic objectForKey:@"name"];
-                
-                [_preferenceDataArray addObject:model];
-                
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    self.dataSource = [_preferenceDataArray lastObject];
-                    [self buildTableView];
-                    [self.tableView.header endRefreshing];
-                    [_yuyueButton setTitle:[NSString stringWithFormat:@"预约(定金%@元)",self.dataSource.dj]  forState:(UIControlStateNormal)];
-                    [self.hud hide:YES];
-                });
-            }
-            else
-            {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                });
-            }
-    });
+    }];
+    
 }
-//10-28
+
 #pragma mark - item target
 -(void)goBackMainViewController {
+    
     [self.navigationController popViewControllerAnimated:YES];
+    
 }
 
 -(void)addDJ {
+    
     [self alipaySignForPre];
+    
 }
+
+/** 这里是为了判断他有没有绑定手机 */
 -(void)alipaySignForPre {
     
-    SLActivityModel *activityModel = [_preferenceDataArray firstObject];
-    NSString *spellString             = [SpellParameters getBasePostString];
-    NSString *post_baseString         = [NSString stringWithFormat:@"%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], activityModel.IdString];
-    DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-    NSString *post_string             = [postEncryption stringWithPost:post_baseString];
-    NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kOrder_addUrl];
+    [self.hud show:YES];
     
-    int errorcode = [post_dic[@"errorcode"] intValue];
-    
-    if (errorcode == 0) {
+    [self.netWork asyPOSTWithAFN_url:kOrder_addUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], self.dataSource.id] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        DDQNewPayController *new_payC = [[DDQNewPayController alloc]init];
+        if (!code_error) {
+            
+            [self.hud hide:YES];
+            
+            DDQNewPayController *new_payC = [[DDQNewPayController alloc]init];
+            self.navigationController.hidesBottomBarWhenPushed = YES;
+            
+            new_payC.orderid = responseObjc[@"orderid"];
+            [self.navigationController pushViewController:new_payC animated:YES];
+            
+        } else {
         
-        NSDictionary *get_jsonDic = [DDQPOSTEncryption judgePOSTDic:post_dic];
-        new_payC.orderid = get_jsonDic[@"orderid"];
-        self.navigationController.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:new_payC animated:YES];
+            [self.hud hide:YES];
+            
+            NSInteger code = code_error.code;
+            if (code == 17) {
+                
+                DDQBoundTelViewController * boundTelVC = [[DDQBoundTelViewController alloc]init];
+                
+                boundTelVC.dj = self.dataSource.dj;
+                boundTelVC.type = 1;
+                boundTelVC.name = self.dataSource.name;
+                boundTelVC.tid = self.dataSource.id;
+                boundTelVC.price = self.dataSource.newval;
+                
+                self.navigationController.hidesBottomBarWhenPushed = YES;
+                [self.navigationController pushViewController:boundTelVC animated:YES];
+
+            } else {
+            
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+                
+            }
+            
+        }
         
-    } else if(errorcode == 17) {
+    } andFailure:^(NSError *error) {
         
-        DDQBoundTelViewController * boundTelVC = [[DDQBoundTelViewController alloc]init];
+        [self.hud hide:YES];
         
-        boundTelVC.dj = activityModel.dj;
-        boundTelVC.type = 1;
-        boundTelVC.name = activityModel.name;
-        boundTelVC.tid = activityModel.IdString;
-        boundTelVC.price = activityModel.newval;
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
         
-        self.navigationController.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:boundTelVC animated:YES];
-    }
+    }];
     
 }
 
 #pragma mark - other methods
 -(void)alertController:(NSString *)message {
+    
     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
     UIAlertAction *actionTwo = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     [userNameAlert addAction:actionOne];
     [userNameAlert addAction:actionTwo];
     [self presentViewController:userNameAlert animated:YES completion:nil];
+    
 }
+
 @end

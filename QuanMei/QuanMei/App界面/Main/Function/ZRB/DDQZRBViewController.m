@@ -22,42 +22,29 @@
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor meiHongSe]};
     [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
     
-    UILabel *label = [[UILabel alloc] init];
-    self.navigationItem.titleView = label;
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 60, 30)];
     label.text = @"整容宝";
     label.textColor = [UIColor meiHongSe];
     
+    self.navigationItem.titleView = label;
+
     [self addControl];
     
 }
 
 #pragma mark - controls
 -(void)addControl {
-    self.mainScrollView = [[UIScrollView alloc] initWithFrame:self.view.frame];
+    
+    self.mainScrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight)];
     self.mainScrollView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.mainScrollView];
-    UIImage *image = [UIImage imageNamed:@"美容宝"];
+    UIImage *image = [UIImage imageNamed:@"cosmeticBG"];
     self.mainScrollView.contentSize = CGSizeMake(kScreenWidth, image.size.height);
     
-    UIImageView *firstImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, image.size.width)];
+    UIImageView *firstImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, image.size.height)];
     [self.mainScrollView addSubview:firstImageView];
     firstImageView.image = image;
-//
-//    UIImageView *secondImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, kScreenHeight*0.7, kScreenWidth, kScreenHeight*0.4)];
-//    [self.mainScrollView addSubview:secondImageView];
-//    secondImageView.image = [UIImage imageNamed:@"cosmetic_guide2"];
-//    
-//    UIImageView *thirdImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, kScreenHeight*1.1, kScreenWidth, kScreenHeight*0.4)];
-//    [self.mainScrollView addSubview:thirdImageView];
-//    thirdImageView.image = [UIImage imageNamed:@"cosmetic_guide3"];
-//    
-//    UIImageView *fourthImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, kScreenHeight*1.5, kScreenWidth, kScreenHeight*0.7)];
-//    [self.mainScrollView addSubview:fourthImageView];
-//    fourthImageView.image = [UIImage imageNamed:@"cosmetic_guide4"];
-//    
-//    UIImageView *fifthImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, kScreenHeight*2.2, kScreenWidth, kScreenHeight*0.7)];
-//    [self.mainScrollView addSubview:fifthImageView];
-//    fifthImageView.image = [UIImage imageNamed:@"cosmetic_guide5"];
+
 }
 
 

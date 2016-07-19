@@ -64,7 +64,7 @@
         make.bottom.equalTo(doc_View1.mas_centerY);
     }];
     doc_label1.text = name1;
-    doc_label1.font = [UIFont systemFontOfSize:18.0f];
+    doc_label1.font = [UIFont systemFontOfSize:16.0f];
     
     UILabel *doc_project1 = [[UILabel alloc] init];
     [doc_View1 addSubview:doc_project1];
@@ -75,7 +75,7 @@
         make.top.equalTo(doc_label1.mas_bottom);
     }];
     doc_project1.text = project1;
-    doc_project1.font = [UIFont systemFontOfSize:15.0f weight:0.5f];
+    doc_project1.font = [UIFont systemFontOfSize:13.0f weight:0.5f];
     
     
     
@@ -144,7 +144,7 @@
         make.bottom.equalTo(doc_View1.mas_centerY);
     }];
     doc_label2.text = name2;
-    doc_label2.font = [UIFont systemFontOfSize:18.0f weight:3.0f];
+    doc_label2.font = [UIFont systemFontOfSize:16.0f weight:3.0f];
     
     UILabel *doc_project2 = [[UILabel alloc] init];
     [doc_view2 addSubview:doc_project2];
@@ -155,7 +155,7 @@
         make.top.equalTo(doc_label1.mas_bottom);
     }];
     doc_project2.text = project2;
-    doc_project2.font = [UIFont systemFontOfSize:15.0f weight:0.5f];
+    doc_project2.font = [UIFont systemFontOfSize:13.0f weight:0.5f];
 }
 
 @end

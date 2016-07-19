@@ -9,6 +9,9 @@
 #import "DDQMyWalletViewController.h"
 #import "DDQMyWalletCell.h"
 #import "DDQMyWalletModel.h"
+#import "ProjectNetWork.h"
+#import "MJExtension.h"
+
 @interface DDQMyWalletViewController ()<UITableViewDataSource,UITableViewDelegate>
 /**
  *  主tableView
@@ -23,37 +26,47 @@
  */
 @property (strong,nonatomic) NSMutableArray *source_array;
 
+@property (strong, nonatomic) MBProgressHUD *hud;
+@property (strong, nonatomic) ProjectNetWork *netWork;
+@property (assign, nonatomic) int page;
+
 @end
 
 @implementation DDQMyWalletViewController
-static int page = 2;
+
+//static int page = 2;
+
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
+    
     UILabel *title = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
     title.text = @"我的钱包";
     self.navigationItem.titleView = title;
     title.textColor = [UIColor meiHongSe];
     title.textAlignment = NSTextAlignmentCenter;
-    //1
-//    self.view.backgroundColor = [UIColor redColor];
-    [self initMainTabelView];
-    self.source_array = [NSMutableArray array];
-    [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-        if (!errorDic) {
-            [self qianbao_wangLuoQingQiuDeYeMa:1];
-            self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-                int num = page ++;
-                [self qianbao_wangLuoQingQiuDeYeMa:num];
-            }];
-        } else {
-            
-            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            [self.mainTableView.footer endRefreshing];
-        }
-    }];
+    
     self.navigationController.navigationBar.tintColor = [UIColor meiHongSe];
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"返回re"] style:UIBarButtonItemStyleDone target:self action:@selector(popViewController)];
     self.navigationItem.leftBarButtonItem = item;
+    
+    [self initMainTabelView];
+    
+    self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        
+        self.page = self.page + 1;
+        [self qianbao_wangLuoQingQiuDeYeMa:self.page];
+        
+    }];
+    
+    self.source_array = [NSMutableArray array];
+    
+    self.page = 1;
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self qianbao_wangLuoQingQiuDeYeMa:self.page];
+
 }
 
 - (void)popViewController {
@@ -61,90 +74,88 @@ static int page = 2;
     [self.navigationController popViewControllerAnimated:YES];
 }
 
-- (void)viewDidDisappear:(BOOL)animated {
-
-    [super viewDidDisappear:animated];
-    page = 2;
-}
-
 /**
  *  钱包的网络请求
  */
 - (void)qianbao_wangLuoQingQiuDeYeMa:(int)page {
-
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kGet_jfUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        NSString *spell = [SpellParameters getBasePostString];
+        if (code_error) {
         
-        NSString *post = [NSString stringWithFormat:@"%@*%@*%@",spell,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],[NSString stringWithFormat:@"%d",page]];
-        
-        DDQPOSTEncryption *encryption = [[DDQPOSTEncryption alloc] init];
-        NSString *jiami = [encryption stringWithPost:post];
-        
-        NSMutableDictionary *data_dic = [[PostData alloc] postData:jiami AndUrl:kGet_jfUrl];
-
-        NSString *errorcode_str = data_dic[@"errorcode"];
-        int errorcode = [errorcode_str intValue];
-        
-        if (errorcode == 0) {
-            NSDictionary *result_dic = [DDQPOSTEncryption judgePOSTDic:data_dic];
-            NSArray *list_array = result_dic[@"list"];
-            for (NSDictionary *dic in list_array) {
-                DDQMyWalletModel *model = [DDQMyWalletModel new];
-                model.day = dic[@"day"];
-                model.iD = dic[@"id"];
-                model.month = dic[@"month"];
-                model.point = dic[@"point"];
-                model.status = dic[@"status"];
-                model.type = dic[@"type"];
-                model.userid = dic[@"userid"];
-                model.week = dic[@"week"];
-                model.year = dic[@"year"];
-                model.order_num = dic[@"order_num"];
-                [self.source_array addObject:model];
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self.mainTableView reloadData];
-                UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 100)];
-                view.backgroundColor = [UIColor whiteColor];
-                /**
-                 *  当前积分
-                 */
-                UILabel *dangjianjifen = [UILabel new];
-                [view addSubview:dangjianjifen];
-                [dangjianjifen mas_makeConstraints:^(MASConstraintMaker *make) {
-                    make.left.equalTo(view.mas_left).offset(10);
-                    make.top.equalTo(view.mas_top).offset(10);
-                    make.height.offset(20);
-                }];
-                dangjianjifen.text = @"当前积分:";
-                
-                UILabel *jifen = [UILabel new];
-                [view addSubview:jifen];
-                [jifen mas_makeConstraints:^(MASConstraintMaker *make) {
-                    make.centerX.equalTo(view.mas_centerX);
-                    make.bottom.equalTo(view.mas_bottom).offset(-10);
-                    make.height.offset(60);
-                }];
-                jifen.textColor = [UIColor meiHongSe];
-                jifen.text = [NSString stringWithFormat:@"%@",result_dic[@"point"]];
-                jifen.font = [UIFont systemFontOfSize:25.0f];
-                self.mainTableView.tableHeaderView = view;
-                
-                [self.mainTableView.footer endRefreshing];
-                self.mainTableView.footer.state = MJRefreshStateNoMoreData;
-            });
+            [self.hud hide:YES];
+            
+            [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
         } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self alertController:@"服务器繁忙"];
-            });
+            
+            NSArray *list_array = responseObjc[@"list"];
+
+            for (NSDictionary *dic in list_array) {
+                
+                DDQMyWalletModel *model = [DDQMyWalletModel mj_objectWithKeyValues:dic];
+                
+                [self.source_array addObject:model];
+                
+            }
+            
+            [self.hud hide:YES];
+
+            UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 100)];
+            view.backgroundColor = [UIColor whiteColor];
+            /**
+             *  当前积分
+             */
+            UILabel *dangjianjifen = [UILabel new];
+            [view addSubview:dangjianjifen];
+            [dangjianjifen mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(view.mas_left).offset(10);
+                make.top.equalTo(view.mas_top).offset(10);
+                make.height.offset(20);
+            }];
+            dangjianjifen.text = @"当前积分:";
+            
+            UILabel *jifen = [UILabel new];
+            [view addSubview:jifen];
+            [jifen mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.centerX.equalTo(view.mas_centerX);
+                make.bottom.equalTo(view.mas_bottom).offset(-10);
+                make.height.offset(60);
+            }];
+            jifen.textColor = [UIColor meiHongSe];
+            jifen.text = [NSString stringWithFormat:@"%@",responseObjc[@"point"]];
+            jifen.font = [UIFont systemFontOfSize:25.0f];
+            self.mainTableView.tableHeaderView = view;
+
+            [self.mainTableView reloadData];
+            
+            if ([list_array count] == 0) {
+                
+                self.mainTableView.footer.state = MJRefreshStateNoMoreData;
+                
+            } else {
+            
+                self.mainTableView.footer.state = MJRefreshStateIdle;
+                
+            }
+            
         }
-    });
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+
 }
 
 -(void)initMainTabelView {
     
-    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight) style:UITableViewStyleGrouped];
+    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight-64) style:UITableViewStylePlain];
     [self.mainTableView setDelegate:self];
     [self.mainTableView setDataSource:self];
     [self.view addSubview:self.mainTableView];
@@ -199,6 +210,7 @@ static NSString *identifier = @"cell";
     }];
     label.text = @"明细详情";
     label.textColor = [UIColor lightGrayColor];
+    view.backgroundColor = [UIColor whiteColor];
     return view;
 }
 

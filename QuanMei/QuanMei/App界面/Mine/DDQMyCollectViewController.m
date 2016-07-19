@@ -15,8 +15,8 @@
 #import "DDQGroupArticleModel.h"
 
 #import "DDQDiaryViewCell.h"
-
-
+#import "ProjectNetWork.h"
+#import "DDQLoginViewController.h"
 @interface DDQMyCollectViewController () <UITableViewDelegate,UITableViewDataSource>
 /**
  *  主tableView
@@ -25,76 +25,72 @@
 /**
  *  接受cell的新的高度
  */
-@property (assign,nonatomic) CGFloat new_cellHeight;
+@property (assign,nonatomic) CGFloat rowHeight;
 
 @property (strong,nonatomic) DDQMyCollectModel *myCollectModel;
 
 @property (strong,nonatomic) NSMutableArray *collect_sourceArray;
 
+@property (strong, nonatomic) MBProgressHUD *hud;
+@property (strong, nonatomic) ProjectNetWork *netWork;
+@property (assign, nonatomic) int page;
 
 @end
 
 @implementation DDQMyCollectViewController
 
+- (MBProgressHUD *)hud {
+    
+    if (!_hud) {
+        
+        _hud = [[MBProgressHUD alloc] initWithView:self.view];
+        [self.view addSubview:_hud];
+        _hud.detailsLabelText = @"请稍等...";
+        
+    }
+    
+    return _hud;
+    
+}
+
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
-    //1
-//    self.myCollectModel          = [[DDQMyCollectModel alloc] init];
-//    self.myCollectModel.username = @"我叫咚咚枪";
-//    self.myCollectModel.intro    = @"等了好久终于等到今天";
-//    self.myCollectModel.title    = @"今天-刘德华";
-//    self.myCollectModel.pubtime  = @"2015-11-10";
-//    self.myCollectModel.zan      = @"1111";
-//    self.myCollectModel.reply    = @"111";
-//    
+
     self.collect_sourceArray = [NSMutableArray array];
     //2
     [self initMainTabelView];
     
-    [self collectListNetWorkWithPage:1];
+    self.page = 1;
+    
+    self.netWork = [ProjectNetWork sharedWork];
+    
+    [self collectListNetWorkWithPage:self.page];
 
     self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-            
-            if (errorDic == nil) {
-                [self.collect_sourceArray removeAllObjects];
-                [self collectListNetWorkWithPage:1];
-                [self.mainTableView.header endRefreshing];
-                
-            } else {
-                
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                [self.mainTableView.header endRefreshing];
-            }
-        }];
+        self.page = 1;
+        [self.collect_sourceArray removeAllObjects];
+        [self collectListNetWorkWithPage:self.page];
+        [self.mainTableView.header endRefreshing];
         
     }];
     
     self.mainTableView.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         
-        [DDQNetWork checkNetWorkWithError:^(NSDictionary *errorDic) {
-
-            //确保网络连接无错误,防止别人手贱
-            if (errorDic == nil) {
-                int num = page ++;
-                [self collectListNetWorkWithPage:num];
-                [self.mainTableView.footer endRefreshing];
-            } else {
-                [self.mainTableView.footer endRefreshing];
-                
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-            }
-        }];
-
+        self.page = self.page + 1;
+        [self collectListNetWorkWithPage:self.page];
+        [self.mainTableView.footer endRefreshing];
+        
     }];
 
-
 }
-static int page = 2;
+
+//static int page = 2;
+
 -(void)initMainTabelView {
     
-    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight) style:UITableViewStyleGrouped];
+    self.mainTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenHeight-64) style:UITableViewStylePlain];
     [self.mainTableView setDelegate:self];
     [self.mainTableView setDataSource:self];
     [self.view addSubview:self.mainTableView];
@@ -102,94 +98,80 @@ static int page = 2;
     self.mainTableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     self.mainTableView.backgroundColor = [UIColor backgroundColor];
     self.mainTableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
+    
 }
 
 -(void)collectListNetWorkWithPage:(int)page {
 
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.hud show:YES];
+    
+    [self.netWork asyPOSTWithAFN_url:kSc_listUrl andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @(page).stringValue] andSuccess:^(id responseObjc, NSError *code_error) {
         
-        //八段
-        NSString *spellString = [SpellParameters getBasePostString];
-        
-        //拼参数
-        NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%d",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],page];
-        
-        //加密
-        DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-        NSString *post_encryption = [post stringWithPost:post_baseString];
-        
-        //传
-        NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kSc_listUrl];
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            //判断errorcode
-            NSString *errorcode = post_dic[@"errorcode"];
-            int num = [errorcode intValue];
-            if (num == 0) {
+        if (code_error) {
+            
+            [self.hud hide:YES];
+            
+            NSInteger code = code_error.code;
+            
+            if (code == 13) {
                 
-                NSDictionary *data = [DDQPOSTEncryption judgePOSTDic:post_dic];
+                [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[DDQLoginViewController alloc] init]];
                 
-                //请求回来有东西
-                if (data.count != 0) {
-
-                    for (NSDictionary *dic in data) {
-                        
-                        DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
-                        //精或热
-                        articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
-                        articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
-                        articleModel.articleTitle  = [dic valueForKey:@"title"];
-                        articleModel.groupName     = [dic valueForKey:@"groupname"];
-                        articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
-                        articleModel.userName      = [dic valueForKey:@"username"];
-                        articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
-                        articleModel.plTime        = [dic valueForKey:@"pubtime"];
-                        articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
-                        articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
-                        articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
-                        articleModel.introString   = [dic valueForKey:@"text"];
-                        articleModel.imgArray      = [dic valueForKey:@"imgs"];
-                        articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
-                        [self.collect_sourceArray addObject:articleModel];
-                    }
-                    [self.mainTableView reloadData];
-                } else {
-                    
-                    [self alertController:@"无更多数据"];
-                    [self.mainTableView.footer endRefreshing];
-                    
-                }
-                //停止刷新
-                [self.mainTableView.header endRefreshing];
-                [self.mainTableView.footer endRefreshing];
-
-                //给数据源赋值
-//                DDQMineInfoModel *model = [[DDQMineInfoModel alloc] init];
-//                model.age = [NSString stringWithFormat:@"%@",data[@"age"]];
-//                model.city = data[@"city"];
-//                model.level = [NSString stringWithFormat:@"%@",data[@"level"]];
-//                model.sex = data[@"sex"];
-//                model.star = [NSString stringWithFormat:@"%@",data[@"star"]];
-//                model.userimg = data[@"userimg"];
-//                model.userid = [NSString stringWithFormat:@"%@",data[@"userid"]];
-//                model.username = data[@"username"];
-//                self.mineInfoModel = model;
-//                [self.mainTabelView reloadData];
-                
-            } else if (num == 13) {
-                
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"提示" message:@"用户未登录，请登录" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"确定", nil];
-                alertView.tag = 1213;
-                [alertView show];
             } else {
-                
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"服务器繁忙" andShowDim:NO andSetDelay:YES andCustomView:nil];
+            
+                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES
+                                     andCustomView:nil];
+
             }
             
+        } else {
+        
+            for (NSDictionary *dic in responseObjc) {
+                
+                DDQGroupArticleModel *articleModel = [[DDQGroupArticleModel alloc] init];
+                //精或热
+                articleModel.articleType   = [NSString stringWithFormat:@"%@",[dic valueForKey:@"type"]];
+                articleModel.isJing        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"isjing"]];
+                articleModel.articleTitle  = [dic valueForKey:@"title"];
+                articleModel.groupName     = [dic valueForKey:@"groupname"];
+                articleModel.userHeaderImg = [dic valueForKey:@"userimg"];
+                articleModel.userName      = [dic valueForKey:@"username"];
+                articleModel.userid        = [NSString stringWithFormat:@"%@",[dic valueForKey:@"userid"]];
+                articleModel.plTime        = [dic valueForKey:@"pubtime"];
+                articleModel.thumbNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"zan"]];
+                articleModel.replyNum      = [NSString stringWithFormat:@"%@",[dic valueForKey:@"pl"]];
+                articleModel.articleId     = [NSString stringWithFormat:@"%@",[dic valueForKey:@"id"]];
+                articleModel.introString   = [dic valueForKey:@"text"];
+                articleModel.imgArray      = [dic valueForKey:@"imgs"];
+                articleModel.ctime         = [NSString stringWithFormat:@"%@",[dic valueForKey:@"ctime"]];
+                [self.collect_sourceArray addObject:articleModel];
+                
+            }
             
-        });
-    });
-
+            [self.hud hide:YES];
+            
+            [self.mainTableView reloadData];
+            
+            if ([responseObjc count] == 0) {
+                
+                self.mainTableView.footer.state = MJRefreshStateNoMoreData;
+                
+            } else {
+            
+                self.mainTableView.footer.state = MJRefreshStateIdle;
+                
+            }
+            
+        }
+        
+    } andFailure:^(NSError *error) {
+        
+        [self.hud hide:YES];
+        
+        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+        
+    }];
+    
 }
 
 #pragma mark - delegate and datasource
@@ -200,29 +182,72 @@ static int page = 2;
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
+    CGFloat h;
+    if (kScreenHeight <= 568) {
+        
+        h = 20;
+        
+    } else if (kScreenHeight == 667) {
+        
+        h = 30;
+        
+    } else {
+        
+        h = 40;
+        
+    }
+    
     if (indexPath.section == 0) {
+        
         if (indexPath.row == self.collect_sourceArray.count) {
             
             return 44;
             
-        } else if (self.new_cellHeight != 0) {
+        } else if (self.rowHeight != 0) {
             
-            return  self.new_cellHeight + kScreenHeight*0.25;
+            return  self.rowHeight + kScreenHeight*0.25-h;
             
         } else {
             
-            return kScreenHeight * 0.5;
+            DDQGroupArticleModel *model;
+            
+            if (self.collect_sourceArray.count > 0) {
+                
+                model = self.collect_sourceArray[indexPath.row];
+                
+            }
+            
+            if (model.imgArray.count == 0 ){//不传图的情况
+                
+                if ([model.introString isEqualToString:@""]) {//不传图还不传字
+                    
+                    return kScreenHeight *0.25 - h;
+                    
+                } else {//有字，那就是帖子了
+                    
+                    return kScreenHeight *0.25 + self.rowHeight - h;
+                    
+                }
+                
+            } else {//传了图
+                
+                return self.rowHeight + kScreenHeight *0.5-h;
+                
+            }
+            
         }
         
     } else {
+        
         return kScreenHeight*0.2;
+        
     }
+
 }
 
 static NSString *identifier = @"cell";
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     
     DDQGroupArticleModel *articleModel;
     if (self.collect_sourceArray.count != 0) {
@@ -230,7 +255,7 @@ static NSString *identifier = @"cell";
     }
     DDQDiaryViewCell *diaryCell = [[DDQDiaryViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
     diaryCell.articleModel      = articleModel;
-    self.new_cellHeight        = diaryCell.newRect.size.height;
+    self.rowHeight              = diaryCell.newRect.size.height;
     diaryCell.selectionStyle    = UITableViewCellSelectionStyleNone;//取消选中高亮
     diaryCell.backgroundColor   = [UIColor myGrayColor];
 
@@ -260,6 +285,8 @@ static NSString *identifier = @"cell";
     title_label.numberOfLines = 0;
     title_label.text          = str;
     title_label.font          = [UIFont systemFontOfSize:13.0f];
+    header_view.backgroundColor = [UIColor backgroundColor];
+    
     return header_view;
 }
 

@@ -266,12 +266,7 @@
 		54EB70681C1AD79F005BD9D3 /* DDQMainSearchDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB70621C1AD79E005BD9D3 /* DDQMainSearchDetailViewController.m */; };
 		54EB70691C1AD79F005BD9D3 /* DDQMainSearchModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB70641C1AD79E005BD9D3 /* DDQMainSearchModel.m */; };
 		54EB706A1C1AD79F005BD9D3 /* DDQMainSearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB70661C1AD79E005BD9D3 /* DDQMainSearchViewController.m */; };
-		54EB70791C1AE990005BD9D3 /* DDQOrderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB706D1C1AE990005BD9D3 /* DDQOrderModel.m */; };
-		54EB707A1C1AE990005BD9D3 /* DDQOrderTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB706F1C1AE990005BD9D3 /* DDQOrderTableViewCell.m */; };
-		54EB707B1C1AE990005BD9D3 /* DDQOrderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB70711C1AE990005BD9D3 /* DDQOrderViewController.m */; };
 		54EB707C1C1AE990005BD9D3 /* DDQEvaluateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB70741C1AE990005BD9D3 /* DDQEvaluateViewController.m */; };
-		54EB707D1C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB70761C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.m */; };
-		54EB707E1C1AE990005BD9D3 /* DDQOrderDetailViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EB70781C1AE990005BD9D3 /* DDQOrderDetailViewController.m */; };
 		54EE05231BC75BCD00BD3C21 /* DDQLoginSingleModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 54EE05221BC75BCD00BD3C21 /* DDQLoginSingleModel.m */; };
 		54EE05381BC79F1D00BD3C21 /* TencentOpenApi_IOS_Bundle.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 54EE05361BC79F1D00BD3C21 /* TencentOpenApi_IOS_Bundle.bundle */; };
 		54EE05391BC79F1D00BD3C21 /* TencentOpenAPI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54EE05371BC79F1D00BD3C21 /* TencentOpenAPI.framework */; };
@@ -321,7 +316,6 @@
 		79D2B4BB1BD0F4C6004660A0 /* DDQThemeActivityViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 79D2B4A51BD0F4C6004660A0 /* DDQThemeActivityViewController.m */; };
 		79D2B4BC1BD0F4C6004660A0 /* zhutiModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 79D2B4A71BD0F4C6004660A0 /* zhutiModel.m */; };
 		79D2B4BD1BD0F4C6004660A0 /* TypesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 79D2B4A91BD0F4C6004660A0 /* TypesModel.m */; };
-		79D2B4C01BD0F6DE004660A0 /* DDQSetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 79D2B4BF1BD0F6DE004660A0 /* DDQSetViewController.m */; };
 		79D2B4D41BD0F6ED004660A0 /* iconfont-yuanxing副本.png in Resources */ = {isa = PBXBuildFile; fileRef = 79D2B4C61BD0F6ED004660A0 /* iconfont-yuanxing副本.png */; };
 		79D2B4D51BD0F6ED004660A0 /* 示例图片.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 79D2B4C71BD0F6ED004660A0 /* 示例图片.jpg */; };
 		79D2B4D61BD0F6ED004660A0 /* DDQFeedbackController.m in Sources */ = {isa = PBXBuildFile; fileRef = 79D2B4CA1BD0F6ED004660A0 /* DDQFeedbackController.m */; };
@@ -366,6 +360,10 @@
 		B909C0151CCF46E500C389BA /* DDQOrderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0141CCF46E500C389BA /* DDQOrderCell.m */; };
 		B909C0191CCF482300C389BA /* DDQOrderController.m in Sources */ = {isa = PBXBuildFile; fileRef = B909C0171CCF482300C389BA /* DDQOrderController.m */; };
 		B909C01A1CCF482300C389BA /* DDQOrderController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B909C0181CCF482300C389BA /* DDQOrderController.xib */; };
+		B90E97591D1BBB270049A8F7 /* MainActModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B90E97581D1BBB270049A8F7 /* MainActModel.m */; };
+		B90E975C1D1BBFCA0049A8F7 /* MainGoodsModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B90E975B1D1BBFCA0049A8F7 /* MainGoodsModel.m */; };
+		B90E975F1D1BC0C50049A8F7 /* MainProjectModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B90E975E1D1BC0C50049A8F7 /* MainProjectModel.m */; };
+		B90E97621D1BC7A30049A8F7 /* MainTehuiModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B90E97611D1BC7A30049A8F7 /* MainTehuiModel.m */; };
 		B91242AF1CE30F230045E3A6 /* DDQBaseTabBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = B91242AE1CE30F230045E3A6 /* DDQBaseTabBarController.m */; };
 		B922400F1CE45E7A00CB1981 /* IQNSArray+Sort.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FEC1CE45E7A00CB1981 /* IQNSArray+Sort.m */; };
 		B92240101CE45E7A00CB1981 /* IQUIScrollView+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = B9223FEE1CE45E7A00CB1981 /* IQUIScrollView+Additions.m */; };
@@ -993,18 +991,8 @@
 		54EB70641C1AD79E005BD9D3 /* DDQMainSearchModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQMainSearchModel.m; sourceTree = "<group>"; };
 		54EB70651C1AD79E005BD9D3 /* DDQMainSearchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQMainSearchViewController.h; sourceTree = "<group>"; };
 		54EB70661C1AD79E005BD9D3 /* DDQMainSearchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQMainSearchViewController.m; sourceTree = "<group>"; };
-		54EB706C1C1AE990005BD9D3 /* DDQOrderModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderModel.h; sourceTree = "<group>"; };
-		54EB706D1C1AE990005BD9D3 /* DDQOrderModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderModel.m; sourceTree = "<group>"; };
-		54EB706E1C1AE990005BD9D3 /* DDQOrderTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderTableViewCell.h; sourceTree = "<group>"; };
-		54EB706F1C1AE990005BD9D3 /* DDQOrderTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderTableViewCell.m; sourceTree = "<group>"; };
-		54EB70701C1AE990005BD9D3 /* DDQOrderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderViewController.h; sourceTree = "<group>"; };
-		54EB70711C1AE990005BD9D3 /* DDQOrderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderViewController.m; sourceTree = "<group>"; };
 		54EB70731C1AE990005BD9D3 /* DDQEvaluateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQEvaluateViewController.h; sourceTree = "<group>"; };
 		54EB70741C1AE990005BD9D3 /* DDQEvaluateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQEvaluateViewController.m; sourceTree = "<group>"; };
-		54EB70751C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderDetailTableViewCell.h; sourceTree = "<group>"; };
-		54EB70761C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderDetailTableViewCell.m; sourceTree = "<group>"; };
-		54EB70771C1AE990005BD9D3 /* DDQOrderDetailViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderDetailViewController.h; sourceTree = "<group>"; };
-		54EB70781C1AE990005BD9D3 /* DDQOrderDetailViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderDetailViewController.m; sourceTree = "<group>"; };
 		54EE05211BC75BCD00BD3C21 /* DDQLoginSingleModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQLoginSingleModel.h; sourceTree = "<group>"; };
 		54EE05221BC75BCD00BD3C21 /* DDQLoginSingleModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQLoginSingleModel.m; sourceTree = "<group>"; };
 		54EE05361BC79F1D00BD3C21 /* TencentOpenApi_IOS_Bundle.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = TencentOpenApi_IOS_Bundle.bundle; sourceTree = "<group>"; };
@@ -1103,8 +1091,6 @@
 		79D2B4A71BD0F4C6004660A0 /* zhutiModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = zhutiModel.m; sourceTree = "<group>"; };
 		79D2B4A81BD0F4C6004660A0 /* TypesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypesModel.h; sourceTree = "<group>"; };
 		79D2B4A91BD0F4C6004660A0 /* TypesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TypesModel.m; sourceTree = "<group>"; };
-		79D2B4BE1BD0F6DE004660A0 /* DDQSetViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQSetViewController.h; sourceTree = "<group>"; };
-		79D2B4BF1BD0F6DE004660A0 /* DDQSetViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQSetViewController.m; sourceTree = "<group>"; };
 		79D2B4C61BD0F6ED004660A0 /* iconfont-yuanxing副本.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "iconfont-yuanxing副本.png"; sourceTree = "<group>"; };
 		79D2B4C71BD0F6ED004660A0 /* 示例图片.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "示例图片.jpg"; sourceTree = "<group>"; };
 		79D2B4C91BD0F6ED004660A0 /* DDQFeedbackController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQFeedbackController.h; sourceTree = "<group>"; };
@@ -1187,6 +1173,14 @@
 		B909C0161CCF482300C389BA /* DDQOrderController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQOrderController.h; sourceTree = "<group>"; };
 		B909C0171CCF482300C389BA /* DDQOrderController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQOrderController.m; sourceTree = "<group>"; };
 		B909C0181CCF482300C389BA /* DDQOrderController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DDQOrderController.xib; sourceTree = "<group>"; };
+		B90E97571D1BBB270049A8F7 /* MainActModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainActModel.h; sourceTree = "<group>"; };
+		B90E97581D1BBB270049A8F7 /* MainActModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainActModel.m; sourceTree = "<group>"; };
+		B90E975A1D1BBFCA0049A8F7 /* MainGoodsModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainGoodsModel.h; sourceTree = "<group>"; };
+		B90E975B1D1BBFCA0049A8F7 /* MainGoodsModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainGoodsModel.m; sourceTree = "<group>"; };
+		B90E975D1D1BC0C50049A8F7 /* MainProjectModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainProjectModel.h; sourceTree = "<group>"; };
+		B90E975E1D1BC0C50049A8F7 /* MainProjectModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainProjectModel.m; sourceTree = "<group>"; };
+		B90E97601D1BC7A30049A8F7 /* MainTehuiModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainTehuiModel.h; sourceTree = "<group>"; };
+		B90E97611D1BC7A30049A8F7 /* MainTehuiModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainTehuiModel.m; sourceTree = "<group>"; };
 		B91242AD1CE30F230045E3A6 /* DDQBaseTabBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQBaseTabBarController.h; sourceTree = "<group>"; };
 		B91242AE1CE30F230045E3A6 /* DDQBaseTabBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQBaseTabBarController.m; sourceTree = "<group>"; };
 		B9223FEB1CE45E7A00CB1981 /* IQNSArray+Sort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "IQNSArray+Sort.h"; sourceTree = "<group>"; };
@@ -2143,6 +2137,7 @@
 				546E14B11BC4F4370091AFC9 /* publicTableViewCell */,
 				54A6187D1BC360C800131719 /* DDQMainViewController.h */,
 				54A6187E1BC360C800131719 /* DDQMainViewController.m */,
+				B90E97531D1BB7260049A8F7 /* Main's Model */,
 				54EB70301C1A667E005BD9D3 /* DDQMessageViewController.h */,
 				54EB70311C1A667E005BD9D3 /* DDQMessageViewController.m */,
 				54EB70321C1A667E005BD9D3 /* DDQMessageViewController.xib */,
@@ -2577,12 +2572,6 @@
 		54EB706B1C1AE990005BD9D3 /* tableSub */ = {
 			isa = PBXGroup;
 			children = (
-				54EB706C1C1AE990005BD9D3 /* DDQOrderModel.h */,
-				54EB706D1C1AE990005BD9D3 /* DDQOrderModel.m */,
-				54EB706E1C1AE990005BD9D3 /* DDQOrderTableViewCell.h */,
-				54EB706F1C1AE990005BD9D3 /* DDQOrderTableViewCell.m */,
-				54EB70701C1AE990005BD9D3 /* DDQOrderViewController.h */,
-				54EB70711C1AE990005BD9D3 /* DDQOrderViewController.m */,
 				B9425A051CCDBA6700FDC1CA /* DDQBaseViewController.h */,
 				B9425A061CCDBA6700FDC1CA /* DDQBaseViewController.m */,
 				B9425A081CCDBB8900FDC1CA /* NewOrderListUI */,
@@ -2602,10 +2591,6 @@
 				54FE8BAC1C5EFF7B004E3736 /* payRequsestHandler.mm */,
 				54EB70731C1AE990005BD9D3 /* DDQEvaluateViewController.h */,
 				54EB70741C1AE990005BD9D3 /* DDQEvaluateViewController.m */,
-				54EB70751C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.h */,
-				54EB70761C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.m */,
-				54EB70771C1AE990005BD9D3 /* DDQOrderDetailViewController.h */,
-				54EB70781C1AE990005BD9D3 /* DDQOrderDetailViewController.m */,
 			);
 			path = detail;
 			sourceTree = "<group>";
@@ -2614,7 +2599,6 @@
 			isa = PBXGroup;
 			children = (
 				54A903D31BF18DFD008CE26E /* MoreController */,
-				54EE05E21BC7D60F00BD3C21 /* Set */,
 				54EE05D61BC7D57000BD3C21 /* MineInfo */,
 				5496E0A51BF07BCE00F02A44 /* Model */,
 				54EE05D21BC7D54800BD3C21 /* View */,
@@ -2647,15 +2631,6 @@
 				79D2B4C11BD0F6ED004660A0 /* SetDetail */,
 			);
 			name = MineInfo;
-			sourceTree = "<group>";
-		};
-		54EE05E21BC7D60F00BD3C21 /* Set */ = {
-			isa = PBXGroup;
-			children = (
-				79D2B4BE1BD0F6DE004660A0 /* DDQSetViewController.h */,
-				79D2B4BF1BD0F6DE004660A0 /* DDQSetViewController.m */,
-			);
-			name = Set;
 			sourceTree = "<group>";
 		};
 		54EE05E61BC7D95700BD3C21 /* Model */ = {
@@ -3002,6 +2977,21 @@
 				5495DC651BC62FFA00DCD0A4 /* libicucore.dylib */,
 			);
 			path = Framework;
+			sourceTree = "<group>";
+		};
+		B90E97531D1BB7260049A8F7 /* Main's Model */ = {
+			isa = PBXGroup;
+			children = (
+				B90E97601D1BC7A30049A8F7 /* MainTehuiModel.h */,
+				B90E97611D1BC7A30049A8F7 /* MainTehuiModel.m */,
+				B90E97571D1BBB270049A8F7 /* MainActModel.h */,
+				B90E97581D1BBB270049A8F7 /* MainActModel.m */,
+				B90E975A1D1BBFCA0049A8F7 /* MainGoodsModel.h */,
+				B90E975B1D1BBFCA0049A8F7 /* MainGoodsModel.m */,
+				B90E975D1D1BC0C50049A8F7 /* MainProjectModel.h */,
+				B90E975E1D1BC0C50049A8F7 /* MainProjectModel.m */,
+			);
+			path = "Main's Model";
 			sourceTree = "<group>";
 		};
 		B9223FE91CE45E7A00CB1981 /* IQKeyboardManager */ = {
@@ -3406,10 +3396,8 @@
 				5406EAE01C0EF87E0035FFA4 /* DDQPersonHeadImageCell.m in Sources */,
 				79D36B6B1BCFE98C007E2A35 /* MJRefreshBackFooter.m in Sources */,
 				5495DCA61BC667CB00DCD0A4 /* DDQDetailControllerCell.m in Sources */,
-				54EB70791C1AE990005BD9D3 /* DDQOrderModel.m in Sources */,
 				B9C235CF1CE6F01F00BC7CBA /* DDQAlipay.m in Sources */,
 				B96475C31CE9609A00A49A45 /* QRCode.m in Sources */,
-				54EB707B1C1AE990005BD9D3 /* DDQOrderViewController.m in Sources */,
 				B9425A071CCDBA6700FDC1CA /* DDQBaseViewController.m in Sources */,
 				5484F36E1B93E50500B29764 /* MASConstraint.m in Sources */,
 				B9C235D21CE6F02C00BC7CBA /* DDQWXPay.m in Sources */,
@@ -3429,14 +3417,16 @@
 				54A618B21BC3C46000131719 /* DDQProjectViewController.m in Sources */,
 				B9CD92BC1CE8BEAB0049C05C /* DDQNewOrderDetailModel.m in Sources */,
 				54FE8BB71C5F2E9A004E3736 /* DDQLunBoModel.m in Sources */,
-				79D2B4C01BD0F6DE004660A0 /* DDQSetViewController.m in Sources */,
 				5484F3761B93E50500B29764 /* ViewController+MASAdditions.m in Sources */,
+				B90E975C1D1BBFCA0049A8F7 /* MainGoodsModel.m in Sources */,
 				544DCA0F1BF1CB210074E24B /* DDQMyCommentChildCell.m in Sources */,
 				54EB70511C1AB46B005BD9D3 /* DDQParentMessageViewController.m in Sources */,
 				54FE8BAE1C5EFF7B004E3736 /* payRequsestHandler.mm in Sources */,
 				549566DA1BD7638000A3E493 /* DDQUserCommentCell.m in Sources */,
+				B90E975F1D1BC0C50049A8F7 /* MainProjectModel.m in Sources */,
 				54037AC01C54A80B00899228 /* DDQTeacherIntroModel.m in Sources */,
 				79D2B4AB1BD0F4C6004660A0 /* DDQFirstSectionViewItem.m in Sources */,
+				B90E97591D1BBB270049A8F7 /* MainActModel.m in Sources */,
 				544DCA121BF1CB400074E24B /* DDQMyCommentChildModel.m in Sources */,
 				549A786D1BE211F2008B2123 /* DDQDoctorHomePageModel.m in Sources */,
 				B92240111CE45E7A00CB1981 /* IQUITextFieldView+Additions.m in Sources */,
@@ -3467,7 +3457,6 @@
 				5484F36F1B93E50500B29764 /* MASConstraintMaker.m in Sources */,
 				5495DC941BC648F500DCD0A4 /* SDWebImageDecoder.m in Sources */,
 				B9425A0F1CCDBBBF00FDC1CA /* DDQNewOrderListController.m in Sources */,
-				54EB707D1C1AE990005BD9D3 /* DDQOrderDetailTableViewCell.m in Sources */,
 				549A78701BE22476008B2123 /* DDQPublic.m in Sources */,
 				54089F8D1C2024DD00084A65 /* SLActivityModel.m in Sources */,
 				540204D31BBA6F0600EEB807 /* SpellParameters.m in Sources */,
@@ -3505,7 +3494,6 @@
 				549566E11BD78F5500A3E493 /* DDQGroupCollectionViewCell.m in Sources */,
 				541C4D041C19610C00F2B9C4 /* DDQMyReplyedModel.m in Sources */,
 				5456C1DF1BCF59BE00E674AA /* DDQGroupArticleModel.m in Sources */,
-				54EB707A1C1AE990005BD9D3 /* DDQOrderTableViewCell.m in Sources */,
 				B9C78CEB1CE6FDF1001028D5 /* MJPropertyType.m in Sources */,
 				79D2B4D81BD0F6ED004660A0 /* DDQUserProtocolViewController.m in Sources */,
 				54EB70691C1AD79F005BD9D3 /* DDQMainSearchModel.m in Sources */,
@@ -3611,6 +3599,7 @@
 				54E7477A1C5851A800194D93 /* DDQJinDiaryViewController.m in Sources */,
 				541ABD441BD892EB0036286C /* DDQItem.m in Sources */,
 				54CD25081BC9264200AFF846 /* SBJsonTokeniser.m in Sources */,
+				B90E97621D1BC7A30049A8F7 /* MainTehuiModel.m in Sources */,
 				79D2B4BC1BD0F4C6004660A0 /* zhutiModel.m in Sources */,
 				54CD25061BC9264200AFF846 /* SBJsonStreamWriterAccumulator.m in Sources */,
 				79D2B4B41BD0F4C6004660A0 /* THModel.m in Sources */,
@@ -3637,7 +3626,6 @@
 				541ABD4A1BD8A4ED0036286C /* DDQTableViewCell.m in Sources */,
 				B9DB582A1CF2AE7400EA5990 /* DDQSexSeletView.m in Sources */,
 				54A6187F1BC360C800131719 /* DDQMainViewController.m in Sources */,
-				54EB707E1C1AE990005BD9D3 /* DDQOrderDetailViewController.m in Sources */,
 				B92240171CE45E7A00CB1981 /* IQTextView.m in Sources */,
 				54247AC21C7BF57F00A4BD63 /* DDQTagModel.m in Sources */,
 				540204D21BBA6F0600EEB807 /* PostData.m in Sources */,

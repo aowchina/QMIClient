@@ -96,8 +96,9 @@ static NSString * AFPercentEscapedStringFromString(NSString *string) {
         range = [string rangeOfComposedCharacterSequencesForRange:range];
 
         NSString *substring = [string substringWithRange:range];
-        NSString *encoded = [substring stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
-        [escaped appendString:encoded];
+#warning 我把这注了谢谢
+//        NSString *encoded = [substring stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
+        [escaped appendString:substring];
 
         index += range.length;
     }

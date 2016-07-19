@@ -22,6 +22,8 @@
 @property (weak, nonatomic) IBOutlet UILabel *total_label;
 @property (weak, nonatomic) IBOutlet UIButton *pay_button;
 @property ( strong, nonatomic) NSMutableArray *orderC_source;
+/** 页码 */
+@property (assign, nonatomic) int page;
 
 @end
 
@@ -34,6 +36,9 @@
     self.order_table.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
     
     self.orderC_source = [NSMutableArray array];
+    
+    //页码
+    self.page = 1;
     [self orderC_netServerWithPage:1];
     
     /**
@@ -41,16 +46,17 @@
      */
     self.order_table.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
         
+        self.page = 1;
         [self.orderC_source removeAllObjects];
-        [self orderC_netServerWithPage:1];
+        [self orderC_netServerWithPage:self.page];
         [self.order_table.header endRefreshing];
         
     }];
     
     self.order_table.footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
         
-        page_num = page_num + 1;
-        [self orderC_netServerWithPage:page_num];
+        self.page = self.page + 1;
+        [self orderC_netServerWithPage:self.page];
         [self.order_table.footer endRefreshing];
         
     }];
@@ -64,7 +70,7 @@
 
 }
 
-static int page_num = 2;
+//static int page_num = 2;
 - (void)orderC_netServerWithPage:(int)page {
     
     [self.wait_hud show:YES];
