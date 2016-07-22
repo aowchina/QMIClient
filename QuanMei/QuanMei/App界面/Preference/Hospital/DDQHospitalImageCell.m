@@ -22,9 +22,9 @@
 -(void)setHospitalModel:(DDQHospitalModel *)hospitalModel {
     
     CGFloat imageW;
-    if (hospitalModel.alimg.count <= 3) {
+    if (hospitalModel.xcimg.count <= 3) {
         
-        imageW = self.myScrollView.frame.size.width / hospitalModel.alimg.count;
+        imageW = self.myScrollView.frame.size.width / hospitalModel.xcimg.count;
         
     } else {
         
@@ -34,10 +34,10 @@
     CGFloat splitL = 5;
     CGFloat imageH = self.myScrollView.frame.size.height;
     
-    for (int i = 0; i<hospitalModel.alimg.count; i++) {
+    for (int i = 0; i<hospitalModel.xcimg.count; i++) {
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(imageW * i + splitL * i, 0, imageW, imageH)];
         [self.myScrollView addSubview:imageView];
-        [imageView sd_setImageWithURL:[NSURL URLWithString:hospitalModel.alimg[i]]];
+        [imageView sd_setImageWithURL:[NSURL URLWithString:hospitalModel.xcimg[i]]];
         imageView.userInteractionEnabled = YES;
         
         UITapGestureRecognizer *image_tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(getImageValue:)];
@@ -45,7 +45,7 @@
         imageView.tag = i;
     }
     
-    self.myScrollView.contentSize                    = CGSizeMake(imageW * hospitalModel.alimg.count + splitL * hospitalModel.alimg.count, 0);
+    self.myScrollView.contentSize                    = CGSizeMake(imageW * hospitalModel.xcimg.count + splitL * hospitalModel.xcimg.count, 0);
     self.myScrollView.showsHorizontalScrollIndicator = NO;
 }
 

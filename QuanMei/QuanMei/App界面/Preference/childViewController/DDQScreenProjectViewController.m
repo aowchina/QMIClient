@@ -313,24 +313,11 @@
     
     THModel *model = [_TH_Array objectAtIndex:indexPath.row];
     hotCell.model = model;
-    //        hotCell.modelImageView.image = [UIImage imageNamed:@"美女啊"];
-    //        [hotCell setBackgroundColor:[UIColor myGrayColor]];
-    //        hotCell.projectIntro.text = @"【全切双眼皮】无痕情切，让双眼更有神";
-    //        hotCell.projectHospital.text = @"上海丽人医院";
-    //        hotCell.projectPrice.text = @"￥4500";
-    //        hotCell.sellNum.text = @"已售:354";
+
     return hotCell;
-    //    }
-    //    return nil;
+
 }
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    ////    DDQPreferenceDetailViewController *detailVC = [[DDQPreferenceDetailViewController alloc] init];
-    //    DDQThemeActivityViewController *detailVC = [[DDQThemeActivityViewController alloc]init];
-    //    THModel *model = [_TH_Array objectAtIndex:indexPath.row];
-    //    detailVC.hid = model.hid;
-    //    detailVC.pid = model.pid;
-    //    detailVC.ImgURL = model.simg;
     
     //10-30
     THModel *model = [_TH_Array objectAtIndex:indexPath.row];

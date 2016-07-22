@@ -11,7 +11,7 @@
 #import "DDQHospitalCell.h"
 #import "DDQHospitalImageCell.h"
 #import "DDQHospitalIntroCell.h"
-
+#import "SDWebImageManager.h"
 #import "DDQHospitalModel.h"
 
 #import "ProjectNetWork.h"
@@ -30,6 +30,8 @@
 @property (nonatomic, strong) ProjectNetWork *netWork;
 
 @property (nonatomic, strong) MBProgressHUD *hud;
+
+@property (nonatomic, strong) UIView *footerView;
 
 @end
 
@@ -71,13 +73,13 @@
     UIScrollView *temp_scroll = [[UIScrollView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height*0.25, self.view.frame.size.width, self.view.frame.size.height*0.5)];
     
     CGFloat imageW = kScreenWidth;
-    for (int i = 0; i< self.hospitalModel.alimg.count; i++) {
+    for (int i = 0; i< self.hospitalModel.xcimg.count; i++) {
         UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(imageW*i, 0, imageW, self.view.frame.size.height*0.5)];
-        [imageView sd_setImageWithURL:[NSURL URLWithString:self.hospitalModel.alimg[i]]];
+        [imageView sd_setImageWithURL:[NSURL URLWithString:self.hospitalModel.xcimg[i]]];
         [temp_scroll addSubview:imageView];
     }
     
-    temp_scroll.contentSize   = CGSizeMake(imageW*self.hospitalModel.alimg.count, 0);
+    temp_scroll.contentSize   = CGSizeMake(imageW*self.hospitalModel.xcimg.count, 0);
     temp_scroll.showsHorizontalScrollIndicator = NO;
     temp_scroll.pagingEnabled = YES;
     
@@ -130,7 +132,8 @@
             [self.hud hide:YES];
             
             [self.mainTableView reloadData];
-            self.mainTableView.tableFooterView = [self tableViewFootView];
+            
+            [self setTableViewFootView];
             
         }
         
@@ -144,23 +147,62 @@
 
 }
 
--(UIView *)tableViewFootView {
+-(void)setTableViewFootView {
     //先初始化
-    UIView *view = [[UIView alloc] init];
+    self.footerView = [[UIView alloc] init];
+    self.footerView.backgroundColor = [UIColor backgroundColor];
+//    CGFloat imageW = self.view.frame.size.width;
+//    CGFloat splitH = 10;
+//    CGFloat imageH = self.view.frame.size.height*0.2;
     
-    CGFloat imageW = self.view.frame.size.width;
-    CGFloat splitH = 10;
-    CGFloat imageH = self.view.frame.size.height*0.2;
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    
+    for (int i = 0; i<self.hospitalModel.alimg.count; i++) {
+//        [imageView sd_setImageWithURL:[NSURL URLWithString:self.hospitalModel.alimg[i]]];
+         __block CGFloat tempImgH = 0.0;
 
-    for (int i = 0; i<self.hospitalModel.xcimg.count; i++) {
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, imageH*i + splitH * i, imageW, imageH)];
-        [imageView sd_setImageWithURL:[NSURL URLWithString:self.hospitalModel.xcimg[i]]];
-        [view addSubview:imageView];
+        [manager downloadImageWithURL:[NSURL URLWithString:self.hospitalModel.alimg[i]] options:0 progress:nil completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+            
+            CGFloat w = image.size.width;
+            CGFloat h = image.size.height;
+            
+            //计算X起点与图片宽
+            CGFloat imgMostW = kScreenWidth - 20;//图片最大宽
+            
+            CGFloat originX;//X的起点
+            CGFloat tempW;//w和imgMostW之间的比较
+            if (w > imgMostW) {
+                
+                tempW = imgMostW;
+                
+                originX = 10;
+                
+            } else {
+                
+                tempW = w;
+                
+                originX = kScreenWidth * 0.5 - w*0.5;
+                
+            }
+            
+            //计算图片高
+            CGFloat imgH = tempW * h / w;
+
+            UIImageView *img = [[UIImageView alloc] initWithFrame:CGRectMake(originX, tempImgH, tempW, imgH)];
+            img.image = image;
+            [self.footerView addSubview:img];
+            
+            tempImgH += imgH;
+            
+            self.footerView.frame = CGRectMake(0, 0, self.view.frame.size.width, tempImgH);
+            
+            self.mainTableView.tableFooterView = self.footerView;
+
+        }];
+        
     }
     
-    view.frame           = CGRectMake(0, 0, self.view.frame.size.width, imageH*self.hospitalModel.xcimg.count + splitH*self.hospitalModel.xcimg.count);
-    view.backgroundColor = [UIColor backgroundColor];
-    return view;
+
 }
 
 #pragma mark - tableView
