@@ -199,13 +199,13 @@
     
     [session_manager POST:url parameters:temp_dic success:^(NSURLSessionDataTask * _Nonnull task, id  _Nonnull responseObject) {
         
-        NSDictionary *dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
+        id dic = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableContainers error:nil];
         //这个字典不为空
         if (dic) {
             
             if ([[dic valueForKey:@"errorcode"] intValue] == 0) {
                 
-                NSDictionary *tempDic = [DDQPOSTEncryption judgePOSTDic:dic];
+                id tempDic = [DDQPOSTEncryption judgePOSTDic:dic];
                 success(tempDic,nil);
                 
             } else {

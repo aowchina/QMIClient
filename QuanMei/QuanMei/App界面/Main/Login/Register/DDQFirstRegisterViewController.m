@@ -77,9 +77,9 @@
 
 //取消键盘
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    
     [self.view endEditing:YES];
-    UITouch *touch = [touches anyObject];
-    NSLog(@"%@",touch.view);
+    
 }
 
 #pragma mark - layout navigationBar pickView controls
@@ -100,9 +100,9 @@
     
     //年
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-//    [formatter setDateFormat:@"yyyy"];
+    //    [formatter setDateFormat:@"yyyy"];
     [formatter setDateFormat:@"yyyy-MM-dd"];
-
+    
     
     NSString *yearString = [NSString stringWithFormat:@"%@",[formatter stringFromDate:date]];
     self.yearArray = [NSMutableArray array];
@@ -111,14 +111,14 @@
     }
     
     //月
-//    [formatter setDateFormat:@"MM"];
+    //    [formatter setDateFormat:@"MM"];
     self.currentMonthString = [NSString stringWithFormat:@"%ld",[[formatter stringFromDate:date] integerValue]];
     self.monthArray = @[@"1",@"2",@"3",@"4",@"5",@"6",@"7",@"8",@"9",@"10",@"11",@"12",];
     
     //日
-//    [formatter setDateFormat:@"dd"];
+    //    [formatter setDateFormat:@"dd"];
     NSString *dateString = [NSString stringWithFormat:@"%@",[formatter stringFromDate:date]];
-
+    
     self.DaysArray = [NSMutableArray array];
     for (int i = 1; i <= 31; i++){
         [self.DaysArray addObject:[NSString stringWithFormat:@"%d",i]];
@@ -138,11 +138,8 @@
     [self.view addSubview:self.backgroundView];
     
     [self.backgroundView mas_makeConstraints:^(MASConstraintMaker *make) {
-        if (kScreenHeight >= 667) {
-            make.height.equalTo(self.view.mas_height).with.multipliedBy(0.15);//h
-        } else {
-            make.height.equalTo(self.view.mas_height).with.multipliedBy(0.15);//h
-        }
+        
+        make.height.mas_equalTo(40);//h
         make.left.equalTo(self.view.mas_left);//x
         make.right.equalTo(self.view.mas_right);//w
         if (kScreenHeight == 480) {
@@ -158,107 +155,37 @@
     
     [self.backgroundView setBackgroundColor:[UIColor whiteColor]];
     
-    //华丽丽的分割线
-    self.cuttingLineView = [[UIView alloc] init];
-    [self.backgroundView addSubview:self.cuttingLineView];
-    
-    [self.cuttingLineView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.height.equalTo(@1);//h
-        make.centerX.equalTo(self.backgroundView.mas_centerX);//x
-        make.centerY.equalTo(self.backgroundView.mas_centerY);//y
-        make.width.equalTo(self.backgroundView.mas_width);//w
-    }];
-    
-    [self.cuttingLineView setBackgroundColor:[UIColor myGrayColor]];
-    
     //小手机
     self.userImageView = [[UIImageView alloc] init];
     [self.backgroundView addSubview:self.userImageView];
     
     [self.userImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.offset(self.view.bounds.size.width*0.05);//w
-        make.bottom.equalTo(self.cuttingLineView.mas_bottom).with.offset(-self.view.bounds.size.height*0.02);//h
-        make.left.equalTo(self.backgroundView.mas_left).with.offset(self.view.bounds.size.width*0.02);//x
-        make.top.equalTo(self.backgroundView.mas_top).with.offset(self.view.bounds.size.height*0.02);//y
+        
+        make.centerY.equalTo(self.backgroundView.mas_centerY);
+        make.width.and.height.mas_equalTo(12.0);
+        make.left.equalTo(self.backgroundView.mas_left).offset(8.0);
+        
     }];
     
     [self.userImageView setImage:[UIImage imageNamed:@"nick_sign"]];
     self.userImageView.contentMode   = UIImageResizingModeStretch;
     
-    //
-    self.dateImageView = [[UIImageView alloc] init];
-    [self.backgroundView addSubview:self.dateImageView];
-    
-    [self.dateImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.offset(self.view.bounds.size.width*0.05);//w
-        make.bottom.equalTo(self.backgroundView.mas_bottom).with.offset(-self.view.bounds.size.height*0.02);//h
-        make.left.equalTo(self.backgroundView.mas_left).with.offset(self.view.bounds.size.width*0.02);//x
-        make.top.equalTo(self.cuttingLineView.mas_top).with.offset(self.view.bounds.size.height*0.02);//y
-    }];
-    
-    [self.dateImageView setImage:[UIImage imageNamed:@"age_sign"]];
-    self.dateImageView.contentMode   = UIImageResizingModeStretch;
-    
-    //
     self.inputNameField = [[UITextField alloc] init];
     [self.backgroundView addSubview:self.inputNameField];
     
     [self.inputNameField mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.backgroundView.mas_top);//y
-        make.left.equalTo(self.userImageView.mas_right).with.offset(self.view.bounds.size.width*0.02);//x
-        make.height.equalTo(self.backgroundView.mas_height).with.multipliedBy(0.5);//h
-        make.right.equalTo(self.backgroundView.mas_right);//w
+        
+        make.left.equalTo(self.userImageView.mas_right).offset(3.0);
+        make.centerY.equalTo(self.userImageView.mas_centerY);
+        make.right.equalTo(self.backgroundView.mas_right);
+        make.height.equalTo(self.backgroundView.mas_height);
+        
     }];
     self.inputNameField.delegate = self;
     [self.inputNameField setPlaceholder:@"请输入昵称"];
     
-    //输入密码
-    self.inputAgeLabel = [[UILabel alloc] init];
-    [self.backgroundView addSubview:self.inputAgeLabel];
-    
-    [self.inputAgeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.userImageView.mas_right).with.offset(self.view.bounds.size.width*0.02);//x
-        make.centerY.equalTo(self.dateImageView.mas_centerY);//y
-//        make.right.equalTo(self.backgroundView.mas_right);//w
-//        make.height.equalTo(self.inputNameField.mas_height);//h
-    }];
-    
-    [self.inputAgeLabel setText:@"请输入年龄"];
-    self.inputAgeLabel.textColor = [[UIColor grayColor] colorWithAlphaComponent:0.7];
-    self.inputAgeLabel.userInteractionEnabled = YES;
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showPickView)];
-    [self.inputAgeLabel addGestureRecognizer:tap];
-    
-    //布局pickerView
-    self.pickerView = [[UIPickerView alloc] init];
-    [self.view addSubview:self.pickerView];
-    [self.pickerView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.view.mas_left);
-        make.right.equalTo(self.view.mas_right);
-        make.height.equalTo(self.view.mas_height).with.multipliedBy(0.3);
-        make.bottom.equalTo(self.view.mas_bottom);
-    }];
-    self.pickerView.delegate = self;
-    self.pickerView.dataSource = self;
-    
-    self.pickerToolBar = [[UIToolbar alloc] init];
-    [self.view addSubview:self.pickerToolBar];
-    [self.pickerToolBar mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.bottom.equalTo(self.pickerView.mas_top);
-        make.left.equalTo(self.pickerView.mas_left);
-        make.right.equalTo(self.pickerView.mas_right);
-        make.height.equalTo(self.pickerView.mas_height).with.multipliedBy(0.3);
-    }];
-    self.leftItem = [[UIBarButtonItem alloc] initWithTitle:@"确定" style:UIBarButtonItemStyleDone target:self action:@selector(sureItemTouchEvent)];
-    
-    UIBarButtonItem *middleItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
-    
-    self.rightItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStyleDone target:self action:@selector(cancelItemTouchEvent)];
-    
-    self.pickerToolBar.items = @[self.leftItem,middleItem,self.rightItem];
-    self.pickerToolBar.tintColor = [UIColor meiHongSe];
-    
 }
+
 #pragma mark - toolBar item target action
 -(void)sureItemTouchEvent{
     self.inputAgeLabel.text = [NSString stringWithFormat:@"%@-%@-%@",[self.yearArray objectAtIndex:[self.pickerView selectedRowInComponent:0]],[self.monthArray objectAtIndex:[self.pickerView selectedRowInComponent:1]],[self.DaysArray objectAtIndex:[self.pickerView selectedRowInComponent:2]]];
@@ -309,15 +236,10 @@
         [self alertController:@"昵称不符合要求"];
         return NO;
         
-    } else if ([self.inputAgeLabel.text isEqualToString:@"请输入年龄"] || [self.inputAgeLabel.text isEqualToString:@""]) {
+    }else {
         
-        [self alertController:@"请输入年龄"];
-        return NO;
-        
-    } else {
-    
         return YES;
-
+        
     }
     
 }
@@ -325,35 +247,40 @@
 #pragma mark - navigationBar item target action
 -(void)goToSecondViewController {
     DDQSecondRegisterViewController *secondRVC = [[DDQSecondRegisterViewController alloc] init];
-    BOOL yesOrNo = [self LocalValidation];
-    if (yesOrNo == YES) {
-        NSDateFormatter *date_formatter = [[NSDateFormatter alloc] init];
-        [date_formatter setDateFormat:@"yyyy-MM-dd"];
-        NSDate *date = [date_formatter dateFromString:self.inputAgeLabel.text];
-        NSComparisonResult result = [date compare:[NSDate date]];
-        if (result == -1) {
-            DDQLoginSingleModel *model = [DDQLoginSingleModel singleModelByValue];
-            model.nameString = self.inputNameField.text;
-            model.userBorn = self.inputAgeLabel.text;
-            [self.navigationController pushViewController:secondRVC animated:NO];
-        } else {
+    
+    //获取当前时间
+    NSDate *date = [NSDate date];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    
+    unsigned int unitFlags = NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit;
+    NSDateComponents *components = [calendar components:unitFlags fromDate:date];
+    NSArray *dateArray = @[@(components.month).stringValue, @(components.day).stringValue];
+    
+    NSMutableString *dateFormatter = [[NSMutableString alloc] initWithString:@(components.year).stringValue];
+    
+    for (NSInteger i = 0; i < dateArray.count; i++) {
         
-            [self alertController:@"日期不能超过当前时间"];
-
-        }
-            
-//        }
+        [dateFormatter appendFormat:@"-%@", [dateArray objectAtIndex:i]];
+        
     }
+    
+    DDQLoginSingleModel *model = [DDQLoginSingleModel singleModelByValue];
+    model.nameString = self.inputNameField.text;
+    model.userBorn = dateFormatter;
+    [self.navigationController pushViewController:secondRVC animated:NO];
+    
 }
 
 -(void)goBackLoginViewController {
+    
     self.inputNameField.text = nil;
     self.inputAgeLabel.text = nil;
     [self.view endEditing:YES];
     [self.navigationController popViewControllerAnimated:NO];
+    
 }
 
-#pragma mark - other method 
+#pragma mark - other method
 -(void)alertController:(NSString *)message {
     UIAlertController *userNameAlert = [UIAlertController alertControllerWithTitle:@"提示" message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *actionOne = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
@@ -444,7 +371,7 @@
 }
 #pragma mark - textField delegate
 - (void)showPickView {
-
+    
     [UIView animateWithDuration:1.0 animations:^{
         
         self.pickerToolBar.hidden = NO;
@@ -452,7 +379,7 @@
         self.inputAgeLabel.text = @"";
         
     }];
-
+    
 }
 
 @end

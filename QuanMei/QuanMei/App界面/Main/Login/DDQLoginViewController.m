@@ -83,7 +83,7 @@ typedef void(^popToMainViewController)();
 @property (strong,nonatomic) NSDictionary *error_dic;
 @property (strong,nonatomic) MBProgressHUD *hud;
 
-@property ( strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
+@property (strong, nonatomic) DDQBaseTabBarController *baseTabBarC;
 @property (nonatomic, strong) ProjectNetWork *netWork;
 @end
 
@@ -355,16 +355,18 @@ typedef void(^popToMainViewController)();
         if ([self.inputPhoneNumField.text length] == 0) {
             
             [self alertController:@"手机号不能为空"];
+            
         }else {
             
             [self alertController:@"密码不能为空"];
+            
         }
         
     } else {
         
         [self.hud show:YES];
 
-        [self.netWork asyPOSTWithAFN_url:kLoginUrl andData:@[_inputPhoneNumField.text,_inputPasswordField.text] andSuccess:^(id responseObjc, NSError *code_error) {
+        [self.netWork asyPOSTWithAFN_url:kLoginUrl andData:@[_inputPhoneNumField.text, _inputPasswordField.text] andSuccess:^(id responseObjc, NSError *code_error) {
             
             if (code_error) {
                 

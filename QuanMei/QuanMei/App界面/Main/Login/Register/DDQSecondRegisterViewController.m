@@ -86,7 +86,7 @@
         } else {
             make.top.equalTo(self.view.mas_top).with.offset(self.view.bounds.size.height*0.15);//y
         }
-
+        
     }];
     [label setFont:[UIFont systemFontOfSize:14.0f]];
     [label setText:@"请保证手机处于正常接收短信状态"];
@@ -96,11 +96,8 @@
     [self.view addSubview:self.backgroundView];
     
     [self.backgroundView mas_makeConstraints:^(MASConstraintMaker *make) {
-        if (kScreenHeight >= 667) {
-            make.height.equalTo(self.view.mas_height).with.multipliedBy(0.15);//h
-        } else {
-            make.height.equalTo(self.view.mas_height).with.multipliedBy(0.15);//h
-        }
+        
+        make.height.mas_equalTo(80);
         make.left.equalTo(self.view.mas_left);//x
         make.right.equalTo(self.view.mas_right);//w
         if (kScreenHeight == 480) {
@@ -112,6 +109,7 @@
         } else {
             make.top.equalTo(self.view.mas_top).with.offset(self.view.bounds.size.height*0.2);//y
         }
+        
     }];
     
     [self.backgroundView setBackgroundColor:[UIColor whiteColor]];
@@ -134,10 +132,11 @@
     [self.backgroundView addSubview:self.phoneImageView];
     
     [self.phoneImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.offset(self.view.bounds.size.width*0.05);//w
-        make.bottom.equalTo(self.cuttingLineView.mas_bottom).with.offset(-self.view.bounds.size.height*0.02);//h
+        
+        make.width.and.height.mas_equalTo(12.0);
         make.left.equalTo(self.backgroundView.mas_left).with.offset(self.view.bounds.size.width*0.02);//x
-        make.top.equalTo(self.backgroundView.mas_top).with.offset(self.view.bounds.size.height*0.02);//y
+        make.top.equalTo(self.backgroundView.mas_top).offset(14.0);//y
+        
     }];
     
     [self.phoneImageView setImage:[UIImage imageNamed:@"phone"]];
@@ -148,10 +147,11 @@
     [self.backgroundView addSubview:self.lockImageView];
     
     [self.lockImageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.width.offset(self.view.bounds.size.width*0.05);//w
-        make.bottom.equalTo(self.backgroundView.mas_bottom).with.offset(-self.view.bounds.size.height*0.02);//h
+        
+        make.width.and.height.mas_equalTo(12.0);
         make.left.equalTo(self.backgroundView.mas_left).with.offset(self.view.bounds.size.width*0.02);//x
-        make.top.equalTo(self.cuttingLineView.mas_top).with.offset(self.view.bounds.size.height*0.02);//y
+        make.top.equalTo(self.cuttingLineView.mas_top).offset(14.0);//y
+        
     }];
     
     [self.lockImageView setImage:[UIImage imageNamed:@"password"]];
@@ -171,7 +171,7 @@
     self.inputPhoneNumField.clearButtonMode = UITextFieldViewModeWhileEditing;
     self.inputPhoneNumField.delegate = self;
     self.inputPhoneNumField.keyboardType = UIKeyboardTypePhonePad;
-
+    
     //输入密码
     self.inputPasswordField = [[UITextField alloc] init];
     [self.backgroundView addSubview:self.inputPasswordField];
@@ -236,17 +236,17 @@
                     [MBProgressHUD myCustomHudWithView:self.view andCustomText:@"手机号已存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
                     
                 } else {
-                
+                    
                     [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                     
                 }
                 
             } else {
-            
+                
                 [self.hud hide:YES];
                 
                 [self.navigationController pushViewController:thirdRVC animated:YES];
-
+                
             }
             
         } andFailure:^(NSError *error) {
@@ -254,7 +254,7 @@
             [self.hud hide:YES];
             
             [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-
+            
         }];
         
     }
