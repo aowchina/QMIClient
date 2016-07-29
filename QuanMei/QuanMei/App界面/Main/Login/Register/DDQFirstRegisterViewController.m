@@ -140,6 +140,7 @@
     [self.backgroundView mas_makeConstraints:^(MASConstraintMaker *make) {
         
         make.height.mas_equalTo(40);//h
+
         make.left.equalTo(self.view.mas_left);//x
         make.right.equalTo(self.view.mas_right);//w
         if (kScreenHeight == 480) {
@@ -154,7 +155,7 @@
     }];
     
     [self.backgroundView setBackgroundColor:[UIColor whiteColor]];
-    
+
     //小手机
     self.userImageView = [[UIImageView alloc] init];
     [self.backgroundView addSubview:self.userImageView];
@@ -179,7 +180,7 @@
         make.centerY.equalTo(self.userImageView.mas_centerY);
         make.right.equalTo(self.backgroundView.mas_right);
         make.height.equalTo(self.backgroundView.mas_height);
-        
+
     }];
     self.inputNameField.delegate = self;
     [self.inputNameField setPlaceholder:@"请输入昵称"];
@@ -236,7 +237,7 @@
         [self alertController:@"昵称不符合要求"];
         return NO;
         
-    }else {
+    }  else {
         
         return YES;
         
@@ -291,95 +292,96 @@
 }
 
 #pragma mark - pickView delegate and dataSource
-- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-    if (component == 0){
-        self.selectedYearRow = row;
-        [self.pickerView reloadAllComponents];
-    }else if (component == 1){
-        self.selectedMonthRow = row;
-        [self.pickerView reloadAllComponents];
-    }else if (component == 2){
-        self.selectedDayRow = row;
-        [self.pickerView reloadAllComponents];
-    }
-    
-}
-- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
-    UILabel *pickerLabel = (UILabel *)view;
-    
-    if (pickerLabel == nil) {
-        CGRect frame = CGRectMake(0.0, 0.0, 50, 60);
-        pickerLabel = [[UILabel alloc] initWithFrame:frame];
-        [pickerLabel setTextAlignment:NSTextAlignmentCenter];
-        [pickerLabel setBackgroundColor:[UIColor whiteColor]];
-        [pickerLabel setFont:[UIFont systemFontOfSize:15.0f]];
-        pickerLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:15.0];
-        pickerLabel.textColor = [UIColor meiHongSe];
-        
-    }
-    if (component == 0){
-        pickerLabel.text =  [self.yearArray objectAtIndex:row]; // Year
-    }else if (component == 1){
-        pickerLabel.text =  [self.monthArray objectAtIndex:row];  // Month
-    }else if (component == 2){
-        pickerLabel.text =  [self.DaysArray objectAtIndex:row]; // Date
-    }
-    return pickerLabel;
-}
-- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView{
-    return 3;
-}
-- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component{
-    
-    if (component == 0){
-        return [self.yearArray count];
-    }else if (component == 1){
-        return [self.monthArray count];
-    }else { // day
-        
-        if (self.firstTimeLoad){
-            if ([_currentMonthString integerValue] == 1 || [_currentMonthString integerValue] == 3 || [_currentMonthString integerValue] == 5 || [_currentMonthString integerValue] == 7 || [_currentMonthString integerValue] == 8 || [_currentMonthString integerValue] == 10 || [_currentMonthString integerValue] == 12) {
-                return 31;
-            }else if ([_currentMonthString integerValue] == 2) {
-                int yearint = [[self.yearArray objectAtIndex:self.selectedYearRow]intValue ];
-                
-                if(((yearint %4==0)&&(yearint %100!=0))||(yearint %400==0)){
-                    return 29;
-                }else{
-                    return 28; // or return 29
-                }
-            }else{
-                return 30;
-            }
-        }else{
-            
-            if (_selectedMonthRow == 0 || _selectedMonthRow == 2 || _selectedMonthRow == 4 || _selectedMonthRow == 6 || _selectedMonthRow == 7 || _selectedMonthRow == 9 || _selectedMonthRow == 11){
-                return 31;
-            }else if (_selectedMonthRow == 1){
-                int yearint = [[_yearArray objectAtIndex:_selectedYearRow]intValue ];
-                
-                if(((yearint %4==0)&&(yearint %100!=0))||(yearint %400==0)){
-                    return 29;
-                }else{
-                    return 28; // or return 29
-                }
-            }else{
-                return 30;
-            }
-        }
-    }
-}
+//- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+//    if (component == 0){
+//        self.selectedYearRow = row;
+//        [self.pickerView reloadAllComponents];
+//    }else if (component == 1){
+//        self.selectedMonthRow = row;
+//        [self.pickerView reloadAllComponents];
+//    }else if (component == 2){
+//        self.selectedDayRow = row;
+//        [self.pickerView reloadAllComponents];
+//    }
+//    
+//}
+//- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view {
+//    UILabel *pickerLabel = (UILabel *)view;
+//    
+//    if (pickerLabel == nil) {
+//        CGRect frame = CGRectMake(0.0, 0.0, 50, 60);
+//        pickerLabel = [[UILabel alloc] initWithFrame:frame];
+//        [pickerLabel setTextAlignment:NSTextAlignmentCenter];
+//        [pickerLabel setBackgroundColor:[UIColor whiteColor]];
+//        [pickerLabel setFont:[UIFont systemFontOfSize:15.0f]];
+//        pickerLabel.font = [UIFont fontWithName:@"HelveticaNeue-Bold" size:15.0];
+//        pickerLabel.textColor = [UIColor meiHongSe];
+//        
+//    }
+//    if (component == 0){
+//        pickerLabel.text =  [self.yearArray objectAtIndex:row]; // Year
+//    }else if (component == 1){
+//        pickerLabel.text =  [self.monthArray objectAtIndex:row];  // Month
+//    }else if (component == 2){
+//        pickerLabel.text =  [self.DaysArray objectAtIndex:row]; // Date
+//    }
+//    return pickerLabel;
+//}
+//- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView{
+//    return 3;
+//}
+//- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component{
+//    
+//    if (component == 0){
+//        return [self.yearArray count];
+//    }else if (component == 1){
+//        return [self.monthArray count];
+//    }else { // day
+//        
+//        if (self.firstTimeLoad){
+//            if ([_currentMonthString integerValue] == 1 || [_currentMonthString integerValue] == 3 || [_currentMonthString integerValue] == 5 || [_currentMonthString integerValue] == 7 || [_currentMonthString integerValue] == 8 || [_currentMonthString integerValue] == 10 || [_currentMonthString integerValue] == 12) {
+//                return 31;
+//            }else if ([_currentMonthString integerValue] == 2) {
+//                int yearint = [[self.yearArray objectAtIndex:self.selectedYearRow]intValue ];
+//                
+//                if(((yearint %4==0)&&(yearint %100!=0))||(yearint %400==0)){
+//                    return 29;
+//                }else{
+//                    return 28; // or return 29
+//                }
+//            }else{
+//                return 30;
+//            }
+//        }else{
+//            
+//            if (_selectedMonthRow == 0 || _selectedMonthRow == 2 || _selectedMonthRow == 4 || _selectedMonthRow == 6 || _selectedMonthRow == 7 || _selectedMonthRow == 9 || _selectedMonthRow == 11){
+//                return 31;
+//            }else if (_selectedMonthRow == 1){
+//                int yearint = [[_yearArray objectAtIndex:_selectedYearRow]intValue ];
+//                
+//                if(((yearint %4==0)&&(yearint %100!=0))||(yearint %400==0)){
+//                    return 29;
+//                }else{
+//                    return 28; // or return 29
+//                }
+//            }else{
+//                return 30;
+//            }
+//        }
+//    }
+//}
 #pragma mark - textField delegate
-- (void)showPickView {
-    
-    [UIView animateWithDuration:1.0 animations:^{
-        
-        self.pickerToolBar.hidden = NO;
-        self.pickerView.hidden = NO;
-        self.inputAgeLabel.text = @"";
-        
-    }];
-    
-}
+//- (void)showPickView {
+//
+//    [UIView animateWithDuration:1.0 animations:^{
+//        
+//        self.pickerToolBar.hidden = NO;
+//        self.pickerView.hidden = NO;
+//        self.inputAgeLabel.text = @"";
+//        
+//    }];
+//
+//}
+
 
 @end

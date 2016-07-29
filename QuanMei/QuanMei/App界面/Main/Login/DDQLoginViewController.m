@@ -19,8 +19,6 @@
 #import "DDQMyWalletViewController.h"
 #import "WXApi.h"
 #import "AppDelegate.h"
-#import "WeiboSDK.h"
-#import "WeiboUser.h"
 
 #import "DDQUserInfoModel.h"
 
@@ -470,13 +468,6 @@ typedef void(^popToMainViewController)();
     SendAuthReq* req =[[SendAuthReq alloc ] init];
     req.scope = @"snsapi_userinfo";
     [WXApi sendReq:req];
-}
-
--(void)goWeiBoLogin {
-
-    WBAuthorizeRequest *request = [WBAuthorizeRequest request];
-    request.redirectURI = @"https://api.weibo.com/oauth2/default.html";
-    [WeiboSDK sendRequest:request];
 }
 
 #pragma mark - tencent delegate
