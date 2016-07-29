@@ -74,158 +74,158 @@
 #define kWenzhangDetailUrl [kBaseUrl stringByAppendingString:@"wenzhang/Detail.php"]
 
 //21.加入小组
-#define kGroup_join @"http://139.196.172.208/qm/api/group/In.php"
+#define kGroup_join [kBaseUrl stringByAppendingString:@"group/In.php"]
 
 //22.退出小组
-#define kGroup_exit @"http://139.196.172.208/qm/api/group/Out.php"
+#define kGroup_exit [kBaseUrl stringByAppendingString:@"group/Out.php"]
 
 //23.文章评论点赞
-#define kAddZan @"http://139.196.172.208/qm/api/wenzhang/AddZan.php"
+#define kAddZan [kBaseUrl stringByAppendingString:@"wenzhang/AddZan.php"]
 
 //24.文章/评论 评论
-#define kPl_add @"http://139.196.172.208/qm/api/wenzhang/AddPl.php"
+#define kPl_add [kBaseUrl stringByAppendingString:@"wenzhang/AddPl.php"]
 
 //25.个人中心首页
-#define kMyCenterMain @"http://139.196.172.208/qm/api/user/Main.php"
+#define kMyCenterMain [kBaseUrl stringByAppendingString:@"user/Main.php"]
 
 //26.修改昵称
-#define kEditNickName @"http://139.196.172.208/qm/api/user/EditName.php"
+#define kEditNickName [kBaseUrl stringByAppendingString:@"user/EditName.php"]
 
 //27.修改生日
-#define kEditBrithday @"http://139.196.172.208/qm/api/user/EditAge.php"
+#define kEditBrithday [kBaseUrl stringByAppendingString:@"user/EditAge.php"]
 
 //28.修改头像
-#define kEditIcon @"http://139.196.172.208/qm/api/user/EditImg.php"
+#define kEditIcon [kBaseUrl stringByAppendingString:@"user/EditImg.php"]
 
 //29.取消赞
-#define kDelZan @"http://139.196.172.208/qm/api/wenzhang/DelZan.php"
+#define kDelZan [kBaseUrl stringByAppendingString:@"wenzhang/DelZan.php"]
 
 //30.文章评论列表
-#define KPLListUrl @"http://139.196.172.208/qm/api/wenzhang/PlList.php"
+#define KPLListUrl [kBaseUrl stringByAppendingString:@"wenzhang/PlList.php"]
 
 //31.修改地区
-#define kEditCity @"http://139.196.172.208/qm/api/user/EditDq.php"
+#define kEditCity [kBaseUrl stringByAppendingString:@"user/EditDq.php"]
 
 //32.医院主页
-#define kHospital_MainUrl @"http://139.196.172.208/qm/api/hospital/Main.php"
+#define kHospital_MainUrl [kBaseUrl stringByAppendingString:@"hospital/Main.php"]
 
 //33.医院详情
-#define kHospital_DetailUrl @"http://139.196.172.208/qm/api/hospital/Detail.php"
+#define kHospital_DetailUrl [kBaseUrl stringByAppendingString:@"hospital/Detail.php"]
 
 //34.医院医生
-#define kHospital_DoctorUrl @"http://139.196.172.208/qm/api/hospital/Doctor.php"
+#define kHospital_DoctorUrl [kBaseUrl stringByAppendingString:@"hospital/Doctor.php"]
 
 //35.特惠预定
-#define kOrder_addUrl @"http://139.196.172.208/qm/api/order/AddOrder.php"
+#define kOrder_addUrl [kBaseUrl stringByAppendingString:@"order/AddOrder.php"]
 //支付宝
-#define kOrder_zfbUrl @"http://139.196.172.208/qm/api/zfb/notify_url.php"
+#define kOrder_zfbUrl [kBaseUrl stringByAppendingString:@"zfb/notify_url.php"]
 //支付详情页
-#define kWaiDetailUrl @"http://139.196.172.208/qm/api/order/WaitDetail.php"
+#define kWaiDetailUrl [kBaseUrl stringByAppendingString:@"order/WaitDetail.php"]
 //支付方式
-#define kBeforePayUrl @"http://139.196.172.208/qm/api/order/Before_pay.php"
+#define kBeforePayUrl [kBaseUrl stringByAppendingString:@"order/Before_pay.php"]
 
 //36.评论的回复列表
-#define kMorePLList @"http://139.196.172.208/qm/api/wenzhang/MorePlList.php"
+#define kMorePLList [kBaseUrl stringByAppendingString:@"wenzhang/MorePlList.php"]
 
 //37.我的日记/帖子列表
-#define kMyDiaryUrl @"http://139.196.172.208/qm/api/user/WzList.php"
+#define kMyDiaryUrl [kBaseUrl stringByAppendingString:@"user/WzList.php"]
 
 //38.我的回复列表
-#define kMyreply @"http://139.196.172.208/qm/api/user/HfList.php"
+#define kMyreply [kBaseUrl stringByAppendingString:@"user/HfList.php"]
 
 //39.搜索
-#define kSearchUrl @"http://139.196.172.208/qm/api/public/Choice.php"
+#define kSearchUrl [kBaseUrl stringByAppendingString:@"public/Choice.php"]
 
 //40.搜索特惠
-#define  kSearchTehuiUrl @"http://139.196.172.208/qm/api/tehui/ChoiceTh.php"
+#define  kSearchTehuiUrl [kBaseUrl stringByAppendingString:@"tehui/ChoiceTh.php"]
 
 //41.搜素文章
-#define  kSearchWenzhangUrl @"http://139.196.172.208/qm/api/wenzhang/ChoiceWz.php"
+#define  kSearchWenzhangUrl [kBaseUrl stringByAppendingString:@"wenzhang/ChoiceWz.php"]
 
 //42.退出登录
-#define kGetOut_Url @"http://139.196.172.208/qm/api/public/GetOut.php"
+#define kGetOut_Url [kBaseUrl stringByAppendingString:@"public/GetOut.php"]
 
 //43.文章删除
-#define kDel_wenzhangUrl @"http://139.196.172.208/qm/api/user/DelWz.php"
+#define kDel_wenzhangUrl [kBaseUrl stringByAppendingString:@"user/DelWz.php"]
 
 //44.回复删除
-#define kDel_hfUrl @"http://139.196.172.208/qm/api/user/DelHf.php"
+#define kDel_hfUrl [kBaseUrl stringByAppendingString:@"user/DelHf.php"]
 
 //45.密码重设
-#define kPassword_csUrl @"http://139.196.172.208/qm/api/user/EditPsw.php"
+#define kPassword_csUrl [kBaseUrl stringByAppendingString:@"user/EditPsw.php"]
 
 //46.个人主页（带加入小组)
-#define kUser_moreUrl @"http://139.196.172.208/qm/api/user/MainMore.php"
+#define kUser_moreUrl [kBaseUrl stringByAppendingString:@"user/MainMore.php"]
 
 //47.我的被回复列表
-#define kUser_bhfUrl @"http://139.196.172.208/qm/api/user/BhfList.php"
+#define kUser_bhfUrl [kBaseUrl stringByAppendingString:@"user/BhfList.php"]
 
 //48.我的被赞列表
-#define kUser_bzanUrl @"http://139.196.172.208/qm/api/user/BzanList.php"
+#define kUser_bzanUrl [kBaseUrl stringByAppendingString:@"user/BzanList.php"]
 
 //49.订单列表
-#define kUserOrderUrl @"http://139.196.172.208/qm/api/order/UserOrder.php"
-#define kUserOrderDetailUrl @"http://139.196.172.208/qm/api/order/OrderDetail.php"
-#define kBack_moneyUrl @"http://139.196.172.208/qm/api/order/BackOrder.php"
+#define kUserOrderUrl [kBaseUrl stringByAppendingString:@"order/UserOrder.php"]
+#define kUserOrderDetailUrl [kBaseUrl stringByAppendingString:@"order/OrderDetail.php"]
+#define kBack_moneyUrl [kBaseUrl stringByAppendingString:@"order/BackOrder.php"]
 
 //50.评价
-#define kOrderPjUrl @"http://139.196.172.208/qm/api/order/AddPj.php"
+#define kOrderPjUrl [kBaseUrl stringByAppendingString:@"order/AddPj.php"]
 
 //51.绑定手机号
-#define kBand_telUrl @"http://139.196.172.208/qm/api/user/BandTel.php"
+#define kBand_telUrl [kBaseUrl stringByAppendingString:@"user/BandTel.php"]
 
 //52.医院评价列表
-#define kHospital_pjUrl @"http://139.196.172.208/qm/api/hospital/PjList.php"
+#define kHospital_pjUrl [kBaseUrl stringByAppendingString:@"hospital/PjList.php"]
 
 //53.删除待支付订单
-#define kOrder_DelUrl @"http://139.196.172.208/qm/api/order/DelOrder.php"
+#define kOrder_DelUrl [kBaseUrl stringByAppendingString:@"order/DelOrder.php"]
 
 //54.添加收藏
-#define kSc_addUrl @"http://139.196.172.208/qm/api/user/AddSc.php"
+#define kSc_addUrl [kBaseUrl stringByAppendingString:@"user/AddSc.php"]
 //删除收藏
-#define kSc_delUrl @"http://139.196.172.208/qm/api/user/CancelSC.php"
+#define kSc_delUrl [kBaseUrl stringByAppendingString:@"user/CancelSC.php"]
 
 //55.收藏列表
-#define kSc_listUrl @"http://139.196.172.208/qm/api/user/ScList.php"
+#define kSc_listUrl [kBaseUrl stringByAppendingString:@"user/ScList.php"]
 
 //56.修改背景
-#define kEditBgImgUrl @"http://139.196.172.208/qm/api/user/EditBgImg.php"
+#define kEditBgImgUrl [kBaseUrl stringByAppendingString:@"user/EditBgImg.php"]
 
 //57.教师列表
-#define kteacher_listUrl @"http://139.196.172.208/qm/api/course/TeacherList.php"
+#define kteacher_listUrl [kBaseUrl stringByAppendingString:@"course/TeacherList.php"]
 
 //58.教师详情
-#define kteacher_introUrl @"http://139.196.172.208/qm/api/course/CourseDetail.php"
+#define kteacher_introUrl [kBaseUrl stringByAppendingString:@"course/CourseDetail.php"]
 
 //59.课程订单
-#define kteacher_orderUrl @"http://139.196.172.208/qm/api/course/AddOrder.php"
+#define kteacher_orderUrl [kBaseUrl stringByAppendingString:@"course/AddOrder.php"]
 
 //60.课程订单
-#define kMy_lessonUrl @"http://139.196.172.208/qm/api/user/CourseList.php"
+#define kMy_lessonUrl [kBaseUrl stringByAppendingString:@"user/CourseList.php"]
 
 //61.特惠预订获取微信订单信息
-#define kWX_payReqUrl @"http://139.196.172.208/qm/api/weixin/PayReq.php"
+#define kWX_payReqUrl [kBaseUrl stringByAppendingString:@"weixin/PayReq.php"]
 
 //62.特惠预订订单结果查询
-#define kWX_payNotifyUrl @"http://139.196.172.208/qm/api/weixin/PayNotify.php"
+#define kWX_payNotifyUrl [kBaseUrl stringByAppendingString:@"weixin/PayNotify.php"]
 
 //63.课程预订获取微信订单信息
-#define kWX_payUrl @"http://139.196.172.208/qm/api/course/PayReq.php"
+#define kWX_payUrl [kBaseUrl stringByAppendingString:@"course/PayReq.php"]
 
 //64.保险列表
-#define kBX_listUrl @"http://139.196.172.208/qm/api/baoxian/List.php"
+#define kBX_listUrl [kBaseUrl stringByAppendingString:@"baoxian/List.php"]
 
 //65.检查用户能否签到
-#define kCheck_QDUrl @"http://139.196.172.208/qm/api/user/QdStatus.php"
+#define kCheck_QDUrl [kBaseUrl stringByAppendingString:@"user/QdStatus.php"]
 
 //66.签到
-#define kQD_Url @"http://139.196.172.208/qm/api/user/Qd.php"
+#define kQD_Url [kBaseUrl stringByAppendingString:@"user/Qd.php"]
 
 //67.获取积分列表
-#define kGet_jfUrl @"http://139.196.172.208/qm/api/user/PointList.php"
+#define kGet_jfUrl [kBaseUrl stringByAppendingString:@"user/PointList.php"]
 
 //68.修改性别
-#define kEdit_sexUrl @"http://139.196.172.208/qm/api/user/EditSex.php"
+#define kEdit_sexUrl [kBaseUrl stringByAppendingString:@"user/EditSex.php"]
 
 #import "MBProgressHUD+EBUsHUD.h"
 

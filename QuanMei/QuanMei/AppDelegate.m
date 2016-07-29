@@ -13,7 +13,6 @@
 #import "DDQLoginViewController.h"
 #import "DDQMineViewController.h"
 #import "WXApi.h"
-#import "WeiboSDK.h"
 #import <TencentOpenAPI/TencentOAuth.h>
 #import <TencentOpenAPI/TencentApiInterface.h>
 #import <AlipaySDK/AlipaySDK.h>
