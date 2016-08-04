@@ -2118,8 +2118,8 @@
 			isa = PBXGroup;
 			children = (
 				54EB705E1C1AD79E005BD9D3 /* search */,
-				546E14B11BC4F4370091AFC9 /* publicTableViewCell */,
 				54A6187D1BC360C800131719 /* DDQMainViewController.h */,
+				546E14B11BC4F4370091AFC9 /* publicTableViewCell */,
 				54A6187E1BC360C800131719 /* DDQMainViewController.m */,
 				B90E97531D1BB7260049A8F7 /* Main's Model */,
 				54EB70301C1A667E005BD9D3 /* DDQMessageViewController.h */,
@@ -3787,7 +3787,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PROVISIONING_PROFILE = "8079daf8-33f0-4729-950c-49b7f9ee3f2e";
+				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -3825,7 +3825,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PROVISIONING_PROFILE = "8079daf8-33f0-4729-950c-49b7f9ee3f2e";
+				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -3868,7 +3868,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.min.quanmei;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -3910,7 +3910,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.min.quanmei;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -3932,7 +3932,7 @@
 				INFOPLIST_FILE = QuanMeiTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuanMei.app/QuanMei";
 			};
 			name = Debug;
@@ -3950,7 +3950,7 @@
 				INFOPLIST_FILE = QuanMeiTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QuanMei.app/QuanMei";
 			};
 			name = Release;

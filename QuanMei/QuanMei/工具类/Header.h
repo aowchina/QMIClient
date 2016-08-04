@@ -9,7 +9,7 @@
 #ifndef QuanMei_Header_h
 #define QuanMei_Header_h
 
-#define kBaseUrl @"http://139.196.172.208/qm/api/"
+#define kBaseUrl @"http://quanmei.boyiyx.com/qm/api/"
 //#define kBaseUrl @"http://service.min-fo.com/quanmei/api/one/"
 
 //新URL：12.1

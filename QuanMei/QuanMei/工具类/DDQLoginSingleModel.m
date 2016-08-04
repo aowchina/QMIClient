@@ -15,6 +15,8 @@
     dispatch_once(&onceToken, ^{
         model = [[DDQLoginSingleModel alloc] init];
     });
+	
+	
     return model;
 }
 @end
