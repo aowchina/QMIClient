@@ -10,6 +10,9 @@
 
 @interface DDQBaseTabBarController : UITabBarController
 
-+ (instancetype)sharedController;
+//+ (instancetype)sharedController;
+@property (strong, nonatomic) UIView *mineView;
+
+- (UIView *)defaultMineView;
 
 @end

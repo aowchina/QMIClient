@@ -42,7 +42,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
    
     //设置根控制器
-    self.baseTabBarC = [DDQBaseTabBarController sharedController];
+    self.baseTabBarC = [[DDQBaseTabBarController alloc] init];
     [self.window setRootViewController:self.baseTabBarC];
     [self.window makeKeyAndVisible];
     self.window.backgroundColor = [UIColor whiteColor];
@@ -95,7 +95,7 @@
     
     //init方法
     [self checkUserState];
-    
+	
     //键盘遮挡解决办法
     IQKeyboardManager *keyboard_manager = [IQKeyboardManager sharedManager];
     keyboard_manager.enable = YES;
@@ -534,57 +534,57 @@
 #pragma mark - 调init方法
 -(void)checkUserState {
 
-    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]) {//当useid和cuserid不为空的时候调用
-        
-       // dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ //最好别在AppDelegate开子线程
-        
-            //调用init方法
-            NSString *spellString = [SpellParameters getBasePostString];
-            NSString *baseString = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
-            DDQPOSTEncryption *post_encryption = [[DDQPOSTEncryption alloc] init];
-            NSString *postString = [post_encryption stringWithPost:baseString];
-            NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kInitUrl];
-//            dispatch_async(dispatch_get_main_queue(), ^{
-        
-        if (postDic != nil) {
+	DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+
+    if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]) {//当useid不为空的时候调用
+		
+		//调用init方法
+		NSString *spellString = [SpellParameters getBasePostString];
+		NSString *baseString = [NSString stringWithFormat:@"%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]];
+		DDQPOSTEncryption *post_encryption = [[DDQPOSTEncryption alloc] init];
+		NSString *postString = [post_encryption stringWithPost:baseString];
+		NSMutableDictionary *postDic = [[PostData alloc] postData:postString AndUrl:kInitUrl];
+		
+        if (postDic) {
             
             NSString *errorcodeString = [postDic valueForKey:@"errorcode"];
             
             if ([errorcodeString intValue] == 0) {//请求成功后
                 
                 NSString *jsonString = [post_encryption stringWithDic:postDic];
-                SBJsonParser *jsonParser = [[SBJsonParser alloc] init];
-                NSMutableDictionary *jsonDic = [jsonParser objectWithString:jsonString];
-                
+				
+				NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+			    id json = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+				
                 //用单例类记录用户信息
-                DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-                
-                infoModel.isLogin        = YES;
-                infoModel.userimg        = [jsonDic valueForKey:@"userimg"];
-                infoModel.userid         = [jsonDic valueForKey:@"userid"];
+				
+                infoModel.isLogin = YES;
+                infoModel.userimg = [json valueForKey:@"userimg"];
+                infoModel.userid  = [json valueForKey:@"userid"];
 
-            } else if([errorcodeString intValue] == 12) { //请求失败
+            } else if([errorcodeString intValue] == 12) {//请求失败
                 
                 [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-                self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
-                
+				infoModel.isLogin = NO;
+
             }
 
         } else {
         
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-            self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
-            
+			infoModel.isLogin = NO;
+
         }
-        
-        //});
-        
-       // });
        
-    } else {
-    
-        self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[DDQLoginViewController new]];
-    }
+	} else {
+	
+		[[NSUserDefaults standardUserDefaults] setValue:@"0" forKey:@"userId"];
+		
+		infoModel.isLogin = NO;
+
+	}
+	
 }
+
 
 @end

@@ -184,6 +184,8 @@
 #define kSc_addUrl [kBaseUrl stringByAppendingString:@"user/AddSc.php"]
 //删除收藏
 #define kSc_delUrl [kBaseUrl stringByAppendingString:@"user/CancelSC.php"]
+//举报文章
+#define kReportArticleUrl [kBaseUrl stringByAppendingString:@"wenzhang/ReportWz.php"]
 
 //55.收藏列表
 #define kSc_listUrl [kBaseUrl stringByAppendingString:@"user/ScList.php"]

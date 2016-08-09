@@ -33,7 +33,7 @@
     [self layoutNavigationBar];
     [self layoutControllerView];
     
-    self.baseTabBarC = [DDQBaseTabBarController sharedController];
+    self.baseTabBarC = [[DDQBaseTabBarController alloc] init];
   
     self.view.backgroundColor = [UIColor myGrayColor];
     

@@ -154,7 +154,24 @@
             self.navigationItem.leftBarButtonItem = leftItem;
         }
         
-    }
+	} else {
+		
+		UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"登录" style:UIBarButtonItemStyleDone target:self action:@selector(pushToLoginViewController)];
+		//10-19
+		leftItem.tintColor        = [UIColor meiHongSe];
+		
+		self.navigationItem.leftBarButtonItem = leftItem;
+		
+	}
+}
+
+-(void)pushToLoginViewController {
+	
+	DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
+	loginVC.hidesBottomBarWhenPushed = YES;
+	
+	[self.navigationController pushViewController:loginVC animated:NO];
+	
 }
 
 #pragma mark - navigationBar item target aciton

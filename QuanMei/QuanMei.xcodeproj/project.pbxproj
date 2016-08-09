@@ -2119,8 +2119,8 @@
 			children = (
 				54EB705E1C1AD79E005BD9D3 /* search */,
 				54A6187D1BC360C800131719 /* DDQMainViewController.h */,
-				546E14B11BC4F4370091AFC9 /* publicTableViewCell */,
 				54A6187E1BC360C800131719 /* DDQMainViewController.m */,
+				546E14B11BC4F4370091AFC9 /* publicTableViewCell */,
 				B90E97531D1BB7260049A8F7 /* Main's Model */,
 				54EB70301C1A667E005BD9D3 /* DDQMessageViewController.h */,
 				54EB70311C1A667E005BD9D3 /* DDQMessageViewController.m */,

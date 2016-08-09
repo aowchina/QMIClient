@@ -21,6 +21,7 @@
 #import "DDQUserInfoModel.h"
 #import "DDQMineInfoModel.h"
 #import "DDQNewOrderListController.h"
+#import "DDQBaseTabBarController.h"
 #import "DDQMineTableViewCell.h"
 
 #import "MJExtension.h"
@@ -70,18 +71,20 @@
     
     [super viewWillAppear:YES];
     self.navigationController.navigationBar.translucent = NO;
-    [self requestDataOne];
+	[self requestDataOne];
+
+	
 
 }
 
--(void)viewDidDisappear:(BOOL)animated {
-
-    [super viewDidDisappear:YES];
-    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
-    infoModel.userimg = self.mineInfoModel.userimg;
-    infoModel.isLogin = 1;
-    
-}
+//-(void)viewDidDisappear:(BOOL)animated {
+//
+//    [super viewDidDisappear:YES];
+//    DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
+//    infoModel.userimg = self.mineInfoModel.userimg;
+//    infoModel.isLogin = YES;
+//    
+//}
 
 //11-30-15
 - (void)viewDidLoad {
@@ -93,7 +96,20 @@
     self.netWork = [ProjectNetWork sharedWork];
     
     self.backgroundImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, self.view.bounds.size.height*0.35)];
-    
+	
+//	if (![[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] || [[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] intValue] == 0) {
+//		
+//		DDQLoginViewController *login = [[DDQLoginViewController alloc] init];
+//		login.hidesBottomBarWhenPushed = YES;
+//		
+//		[self.navigationController pushViewController:login animated:YES];
+//		
+//	} else {
+//		
+//		[self requestDataOne];
+//		
+//	}
+	
 }
 
 -(void)setNavigationBar {
@@ -162,7 +178,7 @@
 - (void)requestData {
     
     [self.hud show:YES];
-    
+	
     [self.netWork asyPOSTWithAFN_url:kGetOut_Url andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] andSuccess:^(id responseObjc, NSError *code_error) {
         
         if (!code_error) {
@@ -177,9 +193,12 @@
             userInfo.isLogin = NO;
             
             //最后退回到首页
-            DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
-            [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:loginVC];
-            
+//            DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
+//            [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:loginVC];
+			self.tabBarController.selectedIndex = 0;
+			DDQBaseTabBarController *baseBarC = (DDQBaseTabBarController *)self.tabBarController;
+			[baseBarC.tabBar addSubview:[baseBarC defaultMineView]];
+			
         } else {
         
             [self.hud hide:YES];
@@ -658,9 +677,7 @@ static NSString *uuidKey = @"ModelCenter uuid key";
         [[NSFileManager defaultManager] createDirectoryAtPath:imageTmpPath withIntermediateDirectories:YES attributes:nil error:nil];
         
     }
-    
-    NSLog(@"%@",imageTmpPath);
-    
+	
 }
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
@@ -678,44 +695,46 @@ static NSString *uuidKey = @"ModelCenter uuid key";
 - (void)requestDataOne {
     
     [self.hud show:YES];
-    
-    [self.netWork asyPOSTWithAFN_url:kMyCenterMain andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] andSuccess:^(id responseObjc, NSError *code_error) {
-        
-        if (!code_error) {
-            
-            [self.hud hide:YES];
-            
-            DDQMineInfoModel *tempModel = [DDQMineInfoModel mj_objectWithKeyValues:responseObjc];
-            self.mineInfoModel = tempModel;
-            
-            //设置头
-            self.mainTabelView.tableHeaderView = [self setHeaderView];
-            
-        } else {
-        
-            [self.hud hide:YES];
-            
-            NSInteger code = code_error.code;
-            
-            if (code == 13) {
-                
-                [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[DDQLoginViewController alloc] init]];
-                
-            } else {
-            
-                [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-                
-            }
-            
-        }
-        
-    } andFailure:^(NSError *error) {
-        
-        [self.hud hide:YES];
-        [MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
-
-    }];
-    
+	
+	
+		[self.netWork asyPOSTWithAFN_url:kMyCenterMain andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] andSuccess:^(id responseObjc, NSError *code_error) {
+			
+			if (!code_error) {
+				
+				[self.hud hide:YES];
+				
+				DDQMineInfoModel *tempModel = [DDQMineInfoModel mj_objectWithKeyValues:responseObjc];
+				self.mineInfoModel = tempModel;
+				
+				//设置头
+				self.mainTabelView.tableHeaderView = [self setHeaderView];
+				
+			} else {
+				
+				[self.hud hide:YES];
+				
+				NSInteger code = code_error.code;
+				
+				if (code == 13) {
+					
+					[UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[DDQLoginViewController alloc] init]];
+					
+				} else {
+					
+					[MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+					
+				}
+				
+			}
+			
+		} andFailure:^(NSError *error) {
+			
+			[self.hud hide:YES];
+			[MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+			
+		}];
+	
+	
 }
 
 #pragma mark - lazy load

@@ -96,14 +96,19 @@ typedef void(^popToMainViewController)();
     self.spellString = [SpellParameters getBasePostString];//八段字符串
     DDQResetViewController *resetVC = [DDQResetViewController new];
     resetVC.delegate = self;
-    self.baseTabBarC = [DDQBaseTabBarController sharedController];
+    self.baseTabBarC = [[DDQBaseTabBarController alloc] init];
     
     self.netWork = [ProjectNetWork sharedWork];
     
     self.hud = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:self.hud];
     self.hud.detailsLabelText = @"请稍等...";
-    
+	
+	//设置左按钮
+	UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"img_return"] style:UIBarButtonItemStyleDone target:self action:@selector(goBackMethod)];
+	
+	self.navigationItem.leftBarButtonItem = leftItem;
+	
 }
 
 -(void)resetVCNotificationMethod {
@@ -137,8 +142,11 @@ typedef void(^popToMainViewController)();
     [self.navigationController pushViewController:firstRVC animated:YES];
 }
 
--(void)goBackMianViewController {
+-(void)goBackMethod {
+		
     [self.navigationController popViewControllerAnimated:NO];
+	
+	
 }
 
 #pragma mark - layout Controller View
@@ -414,9 +422,12 @@ typedef void(^popToMainViewController)();
                 infoModel.userimg         = [dic valueForKey:@"userimg"];
                 [[NSUserDefaults standardUserDefaults] setValue:[dic valueForKey:@"userid"] forKey:@"userId"];
                 infoModel.isLogin           = YES;
-                self.baseTabBarC.selectedIndex = 0;
-                [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
-                
+//                self.baseTabBarC.selectedIndex = 0;
+//                [UIApplication sharedApplication].keyWindow.rootViewController = self.baseTabBarC;
+				[self.navigationController popViewControllerAnimated:YES];
+				DDQBaseTabBarController *tabBar = (DDQBaseTabBarController *)self.tabBarController;
+				[tabBar.mineView removeFromSuperview];
+				
             }
             
         } andFailure:^(NSError *error) {
@@ -495,7 +506,7 @@ typedef void(^popToMainViewController)();
                 NSString *userImage = [dic valueForKey:@"figureurl_qq_1"];
                 DDQUserInfoModel *infoModel = [DDQUserInfoModel singleModelByValue];
                 infoModel.userimg = userImage;
-                infoModel.isLogin = 1;
+                infoModel.isLogin = YES;
                 
                 NSString *string = [SpellParameters getBasePostString];//八段字符串
                 //转换过后的昵称

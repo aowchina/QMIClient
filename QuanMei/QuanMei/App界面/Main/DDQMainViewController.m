@@ -116,7 +116,6 @@
 
 @implementation DDQMainViewController
 
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -148,7 +147,7 @@
     [self.view addSubview:self.hud];
     self.hud.labelText = @"加载中...";
 
-    [self qiandao];//签到
+//    [self qiandao];//签到
     [self asyProductList];//请求页面数据
     
     //这是注册了通知，检测网络变化
@@ -225,6 +224,7 @@
     }];
     
 }
+
 /** 以下两个方法是签到view的代理 */
 - (void)qiandao_view:(DDQQiandaoView *)view  {
     
@@ -429,7 +429,6 @@
 
 }
 
-
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     
     [self.view endEditing:YES];
@@ -444,7 +443,6 @@
     //首页必须设置image，tintColor和textAttribute
     [self.navigationController.navigationBar setTintColor:[UIColor whiteColor]];
     self.navigationController.navigationBar.titleTextAttributes = @{NSForegroundColorAttributeName:[UIColor whiteColor]};
-    
     [self layoutNavigationBar];
     
 }
@@ -1011,9 +1009,10 @@ static NSString *identifier3 = @"hot";
         
         UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithTitle:@"登录" style:UIBarButtonItemStyleDone target:self action:@selector(pushToLoginViewController)];
         //10-19
-        leftItem.tintColor        = [UIColor whiteColor];
+        leftItem.tintColor        = [UIColor meiHongSe];
         
         self.navigationItem.leftBarButtonItem = leftItem;
+		
     }
     
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 30, 28)];
@@ -1281,11 +1280,12 @@ static NSString *identifier3 = @"hot";
 #pragma mark - 控制器的跳转方法
 /** 显示登陆页 */
 -(void)pushToLoginViewController {
-    
-    //个人中心
-    DDQLoginViewController *loginVC  = [[DDQLoginViewController alloc] init];
-    [[UIApplication sharedApplication].keyWindow setRootViewController:[[UINavigationController alloc] initWithRootViewController:loginVC]];
-    
+	
+	DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
+	loginVC.hidesBottomBarWhenPushed = YES;
+	
+	[self.navigationController pushViewController:loginVC animated:NO];
+	
 }
 
 /** 跳转到整容宝 */

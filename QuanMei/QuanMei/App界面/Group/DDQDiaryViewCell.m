@@ -118,7 +118,14 @@
                 for (int i = 0; i< articleModel.imgArray.count; i++) {
                     _user_img = [[UIImageView alloc] init];
                     _user_img.frame = CGRectMake(img_width*i, img_y, img_width, img_height);
-                    if (articleModel.imgArray.count != 0 ) {
+					
+					//图片的显示类型
+					_user_img.contentMode = UIViewContentModeScaleAspectFill;
+					
+					//切除多余部分
+					_user_img.clipsToBounds =YES;
+					
+					if (articleModel.imgArray.count != 0 ) {
                         //i不能比图片数组的个数多
                         [_user_img sd_setImageWithURL:[NSURL URLWithString:[articleModel.imgArray objectAtIndex:i]] placeholderImage:[UIImage imageNamed:@"default_pic"]];
                     } else {
@@ -381,6 +388,9 @@
                 for (int i = 0; i< articleModel.imgArray.count; i++) {
                     _user_img = [[UIImageView alloc] init];
                     _user_img.frame = CGRectMake(img_width*i, img_y, img_width, img_height);
+					_user_img.contentMode = UIViewContentModeScaleAspectFill;
+					_user_img.clipsToBounds =YES;
+
                     if (articleModel.imgArray.count != 0 ) {
                         //i不能比图片数组的个数多
                         [_user_img sd_setImageWithURL:[NSURL URLWithString:[articleModel.imgArray objectAtIndex:i]] placeholderImage:[UIImage imageNamed:@"default_pic"]];
@@ -619,6 +629,9 @@
                 CGFloat img_y = kScreenHeight * 0.5 * 0.2;
                 for (int i = 0; i< articleModel.imgArray.count; i++) {
                     _user_img = [[UIImageView alloc] init];
+				
+					_user_img.contentMode = UIViewContentModeScaleAspectFill;
+					_user_img.clipsToBounds =YES;
                     _user_img.frame = CGRectMake(img_width*i, img_y, img_width, img_height);
                     if (articleModel.imgArray.count != 0 ) {
                         //i不能比图片数组的个数多
@@ -867,6 +880,9 @@
                 CGFloat img_y = kScreenHeight * 0.5 * 0.2;
                 for (int i = 0; i< articleModel.imgArray.count; i++) {
                     _user_img = [[UIImageView alloc] init];
+					_user_img.contentMode = UIViewContentModeScaleAspectFill;
+					_user_img.clipsToBounds =YES;
+
                     _user_img.frame = CGRectMake(img_width*i, img_y, img_width, img_height);
                     if (articleModel.imgArray.count != 0 ) {
                         //i不能比图片数组的个数多
