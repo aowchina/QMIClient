@@ -10,6 +10,7 @@
 #define QuanMei_Header_h
 
 #define kBaseUrl @"http://quanmei.boyiyx.com/qm/api/"
+#define BaseUrl @"http://quanmei.boyiyx.com/"
 //#define kBaseUrl @"http://service.min-fo.com/quanmei/api/one/"
 
 //新URL：12.1
@@ -228,6 +229,9 @@
 
 //68.修改性别
 #define kEdit_sexUrl [kBaseUrl stringByAppendingString:@"user/EditSex.php"]
+
+#define KUser_policy [BaseUrl stringByAppendingString:@"quanmei/upload/user_policy.html"]
+#define KUser_security [BaseUrl stringByAppendingString:@"quanmei/upload/user_security.html"]
 
 #import "MBProgressHUD+EBUsHUD.h"
 

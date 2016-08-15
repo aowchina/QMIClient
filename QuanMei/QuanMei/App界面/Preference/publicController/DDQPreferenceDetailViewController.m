@@ -458,7 +458,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
 
 - (void)activityDetailBaseCell:(SLActivityDetailBaseCell *)cell didSelectedID:(NSString *)priceID {
     
-    [self alipaySignForPre];
+    [self addDJ];
     
 }
 
@@ -537,9 +537,20 @@ NS_INLINE NSArray *SLGetCellCongfig() {
 }
 
 -(void)addDJ {
-    
-    [self alipaySignForPre];
-    
+	
+	
+	NSLog(@"adddj");
+	if([[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] && [[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] intValue] > 0){
+		
+		[self alipaySignForPre];
+	}else{
+		
+		DDQLoginViewController *loginC = [[DDQLoginViewController alloc] init];
+		loginC.hidesBottomBarWhenPushed = YES;
+		
+		[self.navigationController pushViewController:loginC animated:YES];
+	}
+	
 }
 
 /** 这里是为了判断他有没有绑定手机 */

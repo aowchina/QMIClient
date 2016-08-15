@@ -10,6 +10,7 @@
 #import "DDQFirstRegisterViewController.h"
 #import "AppDelegate.h"
 #import "DDQBackPasswordViewController.h"
+#import "DDQUserPolicyController.h"
 #import "DDQResetViewController.h"
 #import "DDQBaseTabBarController.h"
 
@@ -352,18 +353,78 @@ typedef void(^popToMainViewController)();
 		
 	}];
 	
-	NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:@"“登录/注册” 表示您同意全美用户许可协议 & 隐私条款" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:9.0]}];
-	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor], NSFontAttributeName:[UIFont systemFontOfSize:9.0]} range:NSMakeRange(0, 13)];
+	tipLable.userInteractionEnabled = YES;
+	NSString *tipStr = @"“登录/注册” 表示您同意全美用户许可协议 & 隐私条款";
+	UIFont *strFont = [UIFont systemFontOfSize:9.0];
 	
-	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor meiHongSe], NSFontAttributeName:[UIFont systemFontOfSize:9.0], NSUnderlineStyleAttributeName:@(1)} range:NSMakeRange(13, 9)];
+	NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:tipStr attributes:@{NSFontAttributeName:strFont}];
 	
-	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor], NSFontAttributeName:[UIFont systemFontOfSize:9.0]} range:NSMakeRange(21, 3)];
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor], NSFontAttributeName:strFont} range:NSMakeRange(0, 13)];
 	
-	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor meiHongSe], NSFontAttributeName:[UIFont systemFontOfSize:9.0], NSUnderlineStyleAttributeName:@(1)} range:NSMakeRange(24, 4)];
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor meiHongSe], NSFontAttributeName:strFont, NSUnderlineStyleAttributeName:@(1)} range:NSMakeRange(13, 8)];
+	
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor], NSFontAttributeName:strFont} range:NSMakeRange(21, 3)];
+	
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor meiHongSe], NSFontAttributeName:strFont, NSUnderlineStyleAttributeName:@(1)} range:NSMakeRange(24, 4)];
+	
 	tipLable.attributedText = attrStr;
-   
+	
+	CGSize sizeOne = [[tipStr substringWithRange:NSMakeRange(0, 13)] sizeWithAttributes:@{NSFontAttributeName:strFont}];
+	
+	CGSize sizeTwo = [[tipStr substringWithRange:NSMakeRange(13, 8)] sizeWithAttributes:@{NSFontAttributeName:strFont}];
+	
+	CGSize sizeThree = [[tipStr substringWithRange:NSMakeRange(24, 4)] sizeWithAttributes:@{NSFontAttributeName:strFont}];
+	
+	UIView *viewOne = [[UIView alloc] init];
+	[tipLable addSubview:viewOne];
+	[viewOne mas_makeConstraints:^(MASConstraintMaker *make) {
+		
+		make.left.equalTo(tipLable.mas_left).offset(sizeOne.width);
+		make.height.equalTo(tipLable.mas_height).offset(sizeOne.height);
+		make.width.mas_equalTo(sizeTwo.width);
+		make.top.equalTo(tipLable.mas_top);
+		
+	}];
+	
+	UITapGestureRecognizer *tapOne = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapPolicyMethod)];
+	[viewOne addGestureRecognizer:tapOne];
+	
+	UIView *viewTwo = [[UIView alloc] init];
+	[tipLable addSubview:viewTwo];
+	[viewTwo mas_makeConstraints:^(MASConstraintMaker *make) {
+		
+		make.right.equalTo(tipLable.mas_right);
+		make.height.equalTo(tipLable.mas_height).offset(sizeThree.height);
+		make.width.mas_equalTo(sizeThree.width);
+		make.top.equalTo(tipLable.mas_top);
+		
+	}];
+	
+	UITapGestureRecognizer *tapTwo = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapSecurityMethod)];
+	[viewTwo addGestureRecognizer:tapTwo];
+	
+}
+/** 点击事件 */
+- (void)tapPolicyMethod {
+	
+	NSLog(@"全美用户许可协议");
+	DDQUserPolicyController *userPolicy = [[DDQUserPolicyController alloc] init];
+	userPolicy.category_tag = 0;
+	userPolicy.category_url = KUser_policy;
+	[self.navigationController pushViewController:userPolicy animated:YES];
+	
+	
 }
 
+- (void)tapSecurityMethod {
+	
+	NSLog(@"隐私条款");
+	DDQUserPolicyController *userPolicy = [[DDQUserPolicyController alloc] init];
+	userPolicy.category_tag = 1;
+	userPolicy.category_url = KUser_security;
+	[self.navigationController pushViewController:userPolicy animated:YES];
+	
+}
 #pragma mark - button target action
 
 -(void)findPasswordMethod {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04AD40F91D619CD9000A62AD /* DDQUserPolicyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 04AD40F81D619CD9000A62AD /* DDQUserPolicyController.m */; };
 		540204D01BBA6F0600EEB807 /* CheckNetWork.m in Sources */ = {isa = PBXBuildFile; fileRef = 540204C91BBA6F0600EEB807 /* CheckNetWork.m */; };
 		540204D11BBA6F0600EEB807 /* NSString+MD5Addition.m in Sources */ = {isa = PBXBuildFile; fileRef = 540204CB1BBA6F0600EEB807 /* NSString+MD5Addition.m */; };
 		540204D21BBA6F0600EEB807 /* PostData.m in Sources */ = {isa = PBXBuildFile; fileRef = 540204CD1BBA6F0600EEB807 /* PostData.m */; };
@@ -425,6 +426,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04AD40F71D619CD9000A62AD /* DDQUserPolicyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDQUserPolicyController.h; sourceTree = "<group>"; };
+		04AD40F81D619CD9000A62AD /* DDQUserPolicyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDQUserPolicyController.m; sourceTree = "<group>"; };
 		540204C81BBA6F0600EEB807 /* CheckNetWork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CheckNetWork.h; sourceTree = "<group>"; };
 		540204C91BBA6F0600EEB807 /* CheckNetWork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CheckNetWork.m; sourceTree = "<group>"; };
 		540204CA1BBA6F0600EEB807 /* NSString+MD5Addition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+MD5Addition.h"; sourceTree = "<group>"; };
@@ -2155,6 +2158,8 @@
 				54A618881BC36A2400131719 /* DDQLoginViewController.m */,
 				541BF6D61C1584B900F7D362 /* GetBack */,
 				54A6188A1BC374BE00131719 /* Register */,
+				04AD40F71D619CD9000A62AD /* DDQUserPolicyController.h */,
+				04AD40F81D619CD9000A62AD /* DDQUserPolicyController.m */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -3448,6 +3453,7 @@
 				54037ACF1C54C1EA00899228 /* DDQMyLessonCell.m in Sources */,
 				54089F851C2024DD00084A65 /* SLActivityDetailBaseCell.m in Sources */,
 				5495DC901BC648F500DCD0A4 /* MKAnnotationView+WebCache.m in Sources */,
+				04AD40F91D619CD9000A62AD /* DDQUserPolicyController.m in Sources */,
 				B9C78CF01CE6FDF1001028D5 /* NSString+MJExtension.m in Sources */,
 				B909C0061CCF3F5200C389BA /* DDQEvaluateController.m in Sources */,
 				B9425A291CCDF5A000FDC1CA /* DDQPayController.m in Sources */,
@@ -3868,7 +3874,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.min.quanmei;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -3910,7 +3916,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.min.quanmei;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "f803a3dd-8348-4a26-be64-e5f48e19e7ea";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
