@@ -21,6 +21,7 @@ typedef void(^SecondCommentBlock)();
 -(void)secondCommentCellPushToReplyVCWithSonModel:(DDQSonModel *)sonModel;
 -(void)secondCommentReplyViewPushToReplyVCWithSonModel:(DDQReplyModel *)replyModel;
 -(void)secondCommentShowMoreLabelWithReplyModel:(DDQReplyModel *)replyModel;
+- (void)secondCommentCellThumbClickWithView:(UIImageView *)imageView Model:(DDQReplyModel *)model;
 
 @end
 

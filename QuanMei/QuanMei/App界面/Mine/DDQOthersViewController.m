@@ -616,14 +616,14 @@ static NSString *identifier = @"cell";
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     DDQUserCommentViewController *userCommentVC = [[DDQUserCommentViewController alloc] init];
-    DDQHeaderSingleModel *headerSingle = [DDQHeaderSingleModel singleModelByValue];
     if (indexPath.section == 1) {
         
         DDQGroupArticleModel *groupArticle;
         if (self.personalDiary_array.count != 0) {
             groupArticle = self.personalDiary_array[indexPath.row];
         }
-        headerSingle.ctime = groupArticle.ctime;
+        userCommentVC.ctime = groupArticle.ctime;
+		userCommentVC.articleId = groupArticle.articleId;
         [self.navigationController pushViewController:userCommentVC animated:YES];
         
     } else {
@@ -632,7 +632,8 @@ static NSString *identifier = @"cell";
         if (self.personalComment_array.count != 0) {
             groupArticle = self.personalComment_array[indexPath.row];
         }
-        headerSingle.ctime = groupArticle.ctime;
+        userCommentVC.ctime = groupArticle.ctime;
+		userCommentVC.articleId = groupArticle.articleId;
         [self.navigationController pushViewController:userCommentVC animated:YES];
     }
 }

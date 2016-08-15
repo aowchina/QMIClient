@@ -15,14 +15,14 @@
 
 
 @implementation SpellParameters
-+(NSString*)uuid{
-    CFUUIDRef   puuid = CFUUIDCreate( nil );
-    CFStringRef   uuidString = CFUUIDCreateString( nil, puuid );
-    NSString   * userID = (NSString *)CFBridgingRelease(CFStringCreateCopy( NULL, uuidString));
-    CFRelease(puuid);
-    CFRelease(uuidString);
-    return userID;
-}
+//+(NSString*)uuid{
+//    CFUUIDRef   puuid = CFUUIDCreate( nil );
+//    CFStringRef   uuidString = CFUUIDCreateString( nil, puuid );
+//    NSString   * userID = (NSString *)CFBridgingRelease(CFStringCreateCopy( NULL, uuidString));
+//    CFRelease(puuid);
+//    CFRelease(uuidString);
+//    return userID;
+//}
 
 //参数拼接
 + (NSString *) getBasePostString
@@ -30,7 +30,7 @@
     NSString *appid = @"7000000004";
     NSString *basePostString = [appid stringByAppendingString:@"*"];
     
-    NSString *macaddress = [self macaddress];
+    NSString *macaddress = [SpellParameters uuid];
     NSString *uniqueIdentifier = [macaddress stringFromMD5];
     basePostString = [basePostString stringByAppendingString:uniqueIdentifier];
     basePostString = [basePostString stringByAppendingString:@"*"];
@@ -60,10 +60,27 @@
     return basePostString;
     
 }
+
+//获取设备的UDID，唯一标识符给服务器
+static NSString *uuidKey = @"ModelCenter uuid key";
++ (NSString*)uuid {
+	NSString *string = [UICKeyChainStore stringForKey:uuidKey];
+	if (string) {
+		
+	}else{
+		UIDevice *currentDevice = [UIDevice currentDevice];
+		NSUUID* identifierForVendor = currentDevice.identifierForVendor;
+		string = [identifierForVendor UUIDString];
+		[UICKeyChainStore setString:string forKey:uuidKey];
+	}
+	return string;
+}
+
+
 //取设备的MAC地址
 + (NSString *) macaddress
 {
-    
+	
     int mib[2];
     size_t len;
     char *machine;

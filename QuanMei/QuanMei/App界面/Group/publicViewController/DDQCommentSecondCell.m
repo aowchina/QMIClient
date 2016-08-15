@@ -349,89 +349,95 @@ static NSString *identifier = @"cell";
 -(void)changeImage:(UITapGestureRecognizer *)tap {
     
     UIView *tap_view = [tap view];
-    
-    if ([self.replyModel.status intValue] == 0) {
-        /**
-         *  选出是imageView的子视图
-         */
-        for (UIView *sub_view in [tap_view subviews]) {
-            
-            if ([sub_view isKindOfClass:[UIImageView class]]) {
-                
-                UIImageView *image = (UIImageView *)sub_view;
-                image.image = [UIImage imageNamed:@"is_praised_item"];
-                [self.temp_array removeAllObjects];
-                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-                     //拿出userid
-                     //拿出评论类型
-                     //拿出点赞目标的id
-                     NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",[SpellParameters getBasePostString],[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
-                     
-                     DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                     NSString *post_string             = [postEncryption stringWithPost:post_baseString];
-                     
-                     NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kAddZan];
-                     NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
-                     
-                     dispatch_async(dispatch_get_main_queue(), ^{
-                         
-                         if ([errorcode_string intValue] == 0) {
-                             
-                             self.replyModel.status = @"1";
-                         } else {
-                             
-                             
-                         }
-                     });
-                     
-                 });
-                
-                
-            } else {
-                return;
-            }
-        }
-        
-    } else {
-        /**
-         *  选出是imageView的子视图
-         */
-        for (UIView *sub_view in [tap_view subviews]) {
-            
-            if ([sub_view isKindOfClass:[UIImageView class]]) {
-                
-                UIImageView *image = (UIImageView *)sub_view;
-                image.image = [UIImage imageNamed:@"praise"];
-                [self.temp_array addObject:@"1"];
-
-                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
-                    //拿出userid
-                    //拿出评论类型
-                    //拿出点赞目标的id
-                    NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",[SpellParameters getBasePostString],[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
-                    
-                    DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
-                    NSString *post_string             = [postEncryption stringWithPost:post_baseString];
-                    
-                    NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kDelZan];
-                    NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        
-                        if ([errorcode_string intValue] == 0) {
-                            
-                            self.replyModel.status = @"0";
-                        } else {
-                            
-                        }
-                    });
-                    
-                });
-            } else {
-                return;
-            }
-        }
-    }
+	
+	if (self.delegate && [self.delegate respondsToSelector:@selector(secondCommentCellThumbClickWithView:Model:)]) {
+		
+		[self.delegate secondCommentCellThumbClickWithView:(UIImageView *)tap_view Model:self.replyModel];
+		
+	}
+//
+//    if ([self.replyModel.status intValue] == 0) {
+//        /**
+//         *  选出是imageView的子视图
+//         */
+//        for (UIView *sub_view in [tap_view subviews]) {
+//            
+//            if ([sub_view isKindOfClass:[UIImageView class]]) {
+//                
+//                UIImageView *image = (UIImageView *)sub_view;
+//                image.image = [UIImage imageNamed:@"is_praised_item"];
+//                [self.temp_array removeAllObjects];
+//                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
+//                     //拿出userid
+//                     //拿出评论类型
+//                     //拿出点赞目标的id
+//                     NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",[SpellParameters getBasePostString],[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
+//                     
+//                     DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+//                     NSString *post_string             = [postEncryption stringWithPost:post_baseString];
+//                     
+//                     NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kAddZan];
+//                     NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
+//                     
+//                     dispatch_async(dispatch_get_main_queue(), ^{
+//                         
+//                         if ([errorcode_string intValue] == 0) {
+//                             
+//                             self.replyModel.status = @"1";
+//                         } else {
+//                             
+//                             
+//                         }
+//                     });
+//                     
+//                 });
+//                
+//                
+//            } else {
+//                return;
+//            }
+//        }
+//        
+//    } else {
+//        /**
+//         *  选出是imageView的子视图
+//         */
+//        for (UIView *sub_view in [tap_view subviews]) {
+//            
+//            if ([sub_view isKindOfClass:[UIImageView class]]) {
+//                
+//                UIImageView *image = (UIImageView *)sub_view;
+//                image.image = [UIImage imageNamed:@"praise"];
+//                [self.temp_array addObject:@"1"];
+//
+//                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) , ^{
+//                    //拿出userid
+//                    //拿出评论类型
+//                    //拿出点赞目标的id
+//                    NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",[SpellParameters getBasePostString],[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
+//                    
+//                    DDQPOSTEncryption *postEncryption = [[DDQPOSTEncryption alloc] init];
+//                    NSString *post_string             = [postEncryption stringWithPost:post_baseString];
+//                    
+//                    NSMutableDictionary *post_dic     = [[PostData alloc] postData:post_string AndUrl:kDelZan];
+//                    NSString *errorcode_string        = [post_dic valueForKey:@"errorcode"];
+//                    
+//                    dispatch_async(dispatch_get_main_queue(), ^{
+//                        
+//                        if ([errorcode_string intValue] == 0) {
+//                            
+//                            self.replyModel.status = @"0";
+//                        } else {
+//                            
+//                        }
+//                    });
+//                    
+//                });
+//            } else {
+//                return;
+//            }
+//        }
+//    }
 }
 
 -(void)clickLabelTarget:(UITapGestureRecognizer *)tap {

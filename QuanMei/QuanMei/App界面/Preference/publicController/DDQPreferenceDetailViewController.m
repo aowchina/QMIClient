@@ -121,6 +121,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
     
     //网络请求
     self.netWork = [ProjectNetWork sharedWork];
+//	[self buildTableView];
     [self asyPreference];
     
 }
@@ -496,7 +497,7 @@ NS_INLINE NSArray *SLGetCellCongfig() {
             self.dj_string = self.dataSource.dj;
             
             [self buildTableView];
-            
+			
             [_yuyueButton setTitle:[NSString stringWithFormat:@"预约(定金%@元)",self.dataSource.dj]  forState:(UIControlStateNormal)];
             
             [self.hud hide:YES];

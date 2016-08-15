@@ -10,7 +10,7 @@
 #import "DDQReplayViewController.h"
 #import "DDQReplyModel.h"
 #import "DDQSonModel.h"
-
+#import "ProjectNetWork.h"
 #import "DDQCommentSecondCell.h"
 @interface DDQMoreCommentViewController ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -21,7 +21,7 @@
 @property (strong,nonatomic) NSMutableArray *parent_array;
 @property (strong,nonatomic) NSMutableArray *child_array;
 
-
+@property (strong, nonatomic) ProjectNetWork *netWork;
 
 @property (strong,nonatomic) DDQReplyModel *replyModel;
 
@@ -58,6 +58,7 @@
     }];
    
     //2
+	self.netWork = [ProjectNetWork sharedWork];
 }
 
 -(void)initTableView {
@@ -299,120 +300,227 @@
 
 -(void)replyClickMethod:(UITapGestureRecognizer *)tap {
 
-    DDQReplayViewController *replayVC = [[DDQReplayViewController alloc] init];
-    replayVC.wenzhangId  = self.wid;
-    replayVC.beiPLUserId = _replyModel.userid;
-    replayVC.fathPLId    = _replyModel.iD;
-    [self.navigationController pushViewController:replayVC animated:YES];
+	if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] && [[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] intValue] > 0) {
+		
+		DDQReplayViewController *replayVC = [[DDQReplayViewController alloc] init];
+		replayVC.wenzhangId  = self.wid;
+		replayVC.beiPLUserId = _replyModel.userid;
+		replayVC.fathPLId    = _replyModel.iD;
+		[self.navigationController pushViewController:replayVC animated:YES];
+		
+	} else {
+	
+		DDQLoginViewController *loginC = [[DDQLoginViewController alloc] init];
+		loginC.hidesBottomBarWhenPushed = YES;
+		
+		[self.navigationController pushViewController:loginC animated:YES];
+	}
+	
+	
 }
 
 
 -(void)changeImage:(UITapGestureRecognizer *)tap {
 
-    if ([self.replyModel.status intValue] == 0) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            //调用点赞接口
-            //八段
-            NSString *spellString = [SpellParameters getBasePostString];
-            
-            //拼参数
-            NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
-            
-            //加密
-            DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-            NSString *post_encryption = [post stringWithPost:post_baseString];
-            
-            //传
-            NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kAddZan];
-            
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                //判断errorcode
-                NSString *errorcode = post_dic[@"errorcode"];
-                int num = [errorcode intValue];
-                if (num == 0) {
-                    
-                    UIView *tap_view = [tap view];
-                    for (UIView *view in tap_view.subviews) {
-                        
-                        if ([view isKindOfClass:[UIImageView class]]) {
-                            
-                            [(UIImageView *)view setImage:[UIImage imageNamed:@"is_praised_item"]];
-                        }
-                    }
-                    [self alertController:@"点赞成功"];
-                    self.replyModel.status = @"1";
-                    
-                } else if (num == 14) {
-                    
-                    [self alertController:@"您还未登录，无法评价"];
-                    
-                } else if (num == 16) {
-                    
-                    [self alertController:@"您已经赞过了！"];
-                    
-                } else {
-                    
-                    [self alertController:@"系统繁忙"];
-                }
-            });
-        });
-    } else {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            //调用点赞接口
-            //八段
-            NSString *spellString = [SpellParameters getBasePostString];
-            
-            //拼参数
-            NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
-            
-            //加密
-            DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
-            NSString *post_encryption = [post stringWithPost:post_baseString];
-            
-            //传
-            NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kDelZan];
-            
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                
-                
-                //判断errorcode
-                NSString *errorcode = post_dic[@"errorcode"];
-                int num = [errorcode intValue];
-                if (num == 0) {
-                    
-                    UIView *tap_view = [tap view];
-                    for (UIView *view in tap_view.subviews) {
-                        
-                        if ([view isKindOfClass:[UIImageView class]]) {
-                            
-                            [(UIImageView *)view setImage:[UIImage imageNamed:@"praise"]];
-                        }
-                    }
-                    [self alertController:@"取消点赞"];
-                    
-                    self.replyModel.status = @"0";
-                } else if (num == 14) {
-                    
-                    [self alertController:@"您还未登录，无法评价"];
-                    
-                } else if (num == 16) {
-                    
-                    [self alertController:@"文章/评论不存在或已被删除"];
-                    
-                } else {
-                    
-                    [self alertController:@"系统繁忙"];
-                }
-            });
-        });
-        
-        
-    }
+	UIImageView *imageView = (UIImageView *)[tap view];
+	if ([self.replyModel.status intValue] == 0) {
+		
+		[self.netWork asyPOSTWithAFN_url:kAddZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"2", self.replyModel.iD] andSuccess:^(id responseObjc, NSError *code_error) {
+			
+			if (!code_error) {
+				
+				imageView.image = [UIImage imageNamed:@"is_praised_item"];
+				self.replyModel.status = @"1";
+				[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"点赞成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
+				
+			} else {
+				
+				NSInteger code = code_error.code;
+				if (code == 10 || code == 14) {
+					
+					DDQLoginViewController *loginC = [[DDQLoginViewController alloc] init];
+					loginC.hidesBottomBarWhenPushed = YES;
+					
+					[self.navigationController pushViewController:loginC animated:YES];
+					
+				} else if (code == 15 || code == 16){
+					
+					if (code == 15) {
+						
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"该评论不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
+						
+					} else {
+						
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"你已赞过该评论" andShowDim:NO andSetDelay:YES andCustomView:nil];
+						
+					}
+					
+				} else {
+					
+					[MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+					
+				}
+				
+			}
+			
+		} andFailure:^(NSError *error) {
+			
+			[MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+			
+		}];
+		
+		
+	} else {
+		
+		[self.netWork asyPOSTWithAFN_url:kDelZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"2", self.replyModel.iD] andSuccess:^(id responseObjc, NSError *code_error) {
+			
+			if (!code_error) {
+				
+				imageView.image = [UIImage imageNamed:@"praise"];
+				self.replyModel.status = @"0";
+				[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"取消点赞" andShowDim:NO andSetDelay:YES andCustomView:nil];
+				
+			} else {
+				
+				NSInteger code = code_error.code;
+				if (code == 10 || code == 14) {
+					
+					DDQLoginViewController *loginC = [[DDQLoginViewController alloc] init];
+					loginC.hidesBottomBarWhenPushed = YES;
+					
+					[self.navigationController pushViewController:loginC animated:YES];
+					
+				} else if (code == 15 || code == 16){
+					
+					if (code == 15) {
+						
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"该评论不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
+						
+					} else {
+						
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"你已赞过该评论" andShowDim:NO andSetDelay:YES andCustomView:nil];
+						
+					}
+					
+				} else {
+					
+					[MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+					
+				}
+				
+			}
+			
+		} andFailure:^(NSError *error) {
+			
+			[MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+			
+		}];
+		
+	}
+
+	
+//    if ([self.replyModel.status intValue] == 0) {
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//            
+//            //调用点赞接口
+//            //八段
+//            NSString *spellString = [SpellParameters getBasePostString];
+//            
+//            //拼参数
+//            NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
+//            
+//            //加密
+//            DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
+//            NSString *post_encryption = [post stringWithPost:post_baseString];
+//            
+//            //传
+//            NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kAddZan];
+//            
+//            
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                
+//                //判断errorcode
+//                NSString *errorcode = post_dic[@"errorcode"];
+//                int num = [errorcode intValue];
+//                if (num == 0) {
+//                    
+//                    UIView *tap_view = [tap view];
+//                    for (UIView *view in tap_view.subviews) {
+//                        
+//                        if ([view isKindOfClass:[UIImageView class]]) {
+//                            
+//                            [(UIImageView *)view setImage:[UIImage imageNamed:@"is_praised_item"]];
+//                        }
+//                    }
+//                    [self alertController:@"点赞成功"];
+//                    self.replyModel.status = @"1";
+//                    
+//                } else if (num == 14) {
+//                    
+//                    [self alertController:@"您还未登录，无法评价"];
+//                    
+//                } else if (num == 16) {
+//                    
+//                    [self alertController:@"您已经赞过了！"];
+//                    
+//                } else {
+//                    
+//                    [self alertController:@"系统繁忙"];
+//                }
+//            });
+//        });
+//    } else {
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//            
+//            //调用点赞接口
+//            //八段
+//            NSString *spellString = [SpellParameters getBasePostString];
+//            
+//            //拼参数
+//            NSString *post_baseString = [NSString stringWithFormat:@"%@*%@*%@*%@",spellString,[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"],@"2",self.replyModel.iD];
+//            
+//            //加密
+//            DDQPOSTEncryption *post = [[DDQPOSTEncryption alloc] init];
+//            NSString *post_encryption = [post stringWithPost:post_baseString];
+//            
+//            //传
+//            NSMutableDictionary *post_dic = [[PostData alloc] postData:post_encryption AndUrl:kDelZan];
+//			
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//				
+//                //判断errorcode
+//                NSString *errorcode = post_dic[@"errorcode"];
+//                int num = [errorcode intValue];
+//                if (num == 0) {
+//                    
+//                    UIView *tap_view = [tap view];
+//                    for (UIView *view in tap_view.subviews) {
+//                        
+//                        if ([view isKindOfClass:[UIImageView class]]) {
+//                            
+//                            [(UIImageView *)view setImage:[UIImage imageNamed:@"praise"]];
+//                        }
+//                    }
+//                    [self alertController:@"取消点赞"];
+//                    
+//                    self.replyModel.status = @"0";
+//                } else if (num == 14) {
+//                    
+//                    [self alertController:@"您还未登录，无法评价"];
+//                    
+//                } else if (num == 16) {
+//                    
+//                    [self alertController:@"文章/评论不存在或已被删除"];
+//                    
+//                } else {
+//                    
+//                    [self alertController:@"系统繁忙"];
+//                }
+//            });
+//        });
+//        
+//        
+//    }
 
 }
 
@@ -421,14 +529,6 @@ static NSString *identifier = @"cell";
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    
-    //取出model类
-//    DDQSonModel *sonModel = [[DDQSonModel alloc] init];
-//    sonModel.username  = @"biubiu枪";
-//    sonModel.username2 = @"piapia枪";
-//    sonModel.pubtime   = @"2015-11-12";
-//    sonModel.text      = @"你快回来,我一个人承受不来";
-    
     DDQSonModel *sonModel;
     if (self.child_array.count != 0) {
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];

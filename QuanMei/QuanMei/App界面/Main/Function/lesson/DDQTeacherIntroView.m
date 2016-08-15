@@ -28,9 +28,11 @@
     self.intro_tableview.tableFooterView = view;
     self.intro_tableview.backgroundColor = [UIColor whiteColor];
     self.intro_tableview.separatorStyle = UITableViewCellSeparatorStyleNone;
-    
-    self.header_img = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width,self.frame.size.height*0.4)];
-    self.header_img.image = [UIImage imageNamed:@"img_banner"];
+	
+	UIImage *image = [UIImage imageNamed:@"default_big_pic"];
+	CGFloat rate = image.size.width / image.size.height;
+    self.header_img = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, kScreenWidth / rate)];
+    self.header_img.image = image;
     self.intro_tableview.tableHeaderView = self.header_img;
     
     UIView *temp_view = [[UIView alloc] init];
@@ -128,7 +130,7 @@ static NSString *cell_identifier = @"cell";
 
     if (indexPath.section == 0 && indexPath.row == 0) {
         
-        [self.header_img sd_setImageWithURL:[NSURL URLWithString:self.intro_model.course_banner] placeholderImage:[UIImage imageNamed:@"default_pic"]];
+        [self.header_img sd_setImageWithURL:[NSURL URLWithString:self.intro_model.course_banner] placeholderImage:[UIImage imageNamed:@"default_big_pic"]];
         
         DDQRowOneTableViewCell *one_cell = [[DDQRowOneTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:one_identifier];
         one_cell.selectionStyle = UITableViewCellSelectionStyleNone;

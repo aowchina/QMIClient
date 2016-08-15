@@ -42,8 +42,8 @@
 
 @property (nonatomic ,strong)NSString *detail;//html
 
-@property (nonatomic ,strong)NSString *height;//html
-@property (nonatomic ,strong)NSString *width;//html
+@property (nonatomic ,strong)NSString *img_height;//html
+@property (nonatomic ,strong)NSString *img_width;//html
 
 
 @property (nonatomic ,strong)NSString *lc;//预约流程说明

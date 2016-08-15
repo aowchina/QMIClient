@@ -81,7 +81,7 @@
 
     LoopCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"loop" forIndexPath:indexPath];
     cell.backgroundColor = [UIColor whiteColor];
-    [cell.loop_img sd_setImageWithURL:[NSURL URLWithString:self.source_array[indexPath.row]] placeholderImage:[UIImage imageNamed:@"default_pic"]];
+    [cell.loop_img sd_setImageWithURL:[NSURL URLWithString:self.source_array[indexPath.row]] placeholderImage:[UIImage imageNamed:@"default_big_pic"]];
     return cell;
 }
 

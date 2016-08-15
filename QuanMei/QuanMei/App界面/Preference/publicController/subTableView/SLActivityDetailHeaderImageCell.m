@@ -43,7 +43,7 @@
     
     //头部大图
     //12-22
-    [self.photo sd_setImageWithURL:[NSURL URLWithString:activity.bimg]];//setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:activity.bimg]]]];
+    [self.photo sd_setImageWithURL:[NSURL URLWithString:activity.bimg] placeholderImage:[UIImage imageNamed:@"default_big_pic"]];//setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:activity.bimg]]]];
 }
 //12-14
 + (CGFloat)heightWithActivityModel:(SLActivityModel *)activity {

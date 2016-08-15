@@ -92,11 +92,23 @@
 }
 - (void)replayButtonClicked
 {
-    DDQReplayViewController * replayVC = [DDQReplayViewController new];
-    
-    replayVC.hidesBottomBarWhenPushed  = YES;
-    
-    [self.navigationController pushViewController:replayVC animated:YES];
+	if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] intValue] > 0 && [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]) {
+		
+		DDQReplayViewController * replayVC = [[DDQReplayViewController alloc] init];
+		
+		replayVC.hidesBottomBarWhenPushed  = YES;
+		
+		[self.navigationController pushViewController:replayVC animated:YES];
+
+	} else {
+	
+		DDQLoginViewController *loignC = [[DDQLoginViewController alloc] init];
+		loignC.hidesBottomBarWhenPushed = YES;
+		
+		[self.navigationController pushViewController:loignC animated:YES];
+		
+	}
+	
 }
 
 /**

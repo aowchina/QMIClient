@@ -176,9 +176,13 @@
 -(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath {
     UICollectionReusableView *reusableView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header" forIndexPath:indexPath];
     if (kind == UICollectionElementKindSectionHeader){
-        UIImageView *headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, reusableView.frame.size.width, reusableView.frame.size.width / 1.9)];
+		
+		UIImage *image = [UIImage imageNamed:@"default_big_pic"];
+		CGFloat rate = image.size.width / image.size.height;
+		
+        UIImageView *headerImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, kScreenWidth / rate)];
         [reusableView addSubview:headerImageView];
-        [headerImageView sd_setImageWithURL:[NSURL URLWithString:_ImgURL] placeholderImage:[UIImage imageNamed:@"default_pic"]];
+        [headerImageView sd_setImageWithURL:[NSURL URLWithString:_ImgURL] placeholderImage:[UIImage imageNamed:@"default_big_pic"]];
         return reusableView;
     } else {
         return nil;
@@ -187,7 +191,10 @@
 
 //设置页眉frame
 -(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section {
-    return CGSizeMake(kScreenWidth, kScreenHeight*0.3f);
+	
+	UIImage *image = [UIImage imageNamed:@"default_big_pic"];
+	CGFloat rate = image.size.width / image.size.height;
+    return CGSizeMake(kScreenWidth, kScreenWidth/rate);
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {

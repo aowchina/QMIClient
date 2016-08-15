@@ -699,19 +699,34 @@ typedef enum : NSUInteger {
 
 - (void)replayButtonClicked {
 	
-	DDQReplayViewController * replayVC = [DDQReplayViewController new];
-	replayVC.wenzhangId = self.articleId;
-	replayVC.beiPLUserId = @"0";
-	replayVC.fathPLId = @"0";
-	replayVC.hidesBottomBarWhenPushed  = YES;
+	if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] intValue] > 0 && [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]) {
+		
+		DDQReplayViewController * replayVC = [DDQReplayViewController new];
+		replayVC.wenzhangId = self.articleId;
+		replayVC.beiPLUserId = @"0";
+		replayVC.fathPLId = @"0";
+		replayVC.hidesBottomBarWhenPushed  = YES;
+		
+		[self.navigationController pushViewController:replayVC animated:YES];
+
+		
+	} else {
+		
+		DDQLoginViewController *loignC = [[DDQLoginViewController alloc] init];
+		loignC.hidesBottomBarWhenPushed = YES;
+		
+		[self.navigationController pushViewController:loignC animated:YES];
+		
+	}
 	
-	[self.navigationController pushViewController:replayVC animated:YES];
-}
+	}
 
 /** 点赞 */
 -(void)clickedZan:(UITapGestureRecognizer *)tap {
 	
 	if ([_header_model.iszan intValue] == 0) {
+		
+		NSLog(@"%@", [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]);
 		
 		[self.netWork asyPOSTWithAFN_url:kAddZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"1", self.header_model.id] andSuccess:^(id responseObjc, NSError *code_error) {
 			
@@ -732,13 +747,21 @@ typedef enum : NSUInteger {
 			} else {
 				
 				NSInteger code = code_error.code;
-				if (code == 14 || code == 16) {
+				DDQLoginViewController *loginC = [[DDQLoginViewController alloc] init];
+				loginC.hidesBottomBarWhenPushed = YES;
+				
+				if (code == 14 || code == 16 || code == 10) {
 					
 					switch (code) {
 							
+						case 10:
+							
+							[self.navigationController pushViewController:loginC animated:YES];
+							break;
+							
 						case 14:
 							
-							[self alertController:@"您还未登录，无法评价"];
+							[self.navigationController pushViewController:loginC animated:YES];
 							break;
 							
 						case 16:
@@ -779,7 +802,7 @@ typedef enum : NSUInteger {
 					}
 				}
 				
-				[self alertController:@"取消点赞"];
+				[self alertController:@"取消成功"];
 				[self asyWenZhangDetailNetWork];
 				
 			} else {
@@ -825,6 +848,7 @@ typedef enum : NSUInteger {
 -(void)asyWenZhangDetailNetWork {
 	
 	[self.hud show:YES];
+
 	[self.netWork asyPOSTWithAFN_url:kWenzhangDetailUrl andData:@[self.ctime, [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] andSuccess:^(id responseObjc, NSError *code_error) {
 		
 		if (!code_error) {
@@ -1219,7 +1243,10 @@ static NSString *identifierSecond = @"second";
 		
 		DDQCommentSecondCell *secondCell = [tableView dequeueReusableCellWithIdentifier:identifierSecond];
 		
-		DDQReplyModel *replyModel = [self.cell_sourceArray objectAtIndex:indexPath.row];
+		DDQReplyModel *replyModel;
+		if (self.cell_sourceArray.count > 0) {
+			replyModel = [self.cell_sourceArray objectAtIndex:indexPath.row];
+		}
 		secondCell = [[DDQCommentSecondCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifierSecond];
 		[secondCell cellWithReplyModel:replyModel];
 		
@@ -1259,6 +1286,105 @@ static NSString *identifierSecond = @"second";
 	moreCommentVC.parentid = replyModel.iD;
 	moreCommentVC.wid      = replyModel.wid;
 	[self.navigationController pushViewController:moreCommentVC animated:YES];
+}
+
+- (void)secondCommentCellThumbClickWithView:(UIImageView *)imageView Model:(DDQReplyModel *)model {
+
+	if ([model.status intValue] == 0) {
+
+		[self.netWork asyPOSTWithAFN_url:kAddZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"2", model.iD] andSuccess:^(id responseObjc, NSError *code_error) {
+			
+			if (!code_error) {
+				
+				imageView.image = [UIImage imageNamed:@"is_praised_item"];
+				model.status = @"1";
+				[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"点赞成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
+			
+			} else {
+			
+				NSInteger code = code_error.code;
+				if (code == 10 || code == 14) {
+					
+					DDQLoginViewController *loginC = [[DDQLoginViewController alloc] init];
+					loginC.hidesBottomBarWhenPushed = YES;
+					
+					[self.navigationController pushViewController:loginC animated:YES];
+					
+				} else if (code == 15 || code == 16){
+				
+					if (code == 15) {
+						
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"该评论不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
+						
+					} else {
+					
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"你已赞过该评论" andShowDim:NO andSetDelay:YES andCustomView:nil];
+
+					}
+					
+				} else {
+				
+					[MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+					
+				}
+				
+			}
+			
+		} andFailure:^(NSError *error) {
+			
+			[MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+			
+		}];
+		
+		
+	} else {
+	
+		[self.netWork asyPOSTWithAFN_url:kDelZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"1", model.iD] andSuccess:^(id responseObjc, NSError *code_error) {
+			
+			if (!code_error) {
+				
+				imageView.image = [UIImage imageNamed:@"praise"];
+				model.status = @"0";
+				[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"取消点赞" andShowDim:NO andSetDelay:YES andCustomView:nil];
+				
+			} else {
+				
+				NSInteger code = code_error.code;
+				if (code == 10 || code == 14) {
+					
+					DDQLoginViewController *loginC = [[DDQLoginViewController alloc] init];
+					loginC.hidesBottomBarWhenPushed = YES;
+					
+					[self.navigationController pushViewController:loginC animated:YES];
+					
+				} else if (code == 15 || code == 16){
+					
+					if (code == 15) {
+						
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"该评论不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
+						
+					} else {
+						
+						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"你已赞过该评论" andShowDim:NO andSetDelay:YES andCustomView:nil];
+						
+					}
+					
+				} else {
+					
+					[MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+					
+				}
+				
+			}
+			
+		} andFailure:^(NSError *error) {
+			
+			[MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
+			
+		}];
+
+	}
+
 }
 
 -(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {

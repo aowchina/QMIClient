@@ -264,6 +264,7 @@
 #import "MBProgressHUD+EBUsHUD.h"
 #import "APService.h"
 #import "NSString+DDQStringRect.h"
+#import "DDQLoginViewController.h"
 //10-29
 #import "DDQPublic.h"
 

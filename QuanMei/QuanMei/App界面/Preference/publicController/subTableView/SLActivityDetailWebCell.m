@@ -51,13 +51,28 @@
 
 #pragma mark - Override
 - (void)reloadWithActivityModel:(SLActivityModel *)activity {
+	
     [super reloadWithActivityModel:activity];
+	
 
-    //12-22
-    [_footImageView sd_setImageWithURL:[NSURL URLWithString:activity.detail] placeholderImage:[UIImage imageNamed:@"default_pic"]];
-    
-    _footImageView.frame = CGRectMake(5, _headerLabel.frame.size.height +_headerLabel.frame.origin.y, kScreenWidth - 10, [activity.height intValue]);
-    height = _footImageView.frame.size.height;
+	CGFloat imgW = [[activity valueForKey:@"img_width"] floatValue];
+	CGFloat imgH = [[activity valueForKey:@"img_height"] floatValue];
+	
+	CGFloat rate = imgW/imgH;//宽高比
+	
+	if (imgW > kScreenWidth) {//图片宽度大于屏幕宽度
+		
+	    imgW = kScreenWidth;
+		
+	}
+	
+	imgH = imgW / rate;//重新计算高
+	
+	[_footImageView sd_setImageWithURL:[NSURL URLWithString:activity.detail] placeholderImage:nil];
+
+	_footImageView.frame = CGRectMake(kScreenWidth * 0.5 - imgW * 0.5, _headerLabel.frame.size.height +_headerLabel.frame.origin.y, imgW, imgH);
+	height = _footImageView.frame.size.height;
+
 }
 
 
@@ -65,6 +80,7 @@ static CGFloat height = 0;
 + (CGFloat)heightWithActivityModel:(SLActivityModel *)activity {
     
     return 40 + height;
+
 }
 
 #pragma maark - UIWebViewDelegate

@@ -221,7 +221,7 @@ typedef void(^popToMainViewController)();
         make.right.equalTo(self.backgroundView.mas_right);//w
     }];
     
-    [self.inputPhoneNumField setPlaceholder:@"请输入登陆手机号"];
+    [self.inputPhoneNumField setPlaceholder:@"请输入手机号"];
     self.inputPhoneNumField.clearButtonMode = UITextFieldViewModeWhileEditing;
     
     //输入密码
@@ -235,7 +235,7 @@ typedef void(^popToMainViewController)();
         make.height.equalTo(self.inputPhoneNumField.mas_height);//h
     }];
     
-    [self.inputPasswordField setPlaceholder:@"请输入登陆密码"];
+    [self.inputPasswordField setPlaceholder:@"密码"];
     self.inputPasswordField.clearButtonMode = UITextFieldViewModeWhileEditing;
     self.inputPasswordField.secureTextEntry = YES;
     
@@ -278,10 +278,10 @@ typedef void(^popToMainViewController)();
     CGFloat kButtonW;
     CGFloat kSplite;
     if (self.view.frame.size.width > 375) {
-        kButtonW = self.view.frame.size.width*0.2;
+        kButtonW = self.view.frame.size.width*0.10;
         kSplite = 20;
     } else {
-        kButtonW = self.view.frame.size.width*0.25;
+        kButtonW = self.view.frame.size.width*0.15;
         kSplite = 15;
 
     }
@@ -296,7 +296,7 @@ typedef void(^popToMainViewController)();
              make.left.equalTo(self.view.mas_centerX);
              make.width.offset(kButtonW);
              make.height.equalTo(self.wechatLoginButton.mas_width);
-             make.bottom.equalTo(self.view.mas_bottom).offset(-10);
+             make.bottom.equalTo(self.view.mas_bottom).offset(-30);
              
          }];
          [self.wechatLoginButton setImage:[UIImage imageNamed:@"login_wechat_bg"] forState:UIControlStateNormal];
@@ -321,7 +321,7 @@ typedef void(^popToMainViewController)();
              make.centerX.equalTo(self.view.mas_centerX);
              make.width.offset(kButtonW);
              make.height.equalTo(self.QQLoginButton.mas_width);
-             make.bottom.equalTo(self.view.mas_bottom).offset(-10);
+             make.bottom.equalTo(self.view.mas_bottom).offset(-30);
          }];
          [self.QQLoginButton setImage:[UIImage imageNamed:@"login_qq_bg"] forState:UIControlStateNormal];
          [self.QQLoginButton addTarget:self action:@selector(goQQSDKLogin) forControlEvents:UIControlEventTouchUpInside];
@@ -335,13 +335,32 @@ typedef void(^popToMainViewController)();
         make.width.equalTo(@150);
         make.height.equalTo(@50);//h
         make.centerX.equalTo(self.view.mas_centerX);//x
-        make.bottom.equalTo(self.QQLoginButton.mas_top).offset(-15);//h
+        make.bottom.equalTo(self.QQLoginButton.mas_top).offset(-10);//h
         
     }];
     
     [self.tipLabel setText:@"其他登录方式"];
     [self.tipLabel setTextColor:[UIColor meiHongSe]];
     [self.tipLabel setTextAlignment:NSTextAlignmentCenter];
+	
+	UILabel *tipLable = [[UILabel alloc] init];
+	[self.view addSubview:tipLable];
+	[tipLable mas_makeConstraints:^(MASConstraintMaker *make) {
+		
+		make.centerX.equalTo(self.view.mas_centerX);
+		make.top.equalTo(self.QQLoginButton.mas_bottom).offset(6);
+		
+	}];
+	
+	NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:@"“登录/注册” 表示您同意全美用户许可协议 & 隐私条款" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:9.0]}];
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor], NSFontAttributeName:[UIFont systemFontOfSize:9.0]} range:NSMakeRange(0, 13)];
+	
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor meiHongSe], NSFontAttributeName:[UIFont systemFontOfSize:9.0], NSUnderlineStyleAttributeName:@(1)} range:NSMakeRange(13, 9)];
+	
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor blackColor], NSFontAttributeName:[UIFont systemFontOfSize:9.0]} range:NSMakeRange(21, 3)];
+	
+	[attrStr setAttributes:@{NSForegroundColorAttributeName:[UIColor meiHongSe], NSFontAttributeName:[UIFont systemFontOfSize:9.0], NSUnderlineStyleAttributeName:@(1)} range:NSMakeRange(24, 4)];
+	tipLable.attributedText = attrStr;
    
 }
 

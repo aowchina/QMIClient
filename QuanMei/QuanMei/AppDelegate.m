@@ -41,11 +41,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
    
-    //设置根控制器
-    self.baseTabBarC = [[DDQBaseTabBarController alloc] init];
-    [self.window setRootViewController:self.baseTabBarC];
-    [self.window makeKeyAndVisible];
-    self.window.backgroundColor = [UIColor whiteColor];
+	
 
     //注册通知
     NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
@@ -95,6 +91,12 @@
     
     //init方法
     [self checkUserState];
+	
+	//设置根控制器
+	self.baseTabBarC = [[DDQBaseTabBarController alloc] init];
+	[self.window setRootViewController:self.baseTabBarC];
+	[self.window makeKeyAndVisible];
+	self.window.backgroundColor = [UIColor whiteColor];
 	
     //键盘遮挡解决办法
     IQKeyboardManager *keyboard_manager = [IQKeyboardManager sharedManager];
@@ -564,14 +566,19 @@
 
             } else if([errorcodeString intValue] == 12) {//请求失败
                 
-                [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
+				[[NSUserDefaults standardUserDefaults] setValue:@"0" forKey:@"userId"];
 				infoModel.isLogin = NO;
 
-            }
+			} else {
+			
+				[[NSUserDefaults standardUserDefaults] setValue:@"0" forKey:@"userId"];
+				infoModel.isLogin = NO;
+				
+			}
 
         } else {
         
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
+			[[NSUserDefaults standardUserDefaults] setValue:@"0" forKey:@"userId"];
 			infoModel.isLogin = NO;
 
         }

@@ -186,8 +186,8 @@
             [self.hud hide:YES];
             
             //首先移除掉保存的userid
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"userId"];
-            
+			[[NSUserDefaults standardUserDefaults] setObject:@"0" forKey:@"userId"];
+			
             //然后改变model类的登陆属性
             DDQUserInfoModel *userInfo = [DDQUserInfoModel singleModelByValue];
             userInfo.isLogin = NO;
@@ -205,11 +205,23 @@
             NSInteger code = code_error.code;
             if (code == 13) {
                 
-                DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
-                [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:loginVC];
-                
+				
+				//首先移除掉保存的userid
+				[[NSUserDefaults standardUserDefaults] setObject:@"0" forKey:@"userId"];
+				
+				//然后改变model类的登陆属性
+				DDQUserInfoModel *userInfo = [DDQUserInfoModel singleModelByValue];
+				userInfo.isLogin = NO;
+				
+				//最后退回到首页
+				//            DDQLoginViewController *loginVC = [[DDQLoginViewController alloc] init];
+				//            [UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:loginVC];
+				self.tabBarController.selectedIndex = 0;
+				DDQBaseTabBarController *baseBarC = (DDQBaseTabBarController *)self.tabBarController;
+				[baseBarC.tabBar addSubview:[baseBarC defaultMineView]];
+				
             } else {
-            
+				
                 [MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
                 
             }
