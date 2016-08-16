@@ -67,6 +67,9 @@
     NSString *str;
     if ([model.CellName isEqualToString:@"更多"]) {
         str = @"全部项目";
+		model.CellID = @"0";
+		model.shengID = @"0";
+		
     }else
     {
         str = model.CellName;
@@ -86,7 +89,7 @@
     }else{
         idsheng = model.shengID;
     }
-    
+	
     //省
     _sheng_id = idsheng;
     //类型
@@ -97,6 +100,8 @@
     _page_id = @"1";
     [_TH_Array removeAllObjects];
     [self list];
+	
+	NSLog(@"_sheng_id:%@ _type_id:%@,_px_id:%@,_page_id:%@",_sheng_id,_type_id,_px_id,_page_id);
 	
 	
     
@@ -134,7 +139,6 @@
 	// 上拉刷新
 	self.mainTableView.footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
 		int count = [_page_id intValue];
-		NSLog(_page_id);
 		count++;
 		_page_id = [NSString stringWithFormat:@"%d",count];
 		[self list];
