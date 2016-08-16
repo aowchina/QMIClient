@@ -97,6 +97,8 @@
     _page_id = @"1";
     [_TH_Array removeAllObjects];
     [self list];
+	
+	
     
 }
 
@@ -115,7 +117,32 @@
     label.text = self.Name;
     label.textColor = [UIColor meiHongSe];
     label.textAlignment = NSTextAlignmentCenter;
-    
+	
+	// 下拉刷新
+	self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+		//再次请求接口先判断数组是否为nil
+		//        if (_TH_Array.count!=0) {
+		[_TH_Array removeAllObjects];
+		//        }
+		//页码
+		_page_id = @"1";
+		[self list];
+		// 结束刷新
+		[self.mainTableView.header endRefreshing];
+	}];
+	
+	// 上拉刷新
+	self.mainTableView.footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+		int count = [_page_id intValue];
+		NSLog(_page_id);
+		count++;
+		_page_id = [NSString stringWithFormat:@"%d",count];
+		[self list];
+		
+		// 结束刷新
+		[self.mainTableView.footer endRefreshing];
+	}];
+	
 }
 
 -(NSString *)didSelect
@@ -183,8 +210,18 @@
                 [_TH_Array addObject:model];
             }
             //            [self initTableView];
-            
-            
+			
+			if ([json_Dic count] == 0) {
+				
+				self.mainTableView.footer.state = MJRefreshStateNoMoreData;
+				
+			} else {
+				
+				self.mainTableView.footer.state = MJRefreshStateIdle;
+				
+			}
+
+			
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.mainTableView reloadData];
                 
@@ -290,8 +327,6 @@
     [self.mainTableView setDelegate:self];
     [self.mainTableView setDataSource:self];
     [self.view addSubview:self.mainTableView];
-    [self refresh];
-    [self loading];
 }
 
 #pragma mark - tableView Delegate And DataSource
@@ -558,44 +593,4 @@
     [_aView removeFromSuperview];
 }
 
-//下拉刷新
-- (void)refresh
-{
-    
-    // 下拉刷新
-    self.mainTableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
-        //再次请求接口先判断数组是否为nil
-        //        if (_TH_Array.count!=0) {
-        [_TH_Array removeAllObjects];
-        //        }
-        //页码
-        _page_id = @"1";
-        [self list];
-        // 结束刷新
-        [self.mainTableView.header endRefreshing];
-    }];
-    
-}
-//加载
--(void)loading
-{
-    
-    //    // 设置自动切换透明度(在导航栏下面自动隐藏)
-    //    self.mainTableView.header.automaticallyChangeAlpha = YES;
-    
-    // 上拉刷新
-    self.mainTableView.footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
-        int count = 1;
-        count++;
-        _page_id = [NSString stringWithFormat:@"%d",count];
-        [self list];
-        
-        // 结束刷新
-        [self.mainTableView.footer endRefreshing];
-        self.mainTableView.footer.state = MJRefreshStateNoMoreData; 
-    }];
-    
-    //▼
-    
-}
 @end
