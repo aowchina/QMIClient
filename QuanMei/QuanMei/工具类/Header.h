@@ -233,6 +233,11 @@
 #define KUser_policy [BaseUrl stringByAppendingString:@"quanmei/upload/user_policy.html"]
 #define KUser_security [BaseUrl stringByAppendingString:@"quanmei/upload/user_security.html"]
 
+//分享的url
+#define KShare_url @"http://a.app.qq.com/o/simple.jsp?pkgname=com.minfo.quanmei"
+//分享的图片
+#define KShare_img_url [BaseUrl stringByAppendingString:@"qm/images/ic_launcher.png"]
+
 #import "MBProgressHUD+EBUsHUD.h"
 
 #define kErrorDes @"当前网络连接异常"

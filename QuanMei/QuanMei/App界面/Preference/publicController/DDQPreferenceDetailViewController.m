@@ -318,10 +318,10 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         
         WXMediaMessage *message = [WXMediaMessage message];
         message.title = @"全美";
-        message.description = @"全美朋友圈分享测试";
+        message.description = @"全美分享";
         [message setThumbImage:[UIImage imageNamed:@"default_pic"]];
         WXWebpageObject *ext = [WXWebpageObject object];
-        ext.webpageUrl = @"http://www.163.com";
+        ext.webpageUrl = KShare_url;
         
         message.mediaObject = ext;
         sendReq.message = message;
@@ -336,10 +336,10 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         
         WXMediaMessage *message = [WXMediaMessage message];
         message.title = @"全美";
-        message.description = @"全美朋友圈分享测试";
+        message.description = @"全美分享";
         [message setThumbImage:[UIImage imageNamed:@"default_pic"]];
         WXWebpageObject *ext = [WXWebpageObject object];
-        ext.webpageUrl = @"http://www.163.com";
+        ext.webpageUrl = KShare_url;
         
         message.mediaObject = ext;
         sendReq.message = message;
@@ -350,10 +350,10 @@ NS_INLINE NSArray *SLGetCellCongfig() {
         TencentOAuth *oauth = [[TencentOAuth alloc] initWithAppId:kQQAppKey andDelegate:nil];
         
         
-        NSString *utf8String = @"http://www.163.com";
-        NSString *title = @"全美的分享";
-        NSString *description = @"全美";
-        NSString *previewImageUrl = @"http://cdni.wired.co.uk/620x413/k_n/NewsForecast%20copy_620x413.jpg";
+        NSString *utf8String = KShare_url;
+        NSString *title = @"全美";
+        NSString *description = @"全美分享";
+        NSString *previewImageUrl = KShare_img_url;
         QQApiNewsObject *newsObj = [QQApiNewsObject
                                     objectWithURL:[NSURL URLWithString:utf8String]
                                     title:title

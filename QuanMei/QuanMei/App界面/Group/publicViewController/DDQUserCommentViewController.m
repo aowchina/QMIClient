@@ -176,18 +176,16 @@ typedef enum : NSUInteger {
 				
 				[self.hud hide:YES];
 				NSInteger code = code_error.code;
+				DDQLoginViewController *loignC = [[DDQLoginViewController alloc] init];
+				loignC.hidesBottomBarWhenPushed = YES;
+				
 				if (code == 14 || code == 16 || code == 17 || code == 12 ) {
 					
 					switch (code) {
 							
 						case 12:
-							
-							[UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[DDQLoginViewController alloc] init]];
-							break;
-							
 						case 14:
-							
-							[self alertController:@"您还未登录，无法收藏"];
+							[self.navigationController pushViewController:loignC animated:YES];
 							break;
 							
 						case 16:
@@ -242,6 +240,9 @@ typedef enum : NSUInteger {
 				
 			} else {
 				
+				DDQLoginViewController *loignC = [[DDQLoginViewController alloc] init];
+				loignC.hidesBottomBarWhenPushed = YES;
+				
 				[self.hud hide:YES];
 				NSInteger code = code_error.code;
 				if (code == 10||code==11||code==13||code==14||code==15||code==16) {
@@ -252,7 +253,7 @@ typedef enum : NSUInteger {
 						case 11:
 						case 14:
 							
-							[UIApplication sharedApplication].keyWindow.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[DDQLoginViewController alloc] init]];
+							[self.navigationController pushViewController:loignC animated:YES];
 							break;
 						case 15:
 							
@@ -471,10 +472,10 @@ typedef enum : NSUInteger {
 		
 		WXMediaMessage *message = [WXMediaMessage message];
 		message.title = @"全美";
-		message.description = @"全美朋友圈分享测试";
+		message.description = @"全美分享";
 		[message setThumbImage:[UIImage imageNamed:@"default_pic"]];
 		WXWebpageObject *ext = [WXWebpageObject object];
-		ext.webpageUrl = @"http://www.163.com";
+		ext.webpageUrl = KShare_url;
 		
 		message.mediaObject = ext;
 		sendReq.message = message;
@@ -489,10 +490,10 @@ typedef enum : NSUInteger {
 		
 		WXMediaMessage *message = [WXMediaMessage message];
 		message.title = @"全美";
-		message.description = @"全美朋友圈分享测试";
+		message.description = @"全美分享";
 		[message setThumbImage:[UIImage imageNamed:@"default_pic"]];
 		WXWebpageObject *ext = [WXWebpageObject object];
-		ext.webpageUrl = @"http://www.163.com";
+		ext.webpageUrl = KShare_url;
 		
 		message.mediaObject = ext;
 		sendReq.message = message;
@@ -503,10 +504,10 @@ typedef enum : NSUInteger {
 		TencentOAuth *oauth = [[TencentOAuth alloc] initWithAppId:kQQAppKey andDelegate:nil];
 		
 		
-		NSString *utf8String = @"http://www.163.com";
-		NSString *title = @"全美的分享";
-		NSString *description = @"全美";
-		NSString *previewImageUrl = @"http://cdni.wired.co.uk/620x413/k_n/NewsForecast%20copy_620x413.jpg";
+		NSString *utf8String = KShare_url;
+		NSString *title = @"全美";
+		NSString *description = @"全美分享";
+		NSString *previewImageUrl = KShare_img_url;
 		QQApiNewsObject *newsObj = [QQApiNewsObject
 									objectWithURL:[NSURL URLWithString:utf8String]
 									title:title
@@ -525,6 +526,8 @@ typedef enum : NSUInteger {
 -(void)viewWillAppear:(BOOL)animated {
 	
 	[super viewWillAppear:YES];
+	
+	NSLog(@"哈哈");
 	
 	self.navigationController.navigationBar.translucent = NO;
 	
@@ -699,7 +702,7 @@ typedef enum : NSUInteger {
 
 - (void)replayButtonClicked {
 	
-	if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] intValue] > 0 && [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]) {
+	if ([[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]&&[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"] intValue] > 0) {
 		
 		DDQReplayViewController * replayVC = [DDQReplayViewController new];
 		replayVC.wenzhangId = self.articleId;
@@ -708,7 +711,7 @@ typedef enum : NSUInteger {
 		replayVC.hidesBottomBarWhenPushed  = YES;
 		
 		[self.navigationController pushViewController:replayVC animated:YES];
-
+		
 		
 	} else {
 		
@@ -719,7 +722,7 @@ typedef enum : NSUInteger {
 		
 	}
 	
-	}
+}
 
 /** 点赞 */
 -(void)clickedZan:(UITapGestureRecognizer *)tap {
@@ -819,7 +822,7 @@ typedef enum : NSUInteger {
 							
 						case 16:
 							
-							[self alertController:@"文章/评论不存在或已被删除"];
+							[self alertController:@"你还没赞过，不能取消"];
 							break;
 							
 						default:
@@ -848,7 +851,7 @@ typedef enum : NSUInteger {
 -(void)asyWenZhangDetailNetWork {
 	
 	[self.hud show:YES];
-
+	
 	[self.netWork asyPOSTWithAFN_url:kWenzhangDetailUrl andData:@[self.ctime, [[NSUserDefaults standardUserDefaults] valueForKey:@"userId"]] andSuccess:^(id responseObjc, NSError *code_error) {
 		
 		if (!code_error) {
@@ -1289,9 +1292,9 @@ static NSString *identifierSecond = @"second";
 }
 
 - (void)secondCommentCellThumbClickWithView:(UIImageView *)imageView Model:(DDQReplyModel *)model {
-
+	
 	if ([model.status intValue] == 0) {
-
+		
 		[self.netWork asyPOSTWithAFN_url:kAddZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"2", model.iD] andSuccess:^(id responseObjc, NSError *code_error) {
 			
 			if (!code_error) {
@@ -1299,9 +1302,9 @@ static NSString *identifierSecond = @"second";
 				imageView.image = [UIImage imageNamed:@"is_praised_item"];
 				model.status = @"1";
 				[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"点赞成功" andShowDim:NO andSetDelay:YES andCustomView:nil];
-			
+				
 			} else {
-			
+				
 				NSInteger code = code_error.code;
 				if (code == 10 || code == 14) {
 					
@@ -1311,19 +1314,19 @@ static NSString *identifierSecond = @"second";
 					[self.navigationController pushViewController:loginC animated:YES];
 					
 				} else if (code == 15 || code == 16){
-				
+					
 					if (code == 15) {
 						
 						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"该评论不存在" andShowDim:NO andSetDelay:YES andCustomView:nil];
 						
 					} else {
-					
+						
 						[MBProgressHUD myCustomHudWithView:self.view andCustomText:@"你已赞过该评论" andShowDim:NO andSetDelay:YES andCustomView:nil];
-
+						
 					}
 					
 				} else {
-				
+					
 					[MBProgressHUD myCustomHudWithView:self.view andCustomText:kServerDes andShowDim:NO andSetDelay:YES andCustomView:nil];
 					
 				}
@@ -1338,7 +1341,7 @@ static NSString *identifierSecond = @"second";
 		
 		
 	} else {
-	
+		
 		[self.netWork asyPOSTWithAFN_url:kDelZan andData:@[[[NSUserDefaults standardUserDefaults] valueForKey:@"userId"], @"1", model.iD] andSuccess:^(id responseObjc, NSError *code_error) {
 			
 			if (!code_error) {
@@ -1382,9 +1385,9 @@ static NSString *identifierSecond = @"second";
 			[MBProgressHUD myCustomHudWithView:self.view andCustomText:kErrorDes andShowDim:NO andSetDelay:YES andCustomView:nil];
 			
 		}];
-
+		
 	}
-
+	
 }
 
 -(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {

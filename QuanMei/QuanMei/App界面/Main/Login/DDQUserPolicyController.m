@@ -39,6 +39,8 @@
 	
 	self.webConent = [[UIWebView alloc] init];
 	
+	self.webConent.scrollView.bounces = false;
+	
 	[self.view addSubview:self.webConent];
 	
 	[self.webConent mas_makeConstraints:^(MASConstraintMaker *make) {

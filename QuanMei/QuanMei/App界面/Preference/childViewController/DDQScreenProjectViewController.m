@@ -100,11 +100,6 @@
     _page_id = @"1";
     [_TH_Array removeAllObjects];
     [self list];
-	
-	NSLog(@"_sheng_id:%@ _type_id:%@,_px_id:%@,_page_id:%@",_sheng_id,_type_id,_px_id,_page_id);
-	
-	
-    
 }
 
 
