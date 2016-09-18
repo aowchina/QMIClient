@@ -407,18 +407,15 @@ typedef void(^popToMainViewController)();
 /** 点击事件 */
 - (void)tapPolicyMethod {
 	
-	NSLog(@"全美用户许可协议");
 	DDQUserPolicyController *userPolicy = [[DDQUserPolicyController alloc] init];
 	userPolicy.category_tag = 0;
 	userPolicy.category_url = KUser_policy;
 	[self.navigationController pushViewController:userPolicy animated:YES];
 	
-	
 }
 
 - (void)tapSecurityMethod {
 	
-	NSLog(@"隐私条款");
 	DDQUserPolicyController *userPolicy = [[DDQUserPolicyController alloc] init];
 	userPolicy.category_tag = 1;
 	userPolicy.category_url = KUser_security;

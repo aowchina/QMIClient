@@ -525,8 +525,6 @@
 /** 跳转到我的 */
 - (void)mineChangSelectController:(NSNotification *)info {
 	
-	NSLog(@"哈哈呀");
-	
 	if ([[info.userInfo valueForKey:@"mine"] isEqualToString:@"mine"]) {
 		
 		[self.baseTabBarC setSelectedIndex:3];
